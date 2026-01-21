@@ -1,7 +1,20 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+
 @custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-brand-blue: #1447E6;
+  --color-brand-white: #FFFFFF;
+  --color-brand-background: #F7F7F8;
+  --color-brand-dark: #09090B;
+  --color-brand-gray: #71717B;
+  --color-brand-blue-text: #EFF6FF;
+  --color-brand-yellow-bg: #FCEBDC;
+  --color-brand-red-light: #FDE6E7;
+  --color-brand-red-vivid: #E7000B;
+}
 
 @theme inline {
   --color-background: var(--background);
