@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { users } from '@/mocks/users';
 
+
+
+
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const page = parseInt(searchParams.get('page') || '1');
@@ -37,4 +41,14 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(users.length / limit),
     },
   });
+}
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  console.log('Received user data:', body);
+
+  return NextResponse.json(
+    { message: 'User created successfully', data: body },
+    { status: 201 }
+  );
 }
