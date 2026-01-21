@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { users } from '@/mocks/users';
+import { DONO_FAKE } from '@/mocks/auth';
+
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
+
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '20');
   const sort = searchParams.get('sort');
   const order = searchParams.get('order') || 'asc';
 
-  // Simulating delay
-  // await new Promise((resolve) => setTimeout(resolve, 2000));
+  const loggedUser = DONO_FAKE;  
+  const condominiumId = loggedUser.memberships[0].condominiumId;
 
-  const sortedUsers = [...users];
+  const condominiumUsers = users.filter(user =>
+    user.memberships.some(membership => membership.condominiumId === condominiumId)
+  );
+
+  const sortedUsers = [...condominiumUsers];
 
   if (sort) {
     sortedUsers.sort((a, b) => {
@@ -31,13 +38,14 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     data: paginatedUsers,
     meta: {
-      total: users.length,
+      total: condominiumUsers.length,
       page,
       limit,
-      totalPages: Math.ceil(users.length / limit),
+      totalPages: Math.ceil(condominiumUsers.length / limit),
     },
   });
 }
+
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
