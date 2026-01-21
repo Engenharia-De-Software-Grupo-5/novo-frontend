@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mockImoveis } from '@/mocks/imoveis';
 
+
+
+
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -13,4 +17,33 @@ export async function GET(
   }
 
   return NextResponse.json(imovel);
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const body = await request.json();
+  console.log(`Updated information for imovel ${id}:`, body);
+  return NextResponse.json(body);
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const body = await request.json();
+  console.log(`Patched information for imovel ${id}:`, body);
+  return NextResponse.json(body);
+}
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  console.log(`imovel com id ${id} foi apagado`);
+  return NextResponse.json({ message: 'Imovel deleted' });
 }

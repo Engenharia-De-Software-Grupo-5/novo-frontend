@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mockImoveis } from '@/mocks/imoveis';
 
+
+
+
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const page = parseInt(searchParams.get('page') || '1');
@@ -34,4 +38,14 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(mockImoveis.length / limit),
     },
   });
+}
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  console.log('Received imovel data:', body);
+
+  return NextResponse.json(
+    { message: 'Imovel created successfully', data: body },
+    { status: 201 }
+  );
 }
