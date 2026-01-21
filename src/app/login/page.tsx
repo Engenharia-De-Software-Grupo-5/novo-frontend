@@ -1,8 +1,8 @@
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/features/components/ui/button";
+import { Input } from "@/features/components/ui/input";
+import { Label } from "@/features/components/ui/label";
+import { Card, CardContent } from "@/features/components/ui/card";
 import Link from "next/link";
 
 export default function LoginPage() {
