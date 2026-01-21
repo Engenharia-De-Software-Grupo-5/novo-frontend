@@ -5,6 +5,7 @@ export interface User {
   role: 'gerente' | 'financeiro' | 'RH';
   status: 'ativo' | 'inativo' | 'pendente';
   inviteDate: string;
+  inviteDuration: '1 day' | '3 days' | '7 days';
 }
 
 export const users: User[] = [
@@ -15,6 +16,7 @@ export const users: User[] = [
     role: 'gerente',
     status: 'ativo',
     inviteDate: '01-10-2023',
+    inviteDuration: '1 day',
   },
   {
     id: '2',
@@ -23,6 +25,7 @@ export const users: User[] = [
     role: 'financeiro',
     status: 'pendente',
     inviteDate: '15-11-2023',
+    inviteDuration: '3 days',
   },
   {
     id: '3',
@@ -31,6 +34,7 @@ export const users: User[] = [
     role: 'RH',
     status: 'inativo',
     inviteDate: '20-09-2023',
+    inviteDuration: '7 days',
   },
   {
     id: '4',
@@ -39,6 +43,7 @@ export const users: User[] = [
     role: 'gerente',
     status: 'ativo',
     inviteDate: '05-12-2023',
+    inviteDuration: '1 day',
   },
   {
     id: '5',
@@ -47,6 +52,7 @@ export const users: User[] = [
     role: 'financeiro',
     status: 'ativo',
     inviteDate: '10-10-2023',
+    inviteDuration: '3 days',
   },
   {
     id: '6',
@@ -55,6 +61,7 @@ export const users: User[] = [
     role: 'RH',
     status: 'pendente',
     inviteDate: '25-11-2023',
+    inviteDuration: '7 days',
   },
   {
     id: '7',
@@ -63,6 +70,7 @@ export const users: User[] = [
     role: 'gerente',
     status: 'inativo',
     inviteDate: '30-08-2023',
+    inviteDuration: '1 day',
   },
   {
     id: '8',
@@ -71,6 +79,7 @@ export const users: User[] = [
     role: 'financeiro',
     status: 'ativo',
     inviteDate: '22-10-2023',
+    inviteDuration: '3 days',
   },
   {
     id: '9',
@@ -79,6 +88,7 @@ export const users: User[] = [
     role: 'RH',
     status: 'pendente',
     inviteDate: '01-12-2023',
+    inviteDuration: '7 days',
   },
   {
     id: '10',
@@ -87,6 +97,7 @@ export const users: User[] = [
     role: 'gerente',
     status: 'ativo',
     inviteDate: '15-09-2023',
+    inviteDuration: '1 day',
   },
   {
     id: '11',
@@ -95,6 +106,7 @@ export const users: User[] = [
     role: 'financeiro',
     status: 'ativo',
     inviteDate: '10-11-2023',
+    inviteDuration: '3 days',
   },
   {
     id: '12',
@@ -103,6 +115,7 @@ export const users: User[] = [
     role: 'RH',
     status: 'inativo',
     inviteDate: '20-07-2023',
+    inviteDuration: '7 days',
   },
   {
     id: '13',
@@ -111,6 +124,7 @@ export const users: User[] = [
     role: 'gerente',
     status: 'ativo',
     inviteDate: '05-10-2023',
+    inviteDuration: '1 day',
   },
   {
     id: '14',
@@ -119,6 +133,7 @@ export const users: User[] = [
     role: 'financeiro',
     status: 'pendente',
     inviteDate: '10-12-2023',
+    inviteDuration: '3 days',
   },
   {
     id: '15',
@@ -127,6 +142,7 @@ export const users: User[] = [
     role: 'RH',
     status: 'ativo',
     inviteDate: '25-09-2023',
+    inviteDuration: '7 days',
   },
   {
     id: '16',
@@ -135,6 +151,7 @@ export const users: User[] = [
     role: 'gerente',
     status: 'pendente',
     inviteDate: '30-11-2023',
+    inviteDuration: '1 day',
   },
   {
     id: '17',
@@ -143,6 +160,7 @@ export const users: User[] = [
     role: 'financeiro',
     status: 'inativo',
     inviteDate: '15-08-2023',
+    inviteDuration: '3 days',
   },
   {
     id: '18',
@@ -151,6 +169,7 @@ export const users: User[] = [
     role: 'RH',
     status: 'ativo',
     inviteDate: '18-10-2023',
+    inviteDuration: '7 days',
   },
   {
     id: '19',
@@ -159,6 +178,7 @@ export const users: User[] = [
     role: 'gerente',
     status: 'ativo',
     inviteDate: '20-11-2023',
+    inviteDuration: '1 day',
   },
   {
     id: '20',
@@ -167,5 +187,6 @@ export const users: User[] = [
     role: 'financeiro',
     status: 'pendente',
     inviteDate: '15-12-2023',
+    inviteDuration: '3 days',
   },
 ];
