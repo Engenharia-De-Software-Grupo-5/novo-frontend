@@ -12,5 +12,4 @@ export interface User {
   status: 'ativo' | 'inativo' | 'pendente';
   inviteDate: string;
   inviteDuration: '1 day' | '3 days' | '7 days';
-  memberships: CondominiumMembership[];
 }

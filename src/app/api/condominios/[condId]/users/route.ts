@@ -1,8 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { users } from '@/mocks/users';
 import { DONO_FAKE } from '@/mocks/auth';
+import { users } from '@/mocks/users';
 
-
+/**
+ * @swagger
+ * /api/condominios/{condId}/users:
+ *   get:
+ *     summary: List users
+ *     description: Returns a paginated list of users for a specific condominium.
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - in: path
+ *         name: condId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Condominium ID
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of items per page
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *         description: Field to sort by
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: asc
+ *         description: Sort order
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                     page:
+ *                       type: integer
+ *                     limit:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
 
@@ -11,11 +73,13 @@ export async function GET(request: NextRequest) {
   const sort = searchParams.get('sort');
   const order = searchParams.get('order') || 'asc';
 
-  const loggedUser = DONO_FAKE;  
+  const loggedUser = DONO_FAKE;
   const condominiumId = loggedUser.memberships[0].condominiumId;
 
-  const condominiumUsers = users.filter(user =>
-    user.memberships.some(membership => membership.condominiumId === condominiumId)
+  const condominiumUsers = users.filter((user) =>
+    user.memberships.some(
+      (membership) => membership.condominiumId === condominiumId
+    )
   );
 
   const sortedUsers = [...condominiumUsers];
@@ -46,7 +110,46 @@ export async function GET(request: NextRequest) {
   });
 }
 
-
+/**
+ * @swagger
+ * /api/condominios/{condId}/users:
+ *   post:
+ *     summary: Create a new user
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - in: path
+ *         name: condId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Condominium ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ */
 export async function POST(request: NextRequest) {
   const body = await request.json();
   console.log('Received user data:', body);
