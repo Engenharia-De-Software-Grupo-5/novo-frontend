@@ -1,4 +1,4 @@
-import { User } from "@/types/user";
+import { User } from '@/types/user';
 
 export const users: User[] = [
   // {
@@ -8,7 +8,6 @@ export const users: User[] = [
   //   status: 'ativo',
   //   inviteDate: '01-01-2023',
   //   inviteDuration: '7 days',
-  //   memberships: [{ condominiumId: '*', role: 'SUPER_ADMIN' }],
   // },
   {
     id: '1',
@@ -17,7 +16,6 @@ export const users: User[] = [
     status: 'ativo',
     inviteDate: '01-10-2023',
     inviteDuration: '1 day',
-    memberships: [{ condominiumId: 'COND-001', role: 'GERENTE' }],
   },
   {
     id: '2',
@@ -26,12 +24,6 @@ export const users: User[] = [
     status: 'pendente',
     inviteDate: '15-11-2023',
     inviteDuration: '3 days',
-    memberships: [
-      {
-        condominiumId: 'COND-001',
-        role: 'FINANCEIRO',
-      },
-    ],
   },
   {
     id: '3',
@@ -40,12 +32,6 @@ export const users: User[] = [
     status: 'inativo',
     inviteDate: '20-09-2023',
     inviteDuration: '7 days',
-    memberships: [
-      {
-        condominiumId: 'COND-002',
-        role: 'RH',
-      },
-    ],
   },
   {
     id: '4',
@@ -54,12 +40,6 @@ export const users: User[] = [
     status: 'ativo',
     inviteDate: '05-12-2023',
     inviteDuration: '1 day',
-    memberships: [
-      {
-        condominiumId: 'COND-002',
-        role: 'GERENTE',
-      },
-    ],
   },
   {
     id: '5',
@@ -68,12 +48,6 @@ export const users: User[] = [
     status: 'ativo',
     inviteDate: '10-10-2023',
     inviteDuration: '3 days',
-    memberships: [
-      {
-        condominiumId: 'COND-003',
-        role: 'FINANCEIRO',
-      },
-    ],
   },
   {
     id: '6',
@@ -82,12 +56,6 @@ export const users: User[] = [
     status: 'pendente',
     inviteDate: '25-11-2023',
     inviteDuration: '7 days',
-    memberships: [
-      {
-        condominiumId: 'COND-003',
-        role: 'RH',
-      },
-    ],
   },
   {
     id: '7',
@@ -96,12 +64,6 @@ export const users: User[] = [
     status: 'inativo',
     inviteDate: '30-08-2023',
     inviteDuration: '1 day',
-    memberships: [
-      {
-        condominiumId: 'COND-001',
-        role: 'GERENTE',
-      },
-    ],
   },
   {
     id: '8',
@@ -110,12 +72,6 @@ export const users: User[] = [
     status: 'ativo',
     inviteDate: '22-10-2023',
     inviteDuration: '3 days',
-    memberships: [
-      {
-        condominiumId: 'COND-002',
-        role: 'FINANCEIRO',
-      },
-    ],
   },
   {
     id: '9',
@@ -124,12 +80,6 @@ export const users: User[] = [
     status: 'pendente',
     inviteDate: '01-12-2023',
     inviteDuration: '7 days',
-    memberships: [
-      {
-        condominiumId: 'COND-002',
-        role: 'RH',
-      },
-    ],
   },
   {
     id: '10',
@@ -138,12 +88,6 @@ export const users: User[] = [
     status: 'ativo',
     inviteDate: '15-09-2023',
     inviteDuration: '1 day',
-    memberships: [
-      {
-        condominiumId: 'COND-003',
-        role: 'GERENTE',
-      },
-    ],
   },
 
   // 🔹 exemplos com MÚLTIPLOS cargos (agora possível 👇)
@@ -154,16 +98,6 @@ export const users: User[] = [
     status: 'ativo',
     inviteDate: '10-11-2023',
     inviteDuration: '3 days',
-    memberships: [
-      {
-        condominiumId: 'COND-001',
-        role: 'FINANCEIRO',
-      },
-      {
-        condominiumId: 'COND-002',
-        role: 'FINANCEIRO',
-      },
-    ],
   },
   {
     id: '12',
@@ -172,12 +106,6 @@ export const users: User[] = [
     status: 'inativo',
     inviteDate: '20-07-2023',
     inviteDuration: '7 days',
-    memberships: [
-      {
-        condominiumId: 'COND-003',
-        role: 'RH',
-      },
-    ],
   },
   {
     id: '13',
@@ -186,12 +114,6 @@ export const users: User[] = [
     status: 'ativo',
     inviteDate: '05-10-2023',
     inviteDuration: '1 day',
-    memberships: [
-      {
-        condominiumId: 'COND-001',
-        role: 'GERENTE',
-      },
-    ],
   },
   {
     id: '14',
@@ -200,12 +122,6 @@ export const users: User[] = [
     status: 'pendente',
     inviteDate: '10-12-2023',
     inviteDuration: '3 days',
-    memberships: [
-      {
-        condominiumId: 'COND-002',
-        role: 'FINANCEIRO',
-      },
-    ],
   },
   {
     id: '15',
@@ -214,11 +130,5 @@ export const users: User[] = [
     status: 'ativo',
     inviteDate: '25-09-2023',
     inviteDuration: '7 days',
-    memberships: [
-      {
-        condominiumId: 'COND-003',
-        role: 'RH',
-      },
-    ],
   },
 ];

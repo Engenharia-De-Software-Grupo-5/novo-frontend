@@ -1,10 +1,3 @@
-export type Role = 'DONO' | 'GERENTE' | 'SINDICO' | 'FINANCEIRO' | 'RH';
-
-export interface CondominiumMembership {
-  condominiumId: string;
-  role: Role;
-}
-
 export interface User {
   id: string;
   name: string;

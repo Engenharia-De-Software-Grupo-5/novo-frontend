@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { DONO_FAKE } from '@/mocks/auth';
 import { users } from '@/mocks/users';
 
 /**
@@ -73,15 +72,7 @@ export async function GET(request: NextRequest) {
   const sort = searchParams.get('sort');
   const order = searchParams.get('order') || 'asc';
 
-  const loggedUser = DONO_FAKE;
-  const condominiumId = loggedUser.memberships[0].condominiumId;
-
-  const condominiumUsers = users.filter((user) =>
-    user.memberships.some(
-      (membership) => membership.condominiumId === condominiumId
-    )
-  );
-
+  const condominiumUsers = users;
   const sortedUsers = [...condominiumUsers];
 
   if (sort) {
@@ -134,8 +125,6 @@ export async function GET(request: NextRequest) {
  *               name:
  *                 type: string
  *               email:
- *                 type: string
- *               role:
  *                 type: string
  *     responses:
  *       201:
