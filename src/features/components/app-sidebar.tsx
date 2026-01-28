@@ -38,9 +38,9 @@ const imoveisItems = [
   },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar className="bg-[#fafafa]">
+    <Sidebar collapsible="icon" className="bg-[#fafafa]" {...props}>
       <SidebarContent className="gap-0">
         <SidebarMenu className="mt-4 px-2">
           {imoveisItems.map((item) => (

@@ -4,15 +4,15 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-brand-blue: #1447E6;
-  --color-brand-white: #FFFFFF;
-  --color-brand-background: #F7F7F8;
-  --color-brand-dark: #09090B;
-  --color-brand-gray: #71717B;
-  --color-brand-blue-text: #EFF6FF;
-  --color-brand-yellow-bg: #FCEBDC;
-  --color-brand-red-light: #FDE6E7;
-  --color-brand-red-vivid: #E7000B;
+  --color-brand-blue: #1447e6;
+    --color-brand-white: #ffffff;
+    --color-brand-background: #f7f7f8;
+    --color-brand-dark: #09090b;
+    --color-brand-gray: #71717b;
+    --color-brand-blue-text: #eff6ff;
+    --color-brand-yellow-bg: #fcebdc;
+    --color-brand-red-light: #fde6e7;
+    --color-brand-red-vivid: #e7000b;
 }
 
 @theme inline {
@@ -84,6 +84,7 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(0.985 0 0);
+  --sidebar-width-icon: 3rem;
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -91,6 +92,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-width: 16rem;
+    --sidebar-width-mobile: 18rem;
 }
 
 .dark {
