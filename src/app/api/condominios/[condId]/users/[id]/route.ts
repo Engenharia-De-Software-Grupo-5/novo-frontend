@@ -3,7 +3,7 @@ import { users } from '@/mocks/users';
 
 
 
-
+import { User } from '@/types/user';
 
 /**
  * @swagger
@@ -100,7 +100,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
-  const body = await request.json();
+  const body = (await request.json()) as Partial<User>;
   console.log(`Updated information for user ${id}:`, body);
   return NextResponse.json(body);
 }
@@ -147,7 +147,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
-  const body = await request.json();
+  const body = (await request.json()) as Partial<User>;
   console.log(`Patched information for user ${id}:`, body);
   return NextResponse.json(body);
 }

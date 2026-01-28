@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mockImoveis } from '@/mocks/imoveis';
 
+
+
+import { Imovel } from '@/types/imoveis';
+
 /**
  * @swagger
  * /api/condominios/{condId}/imoveis/{id}:
@@ -33,9 +37,9 @@ import { mockImoveis } from '@/mocks/imoveis';
  */
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  const { id } = params;
   const imovel = mockImoveis.find((i) => i.idImovel === id);
 
   if (!imovel) {
@@ -77,10 +81,10 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
-  const body = await request.json();
+  const { id } = params;
+  const body = (await request.json()) as Partial<Imovel>;
   console.log(`Updated information for imovel ${id}:`, body);
   return NextResponse.json(body);
 }
@@ -120,7 +124,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
-  const body = await request.json();
+  const body = (await request.json()) as Partial<Imovel>;
   console.log(`Patched information for imovel ${id}:`, body);
   return NextResponse.json(body);
 }

@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mockImoveis } from '@/mocks/imoveis';
 
-
-
-
+import { Imovel } from '@/types/imoveis';
 
 /**
  * @swagger
@@ -122,6 +120,51 @@ export async function GET(request: NextRequest) {
  *         application/json:
  *           schema:
  *             type: object
+ *             properties:
+ *               idCondominio:
+ *                 type: string
+ *               idImovel:
+ *                 type: string
+ *               tipo:
+ *                 type: string
+ *                 enum: [casa, apartamento]
+ *               situacao:
+ *                 type: string
+ *                 enum: [ativo, inativo, manutenção, na planta]
+ *               endereco:
+ *                 type: object
+ *                 properties:
+ *                   rua:
+ *                     type: string
+ *                   numero:
+ *                     type: string
+ *                   bairro:
+ *                     type: string
+ *                   cidade:
+ *                     type: string
+ *                   estado:
+ *                     type: string
+ *                   nomePredio:
+ *                     type: string
+ *                   bloco:
+ *                     type: string
+ *                   torre:
+ *                     type: string
+ *               estrutura:
+ *                 type: object
+ *                 properties:
+ *                   area:
+ *                     type: number
+ *                   numSuites:
+ *                     type: number
+ *                   numQuartos:
+ *                     type: number
+ *                   numBanheiros:
+ *                     type: number
+ *               outros:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       201:
  *         description: Property created successfully
@@ -131,7 +174,7 @@ export async function GET(request: NextRequest) {
  *               type: object
  */
 export async function POST(request: NextRequest) {
-  const body = await request.json();
+  const body = (await request.json()) as Imovel;
   console.log('Received imovel data:', body);
 
   return NextResponse.json(
