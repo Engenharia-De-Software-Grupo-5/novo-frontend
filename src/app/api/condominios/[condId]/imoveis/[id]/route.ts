@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mockImoveis } from '@/mocks/imoveis';
 
-
-
 import { Imovel } from '@/types/imoveis';
 
 /**
@@ -37,9 +35,9 @@ import { Imovel } from '@/types/imoveis';
  */
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   const imovel = mockImoveis.find((i) => i.idImovel === id);
 
   if (!imovel) {
@@ -81,9 +79,9 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   const body = (await request.json()) as Partial<Imovel>;
   console.log(`Updated information for imovel ${id}:`, body);
   return NextResponse.json(body);
@@ -121,9 +119,9 @@ export async function PUT(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   const body = (await request.json()) as Partial<Imovel>;
   console.log(`Patched information for imovel ${id}:`, body);
   return NextResponse.json(body);
@@ -155,9 +153,9 @@ export async function PATCH(
  */
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   console.log(`imovel com id ${id} foi apagado`);
   return NextResponse.json({ message: 'Imovel deleted' });
 }
