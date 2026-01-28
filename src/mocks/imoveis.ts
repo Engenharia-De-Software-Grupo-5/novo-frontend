@@ -1,0 +1,454 @@
+export interface Endereco {
+  rua: string;
+  numero: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  nomePredio?: string;
+  bloco?: string;
+  torre?: string;
+}
+
+export interface Estrutura {
+  area: number; // em metros quadrados
+  numSuites: number;
+  numQuartos: number;
+  numBanheiros: number;
+}
+
+export interface Imovel {
+  idCondominio: string;
+  idImovel: string;
+  tipo: 'casa' | 'apartamento';
+  situacao: 'ativo' | 'inativo' | 'manutenção' | 'na planta';
+  endereco: Endereco;
+  estrutura: Estrutura;
+  outros: string[];
+}
+
+export const mockImoveis: Imovel[] = [
+  {
+    idCondominio: 'COND-001',
+    idImovel: 'IMV-001',
+    tipo: 'apartamento',
+    situacao: 'ativo',
+    endereco: {
+      rua: 'Av. Paulista',
+      numero: '1000',
+      bairro: 'Bela Vista',
+      cidade: 'São Paulo',
+      estado: 'SP',
+      nomePredio: 'Edifício Paulista',
+      bloco: 'A',
+      torre: '1',
+    },
+    estrutura: {
+      area: 85,
+      numSuites: 1,
+      numQuartos: 2,
+      numBanheiros: 2,
+    },
+    outros: ['Aceita Pets', 'Mobiliado', 'Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-001',
+    idImovel: 'IMV-002',
+    tipo: 'apartamento',
+    situacao: 'ativo',
+    endereco: {
+      rua: 'Av. Paulista',
+      numero: '1000',
+      bairro: 'Bela Vista',
+      cidade: 'São Paulo',
+      estado: 'SP',
+      nomePredio: 'Edifício Paulista',
+      bloco: 'A',
+      torre: '2',
+    },
+    estrutura: {
+      area: 120,
+      numSuites: 2,
+      numQuartos: 3,
+      numBanheiros: 3,
+    },
+    outros: ['Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-002',
+    idImovel: 'IMV-003',
+    tipo: 'casa',
+    situacao: 'ativo',
+    endereco: {
+      rua: 'Rua das Flores',
+      numero: '123',
+      bairro: 'Jardim América',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 250,
+      numSuites: 3,
+      numQuartos: 4,
+      numBanheiros: 5,
+    },
+    outros: [
+      'Aceita Pets',
+      'Mobiliado',
+      'Ótima Localização',
+      'Varanda Gourmet',
+    ],
+  },
+  {
+    idCondominio: 'COND-003',
+    idImovel: 'IMV-004',
+    tipo: 'apartamento',
+    situacao: 'manutenção',
+    endereco: {
+      rua: 'Rua Augusta',
+      numero: '500',
+      bairro: 'Consolação',
+      cidade: 'São Paulo',
+      estado: 'SP',
+      nomePredio: 'Solar Augusta',
+    },
+    estrutura: {
+      area: 45,
+      numSuites: 0,
+      numQuartos: 1,
+      numBanheiros: 1,
+    },
+    outros: ['Aceita Pets', 'Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-003',
+    idImovel: 'IMV-005',
+    tipo: 'apartamento',
+    situacao: 'inativo',
+    endereco: {
+      rua: 'Rua Augusta',
+      numero: '500',
+      bairro: 'Consolação',
+      cidade: 'São Paulo',
+      estado: 'SP',
+      nomePredio: 'Solar Augusta',
+    },
+    estrutura: {
+      area: 60,
+      numSuites: 1,
+      numQuartos: 2,
+      numBanheiros: 2,
+    },
+    outros: ['Mobiliado', 'Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-004',
+    idImovel: 'IMV-006',
+    tipo: 'casa',
+    situacao: 'na planta',
+    endereco: {
+      rua: 'Alameda Santos',
+      numero: '800',
+      bairro: 'Cerqueira César',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 300,
+      numSuites: 4,
+      numQuartos: 4,
+      numBanheiros: 6,
+    },
+    outros: ['Aceita Pets', 'Ótima Localização', 'Varanda Gourmet'],
+  },
+  {
+    idCondominio: 'COND-005',
+    idImovel: 'IMV-007',
+    tipo: 'apartamento',
+    situacao: 'ativo',
+    endereco: {
+      rua: 'Av. Brigadeiro Faria Lima',
+      numero: '2000',
+      bairro: 'Pinheiros',
+      cidade: 'São Paulo',
+      estado: 'SP',
+      bloco: 'C',
+    },
+    estrutura: {
+      area: 95,
+      numSuites: 1,
+      numQuartos: 3,
+      numBanheiros: 2,
+    },
+    outros: ['Aceita Pets', 'Mobiliado', 'Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-006',
+    idImovel: 'IMV-008',
+    tipo: 'casa',
+    situacao: 'ativo',
+    endereco: {
+      rua: 'Rua Oscar Freire',
+      numero: '300',
+      bairro: 'Jardins',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 200,
+      numSuites: 2,
+      numQuartos: 3,
+      numBanheiros: 4,
+    },
+    outros: ['Aceita Pets', 'Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-007',
+    idImovel: 'IMV-009',
+    tipo: 'apartamento',
+    situacao: 'ativo',
+    endereco: {
+      rua: 'Rua da Consolação',
+      numero: '1500',
+      bairro: 'Consolação',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 70,
+      numSuites: 1,
+      numQuartos: 2,
+      numBanheiros: 2,
+    },
+    outros: ['Mobiliado', 'Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-008',
+    idImovel: 'IMV-010',
+    tipo: 'apartamento',
+    situacao: 'manutenção',
+    endereco: {
+      rua: 'Rua Vergueiro',
+      numero: '900',
+      bairro: 'Liberdade',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 50,
+      numSuites: 0,
+      numQuartos: 1,
+      numBanheiros: 1,
+    },
+    outros: ['Aceita Pets', 'Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-009',
+    idImovel: 'IMV-011',
+    tipo: 'casa',
+    situacao: 'ativo',
+    endereco: {
+      rua: 'Av. Brasil',
+      numero: '100',
+      bairro: 'Jardim América',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 350,
+      numSuites: 4,
+      numQuartos: 5,
+      numBanheiros: 6,
+    },
+    outros: [
+      'Aceita Pets',
+      'Mobiliado',
+      'Ótima Localização',
+      'Varanda Gourmet',
+    ],
+  },
+  {
+    idCondominio: 'COND-010',
+    idImovel: 'IMV-012',
+    tipo: 'apartamento',
+    situacao: 'na planta',
+    endereco: {
+      rua: 'Rua 25 de Março',
+      numero: '50',
+      bairro: 'Centro',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 40,
+      numSuites: 0,
+      numQuartos: 1,
+      numBanheiros: 1,
+    },
+    outros: ['Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-011',
+    idImovel: 'IMV-013',
+    tipo: 'apartamento',
+    situacao: 'ativo',
+    endereco: {
+      rua: 'Rua Domingo de Morais',
+      numero: '1200',
+      bairro: 'Vila Mariana',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 80,
+      numSuites: 1,
+      numQuartos: 3,
+      numBanheiros: 2,
+    },
+    outros: ['Aceita Pets', 'Mobiliado', 'Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-012',
+    idImovel: 'IMV-014',
+    tipo: 'casa',
+    situacao: 'inativo',
+    endereco: {
+      rua: 'Av. Ibirapuera',
+      numero: '2500',
+      bairro: 'Moema',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 280,
+      numSuites: 3,
+      numQuartos: 4,
+      numBanheiros: 5,
+    },
+    outros: ['Aceita Pets', 'Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-013',
+    idImovel: 'IMV-015',
+    tipo: 'apartamento',
+    situacao: 'ativo',
+    endereco: {
+      rua: 'Rua Teodoro Sampaio',
+      numero: '800',
+      bairro: 'Pinheiros',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 65,
+      numSuites: 1,
+      numQuartos: 2,
+      numBanheiros: 2,
+    },
+    outros: ['Aceita Pets', 'Mobiliado', 'Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-014',
+    idImovel: 'IMV-016',
+    tipo: 'apartamento',
+    situacao: 'manutenção',
+    endereco: {
+      rua: 'Av. Rebouças',
+      numero: '1500',
+      bairro: 'Pinheiros',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 90,
+      numSuites: 2,
+      numQuartos: 3,
+      numBanheiros: 3,
+    },
+    outros: ['Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-015',
+    idImovel: 'IMV-017',
+    tipo: 'casa',
+    situacao: 'ativo',
+    endereco: {
+      rua: 'Rua Pamplona',
+      numero: '400',
+      bairro: 'Jardim Paulista',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 320,
+      numSuites: 4,
+      numQuartos: 5,
+      numBanheiros: 6,
+    },
+    outros: ['Aceita Pets', 'Mobiliado', 'Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-016',
+    idImovel: 'IMV-018',
+    tipo: 'apartamento',
+    situacao: 'na planta',
+    endereco: {
+      rua: 'Av. 9 de Julho',
+      numero: '3000',
+      bairro: 'Jardim Paulista',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 110,
+      numSuites: 2,
+      numQuartos: 3,
+      numBanheiros: 3,
+    },
+    outros: ['Aceita Pets', 'Ótima Localização', 'Varanda Gourmet'],
+  },
+  {
+    idCondominio: 'COND-017',
+    idImovel: 'IMV-019',
+    tipo: 'apartamento',
+    situacao: 'ativo',
+    endereco: {
+      rua: 'Rua Haddock Lobo',
+      numero: '600',
+      bairro: 'Cerqueira César',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 75,
+      numSuites: 1,
+      numQuartos: 2,
+      numBanheiros: 2,
+    },
+    outros: ['Mobiliado', 'Ótima Localização'],
+  },
+  {
+    idCondominio: 'COND-018',
+    idImovel: 'IMV-020',
+    tipo: 'casa',
+    situacao: 'ativo',
+    endereco: {
+      rua: 'Av. Europa',
+      numero: '100',
+      bairro: 'Jardim Europa',
+      cidade: 'São Paulo',
+      estado: 'SP',
+    },
+    estrutura: {
+      area: 400,
+      numSuites: 5,
+      numQuartos: 5,
+      numBanheiros: 7,
+    },
+    outros: [
+      'Aceita Pets',
+      'Mobiliado',
+      'Ótima Localização',
+      'Varanda Gourmet',
+    ],
+  },
+];
