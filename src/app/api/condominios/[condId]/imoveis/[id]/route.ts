@@ -157,5 +157,5 @@ export async function DELETE(
 ) {
   const { id } = await params;
   console.log(`imovel com id ${id} foi apagado`);
-  return NextResponse.json({ message: 'Imovel deleted' });
+  return NextResponse.json({ message: `Imovel com id ${id} foi apagado` });
 }

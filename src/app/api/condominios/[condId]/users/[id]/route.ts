@@ -180,5 +180,5 @@ export async function DELETE(
 ) {
   const { id } = await params;
   console.log(`usuario com id ${id} foi apagado`);
-  return NextResponse.json({ message: 'User deleted' });
+  return NextResponse.json({ message: `User com id ${id} deleted` });
 }
