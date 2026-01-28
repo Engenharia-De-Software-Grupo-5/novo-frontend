@@ -39,10 +39,6 @@ export function DynamicBreadcrumb() {
                   <BreadcrumbPage className="text-muted-foreground">
                     {name}
                   </BreadcrumbPage>
-                  /* Note: Usually non-last items are links, but strictly following 'page' style from Figma for now unless requested to be clickable links. 
-                     Figma snapshot shows simple text chain. If navigation needed, swap BreadcrumbPage for BreadcrumbLink.
-                     Given standard dashboard patterns, intermediate items usually aren't clickable filters often, but let's stick to text for now.
-                  */
                 )}
               </BreadcrumbItem>
               {!isLast && <BreadcrumbSeparator />}

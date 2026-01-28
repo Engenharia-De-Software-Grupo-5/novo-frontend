@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mockImoveis } from '@/mocks/imoveis';
 
-
-
-
-
 /**
  * @swagger
  * /api/condominios/{condId}/imoveis/{id}:
@@ -121,9 +117,9 @@ export async function PUT(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  const { id } = params;
   const body = await request.json();
   console.log(`Patched information for imovel ${id}:`, body);
   return NextResponse.json(body);
@@ -155,9 +151,9 @@ export async function PATCH(
  */
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  const { id } = params;
   console.log(`imovel com id ${id} foi apagado`);
   return NextResponse.json({ message: 'Imovel deleted' });
 }
