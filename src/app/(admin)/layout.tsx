@@ -6,6 +6,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/features/components/ui/sidebar';
+import { Toaster } from 'sonner';
 
 export default function AdminLayout({
   children,
@@ -22,6 +23,7 @@ export default function AdminLayout({
           <DynamicBreadcrumb />
         </header>
         <div className="p-4">{children}</div>
+        <Toaster />
       </SidebarInset>
     </SidebarProvider>
   );

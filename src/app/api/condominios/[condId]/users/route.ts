@@ -72,9 +72,14 @@ export async function GET(request: NextRequest) {
   const sort = searchParams.get('sort');
   const order = searchParams.get('order') || 'asc';
 
-  const condominiumUsers = users;
-  const sortedUsers = [...condominiumUsers];
+  // extrai condId da URL
+  const condId = request.nextUrl.pathname.split('/')[3]; // /api/condominios/:condId/users
 
+  // filtra pelos usuários do condomínio
+  const condominiumUsers = users.filter((u) => u.condominioId === condId);
+
+  // ordena se necessário
+  const sortedUsers = [...condominiumUsers];
   if (sort) {
     sortedUsers.sort((a, b) => {
       const fieldA = a[sort as keyof typeof a];
@@ -86,6 +91,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
+  // paginação
   const startIndex = (page - 1) * limit;
   const endIndex = startIndex + limit;
   const paginatedUsers = sortedUsers.slice(startIndex, endIndex);
