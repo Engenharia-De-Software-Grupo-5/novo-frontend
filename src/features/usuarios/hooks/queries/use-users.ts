@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getUsers } from '@/feature/usuarios/services/users.service';
+import { getUsers } from '@/features/usuarios/services/users.service';
 
 
 interface Params {

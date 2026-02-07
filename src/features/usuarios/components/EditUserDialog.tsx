@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useUpdateUser } from '@/feature/usuarios/hooks/mutations/use-update-user';
+import { useUpdateUser } from '@/features/usuarios/hooks/mutations/use-update-user';
 import { Button } from '@/features/components/ui/button';
 import {
   Dialog,

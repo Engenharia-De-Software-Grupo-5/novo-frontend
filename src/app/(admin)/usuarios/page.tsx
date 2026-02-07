@@ -4,14 +4,14 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/features/components/ui/button';
 import { Input } from '@/features/components/ui/input';
-import { useUsers } from '@/feature/usuarios/hooks/queries/use-users';
+import { useUsers } from '@/features/usuarios/hooks/queries/use-users';
 import { Plus } from 'lucide-react';
 import { Users } from 'lucide-react';
 
 
-import { PaginationFooter } from './components/PaginationFooter';
-import { UsersTable } from './components/UsersTable';
-import { AddUserDialog } from './components/AddUserDialog';
+import { PaginationFooter } from '../../../features/usuarios/components/PaginationFooter';
+import { UsersTable } from '../../../features/usuarios/components/UsersTable';
+import { AddUserDialog } from '../../../features/usuarios/components/AddUserDialog';
 
 export default function UsersPage() {
   const [page, setPage] = useState(1);

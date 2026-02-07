@@ -1,42 +1,39 @@
-import { useDeactivateUser } from '@/feature/usuarios/hooks/mutations/use-deactivate-user';
+import { useDeleteUser } from '@/features/usuarios/hooks/mutations/use-delete-user';
 import { Button } from '@/features/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/features/components/ui/dialog';
-import { FlagOff } from 'lucide-react';
-
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/features/components/ui/dialog';
 import { User } from '@/types/user';
+import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface DeactivateUserDialogProps {
+
+interface DeleteUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: User | null;
 }
 
-export function DeactivateUserDialog({
+export function DeleteUserDialog({
   open,
   onOpenChange,
   user,
-}: DeactivateUserDialogProps) {
- 
+}: DeleteUserDialogProps) {
+  
 
-  const { mutate:deactivateUser, isPending } = useDeactivateUser({
+ 
+  const { mutate: deleteUser, isPending } = useDeleteUser({
     condominioId: user?.condominioId ?? '',
   });
 
-   if (!user) return null;
+  if (!user) return null;
 
   const handleConfirm = () => {
-    deactivateUser(user.id, {
+    deleteUser(user.id, {
       onSuccess: () => {
-        toast.success('Usuário atualizado com sucesso!');
+        toast.success('Usuário excluído com sucesso!');
         onOpenChange(false);
+      },
+      onError: () => {
+        toast.error('Erro ao excluir usuário');
       },
     });
   };
@@ -47,29 +44,33 @@ export function DeactivateUserDialog({
         <DialogHeader className="items-center text-center">
           {/* Ícone */}
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
-            <FlagOff className="h-6 w-6" />
+            <Trash2 className="h-6 w-6" />
           </div>
 
-          <DialogTitle>Você tem certeza?</DialogTitle>
+          <DialogTitle>Excluir usuário</DialogTitle>
 
           <DialogDescription className="text-sm">
-            Essa ação impede que o usuário{' '}
-            {user.name} {' '}
-            acesse qualquer conteúdo do sistema.
+            Essa ação é irreversível e impede que o usuário {' '} <br />
+            {user.name} acesse qualquer conteúdo do sistema <br />
+            para sempre.
           </DialogDescription>
         </DialogHeader>
 
         <DialogFooter className="mt-6 gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
             Cancelar
           </Button>
 
           <Button
-            className="bg-red-100 text-red-700 hover:bg-red-200"
+            className="bg-red-600 text-white hover:bg-red-700"
             onClick={handleConfirm}
             disabled={isPending}
           >
-            Tornar inativo
+            Excluir usuário
           </Button>
         </DialogFooter>
       </DialogContent>
