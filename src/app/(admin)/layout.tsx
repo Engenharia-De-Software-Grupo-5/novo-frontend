@@ -23,7 +23,7 @@ export default function AdminLayout({
           <DynamicBreadcrumb />
         </header>
         <div className="p-4">{children}</div>
-        <Toaster />
+       <Toaster position="top-center"/>
       </SidebarInset>
     </SidebarProvider>
   );

@@ -33,7 +33,14 @@ import { EditUserDialog } from './EditUserDialog';
 import { StatusBadge } from './StatusBadge';
 import { ViewUserDialog } from './ViewUserDialog';
 
-export function UsersTable({ users }: { users: User[] }) {
+
+export interface UsersTableProps {
+  users: User[];
+  condominioId: string;
+}
+
+
+export function UsersTable({ users, condominioId }: UsersTableProps) {
   const [openView, setOpenView] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDeactivate, setOpenDeactivate] = useState(false);
@@ -165,18 +172,21 @@ export function UsersTable({ users }: { users: User[] }) {
         open={openEdit}
         onOpenChange={setOpenEdit}
         user={selectedUser}
+        condominioId={condominioId}
       />
 
       <DeactivateUserDialog
         open={openDeactivate}
         onOpenChange={setOpenDeactivate}
         user={selectedUser}
+        condominioId={condominioId}
       />
 
       <DeleteUserDialog
         open={openDelete}
         onOpenChange={setOpenDelete}
         user={selectedUser}
+        condominioId={condominioId}
       />
     </div>
   );

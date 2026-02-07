@@ -15,7 +15,7 @@ export interface CreateUserPayload {
   inviteDuration: number;
 }
 
-// payload FINAL enviado à API
+
 export interface CreateUserData extends CreateUserPayload {
   condominioId: string;
 }

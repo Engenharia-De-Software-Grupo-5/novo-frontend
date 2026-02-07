@@ -17,18 +17,18 @@ interface DeactivateUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: User | null;
+  condominioId: string;
 }
 
 export function DeactivateUserDialog({
   open,
   onOpenChange,
   user,
+  condominioId
 }: DeactivateUserDialogProps) {
  
 
-  const { mutate:deactivateUser, isPending } = useDeactivateUser({
-    condominioId: user?.condominioId ?? '',
-  });
+  const { mutate:deactivateUser, isPending } = useDeactivateUser(condominioId);
 
    if (!user) return null;
 

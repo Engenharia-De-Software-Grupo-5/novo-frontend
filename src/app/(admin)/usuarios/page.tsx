@@ -1,17 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/features/components/ui/button';
 import { Input } from '@/features/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/features/components/ui/select';
+import { RolesFilter } from '@/features/usuarios/components/RolesFilter';
+import { useRoles } from '@/features/usuarios/hooks/queries/use-roles';
 import { useUsers } from '@/features/usuarios/hooks/queries/use-users';
-import { Plus } from 'lucide-react';
-import { Users } from 'lucide-react';
+import { Plus, Users } from 'lucide-react';
 
+import { Role, Status } from '@/types/user';
 
+import { AddUserDialog } from '../../../features/usuarios/components/AddUserDialog';
 import { PaginationFooter } from '../../../features/usuarios/components/PaginationFooter';
 import { UsersTable } from '../../../features/usuarios/components/UsersTable';
-import { AddUserDialog } from '../../../features/usuarios/components/AddUserDialog';
+import { StatusFilter } from '@/features/usuarios/components/StatusFilter';
 
 export default function UsersPage() {
   const [page, setPage] = useState(1);
@@ -19,17 +29,36 @@ export default function UsersPage() {
 
   const { user } = useAuth();
   const [mounted, setMounted] = useState(false);
+  const [filterInput, setFilterInput] = useState('');
+ 
   const [filter, setFilter] = useState('');
+  const [rolesFilter, setRolesFilter] = useState<Role[]>([]);
+  const [statusFilter, setStatusFilter] = useState<Status[]>([]);
+
+  const safePage = Math.max(1, page);
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { data, isLoading } = useUsers({
     condominioId: user?.condominioId,
     page,
     limit,
     filter,
+    roles: rolesFilter,
+    statuses: statusFilter,
   });
 
   const users = data?.items ?? [];
-  const safePage = Math.max(1, page);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setFilter(filterInput);
+      setPage(1);
+      inputRef.current?.focus();
+    }, 400); // 300–500ms é o padrão
+
+    return () => clearTimeout(timeout);
+  }, [filterInput]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -38,8 +67,7 @@ export default function UsersPage() {
 
   // evita hydration mismatch
   if (!mounted) return null;
-  if (!user) return null;
-  if (isLoading) return <p>Loading users...</p>;
+  // if (!user) return null;
 
   return (
     <div className="p-4 md:p-6">
@@ -61,24 +89,23 @@ export default function UsersPage() {
           {/* Filtros */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Input
+              ref={inputRef}
               placeholder="Filtrar usuários..."
               className="h-9 w-full sm:w-64"
-              value={filter}
-              onChange={(e) => {
-                setFilter(e.target.value);
-                setPage(1);
-              }}
+              value={filterInput}
+              onChange={(e) => setFilterInput(e.target.value)}
             />
 
-            <Button variant="outline" size="sm" className="gap-1">
-              <Plus className="h-4 w-4" />
-              Cargo
-            </Button>
+            <RolesFilter
+              value={rolesFilter}
+              onChange={(roles) => setRolesFilter(roles)}
+            />
 
-            <Button variant="outline" size="sm" className="gap-1">
-              <Plus className="h-4 w-4" />
-              Status
-            </Button>
+            <StatusFilter value={statusFilter} onChange={(status) => {
+            setStatusFilter(status);
+            setPage(1);
+          }} />
+
           </div>
 
           {/* Botão direita */}
@@ -103,7 +130,7 @@ export default function UsersPage() {
             </div>
           ) : (
             <>
-              <UsersTable users={users} />
+              <UsersTable users={users} condominioId={user.condominioId} />
 
               <PaginationFooter
                 page={safePage}

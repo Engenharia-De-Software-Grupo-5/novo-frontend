@@ -10,19 +10,19 @@ interface DeleteUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: User | null;
+  condominioId: string;
 }
 
 export function DeleteUserDialog({
   open,
   onOpenChange,
   user,
+  condominioId
 }: DeleteUserDialogProps) {
   
 
  
-  const { mutate: deleteUser, isPending } = useDeleteUser({
-    condominioId: user?.condominioId ?? '',
-  });
+  const { mutate: deleteUser, isPending } = useDeleteUser(condominioId);
 
   if (!user) return null;
 

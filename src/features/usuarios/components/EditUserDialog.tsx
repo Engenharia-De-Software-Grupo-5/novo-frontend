@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useUpdateUser } from '@/features/usuarios/hooks/mutations/use-update-user';
 import { Button } from '@/features/components/ui/button';
 import {
   Dialog,
@@ -19,9 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/features/components/ui/select';
+import { useUpdateUser } from '@/features/usuarios/hooks/mutations/use-update-user';
 import { toast } from 'sonner';
 
 import { User } from '@/types/user';
+
+import { useRoles } from '../hooks/queries/use-roles';
 
 type UserStatus = 'ativo' | 'inativo' | 'pendente';
 
@@ -29,17 +31,21 @@ interface EditUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: User | null;
+  condominioId: string;
 }
 
 export function EditUserDialog({
   open,
   onOpenChange,
   user,
+  condominioId,
 }: EditUserDialogProps) {
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState<string | undefined>(undefined);
+  const { data: roles, isLoading: rolesLoading } = useRoles();
+
   const [status, setStatus] = useState<UserStatus>('pendente');
 
-  const { mutate: updateUser, isPending } = useUpdateUser(user?.condominioId);
+  const { mutate: updateUser, isPending } = useUpdateUser(condominioId);
 
   // sempre que abrir o dialog, sincroniza com o user
   useEffect(() => {
@@ -105,17 +111,29 @@ export function EditUserDialog({
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o cargo" />
                 </SelectTrigger>
+
                 <SelectContent>
-                  <SelectItem value="Financeiro">Financeiro</SelectItem>
-                  <SelectItem value="RH">RH</SelectItem>
-                  {/* Dono só se fizer sentido */}
+                  {rolesLoading && (
+                    <div className="text-muted-foreground px-2 py-1 text-sm">
+                      Carregando cargos...
+                    </div>
+                  )}
+
+                  {roles?.map((role) => (
+                    <SelectItem key={role.id} value={role.name}>
+                      {role.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="grid gap-1">
               <Label>Status</Label>
-              <Select value={status} onValueChange={(value) => setStatus(value as UserStatus)}>
+              <Select
+                value={status}
+                onValueChange={(value) => setStatus(value as UserStatus)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o status" />
                 </SelectTrigger>

@@ -1,6 +1,6 @@
 import {
   CheckCircle,
-  Loader2,
+  Loader,
   XCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,9 +20,8 @@ export function StatusBadge({ status }: StatusBadgeProps) {
     },
     pendente: {
       label: 'Pendente',
-      icon: Loader2,
+      icon: Loader,
       iconClass: 'text-brand-gray',
-      spinning: true,
     },
     inativo: {
       label: 'Inativo',
@@ -38,8 +37,7 @@ export function StatusBadge({ status }: StatusBadgeProps) {
       <Icon
         className={cn(
           'h-3.5 w-3.5',
-          config.iconClass,
-          config.spinning && 'animate-spin'
+          config.iconClass
         )}
       />
       {config.label}
