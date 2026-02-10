@@ -10,11 +10,11 @@ export default function AuthCard({
     <main className="min-h-screen bg-muted flex flex-col items-center justify-center px-4">
 
       {/* CAIXA */}
-      <Card className="w-full max-w-5xl overflow-hidden shadow-lg">
+      <Card className="w-full max-w-4xl overflow-hidden shadow-lg">
         <CardContent className="grid grid-cols-1 md:grid-cols-2 p-0">
 
           {/* ESQUERDA */}
-          <div className="p-8 flex flex-col justify-center">
+          <div className="p-6 flex flex-col justify-center max-w-md mx-auto w-full">
             {children}
           </div>
 
