@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { users } from '@/mocks/users';
 
+import { User } from '@/types/user';
+
 /**
  * @swagger
  * /api/condominios/{condId}/users:
@@ -132,6 +134,14 @@ export async function GET(request: NextRequest) {
  *                 type: string
  *               email:
  *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [ativo, inativo, pendente]
+ *               inviteDate:
+ *                 type: string
+ *               inviteDuration:
+ *                 type: string
+ *                 enum: [1 day, 3 days, 7 days]
  *     responses:
  *       201:
  *         description: User created successfully
@@ -146,7 +156,7 @@ export async function GET(request: NextRequest) {
  *                   type: object
  */
 export async function POST(request: NextRequest) {
-  const body = await request.json();
+  const body = (await request.json()) as User;
   console.log('Received user data:', body);
 
   return NextResponse.json(

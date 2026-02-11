@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { users } from '@/mocks/users';
 
-
-
-
+import { User } from '@/types/user';
 
 /**
  * @swagger
@@ -46,9 +44,9 @@ import { users } from '@/mocks/users';
  */
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   const user = users.find((u) => u.id === id);
 
   if (!user) {
@@ -97,10 +95,10 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
-  const body = await request.json();
+  const { id } = await params;
+  const body = (await request.json()) as Partial<User>;
   console.log(`Updated information for user ${id}:`, body);
   return NextResponse.json(body);
 }
@@ -144,10 +142,10 @@ export async function PUT(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
-  const body = await request.json();
+  const { id } = await params;
+  const body = (await request.json()) as Partial<User>;
   console.log(`Patched information for user ${id}:`, body);
   return NextResponse.json(body);
 }
@@ -178,9 +176,9 @@ export async function PATCH(
  */
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   console.log(`usuario com id ${id} foi apagado`);
-  return NextResponse.json({ message: 'User deleted' });
+  return NextResponse.json({ message: `User com id ${id} deleted` });
 }
