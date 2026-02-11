@@ -56,7 +56,7 @@ export function ViewUserDialog({
           </div>
 
           <div>
-            <Label>Nome</Label>
+            <Label>E-mail</Label>
             <div className="text-muted-foreground border-input bg-background h-10 rounded-md border px-3 py-2 text-sm">
               {user.email}
             </div>

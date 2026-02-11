@@ -121,6 +121,9 @@ export async function deleteUser(
     throw new Error('Erro ao excluir usuário');
   }
 
+  if (res.status === 204) {  
+    return;  
+  }  
+  return res.json();  
 
-  return res.json?.();
 }

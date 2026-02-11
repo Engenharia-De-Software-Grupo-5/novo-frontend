@@ -62,7 +62,7 @@ export function PaginationFooter({
             value={String(pageSize)}
             onValueChange={(value) => onPageSizeChange(Number(value))}
           >
-            <SelectTrigger className="h-8 w-[72px]">
+            <SelectTrigger className="h-8 w-18">
               <SelectValue />
             </SelectTrigger>
 

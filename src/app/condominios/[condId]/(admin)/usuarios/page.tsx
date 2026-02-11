@@ -18,9 +18,9 @@ import { Plus, Users } from 'lucide-react';
 
 import { Role, Status } from '@/types/user';
 
-import { AddUserDialog } from '../../../features/usuarios/components/AddUserDialog';
-import { PaginationFooter } from '../../../features/usuarios/components/PaginationFooter';
-import { UsersTable } from '../../../features/usuarios/components/UsersTable';
+import { AddUserDialog } from '../../../../../features/usuarios/components/AddUserDialog';
+import { PaginationFooter } from '../../../../../features/usuarios/components/PaginationFooter';
+import { UsersTable } from '../../../../../features/usuarios/components/UsersTable';
 import { StatusFilter } from '@/features/usuarios/components/StatusFilter';
 
 export default function UsersPage() {

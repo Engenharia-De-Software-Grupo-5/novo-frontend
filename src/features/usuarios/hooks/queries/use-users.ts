@@ -11,30 +11,6 @@ interface Params {
 }
 
 
-// export function useUsers({ condominioId, page, limit, filter }: Params) {
-//   return useQuery({
-//     queryKey: ['users', condominioId, page, limit, filter],
-//     queryFn: async () => {
-//       const res = await getUsers(condominioId!, page, limit);
-
-//       // filtro client-side (temporário, opcional)
-//       if (!filter) return res;
-
-//       const filteredItems = res.items.filter((u) =>
-//         `${u.name} ${u.email}`.toLowerCase().includes(filter.toLowerCase())
-//       );
-
-//       return {
-//         ...res,
-//         items: filteredItems,
-//         totalItems: filteredItems.length,
-//         totalPages: Math.max(1, Math.ceil(filteredItems.length / limit)),
-//       };
-//     },
-//     enabled: !!condominioId,
-//   });
-// }
-
 export function useUsers({
   condominioId,
   page,

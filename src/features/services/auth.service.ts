@@ -1,4 +1,3 @@
-// src/services/auth.service.ts
 import { DONO_FAKE } from '@/mocks/auth';
 import { User } from '@/types/user';
 
