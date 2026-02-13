@@ -27,6 +27,7 @@ export default async function FuncionariosPage({
   const search = resolvedSearchParams.search as string | undefined;
   const role = resolvedSearchParams.role as string | string[] | undefined;
   const status = resolvedSearchParams.status as string | string[] | undefined;
+  const sort = resolvedSearchParams.sort as string | undefined;
 
   const { data: funcionarios, meta } = await getFuncionarios(condId, {
     page,
@@ -34,6 +35,7 @@ export default async function FuncionariosPage({
     search,
     role,
     status,
+    sort,
   });
 
   return (

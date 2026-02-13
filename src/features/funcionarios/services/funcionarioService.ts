@@ -11,12 +11,14 @@ export const getFuncionarios = async (
     search?: string;
     role?: string | string[];
     status?: string | string[];
+    sort?: string;
   }
 ): Promise<EmployeeResponse> => {
   try {
     const query = buildQueryString({
       page: params?.page,
       limit: params?.limit,
+      sort: params?.sort,
       name: params?.search,
       role: params?.role
         ? Array.isArray(params.role)
