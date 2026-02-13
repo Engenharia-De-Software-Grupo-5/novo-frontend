@@ -10,7 +10,7 @@ export interface EmployeeSummary {
   id: string;
   name: string;
   role: string;
-  status: 'Ativo' | 'Pendente' | 'Inativo';
+  status: 'ativo' | 'pendente' | 'inativo';
   lastContract?: EmployeeFile;
 }
 

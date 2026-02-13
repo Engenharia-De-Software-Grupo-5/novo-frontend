@@ -5,16 +5,13 @@ import {
 } from '../types/employee';
 
 const roles = [
-  'Desenvolvedor Frontend',
-  'Desenvolvedor Backend',
-  'UI/UX Designer',
-  'Gerente de Projetos',
-  'Analista de QA',
-  'Engenheiro de DevOps',
-  'Tech Lead',
-  'Product Owner',
-  'Scrum Master',
-  'Analista de Dados',
+  'porteiro',
+  'faxineiro',
+  'zelador',
+  'segurança',
+  'jardineiro',
+  'administrador',
+  'síndico',
 ];
 
 const names = [
@@ -50,12 +47,12 @@ const names = [
   'Natalia Cunha',
 ];
 
-const statuses: Array<'Ativo' | 'Pendente' | 'Inativo'> = [
-  'Ativo',
-  'Ativo',
-  'Ativo',
-  'Pendente',
-  'Inativo',
+const statuses: Array<'ativo' | 'pendente' | 'inativo'> = [
+  'ativo',
+  'ativo',
+  'ativo',
+  'pendente',
+  'inativo',
 ];
 
 const generateFile = (id: string, name: string): EmployeeFile => ({
@@ -69,7 +66,7 @@ const generateFile = (id: string, name: string): EmployeeFile => ({
 export const mockEmployeeSummaries: EmployeeSummary[] = names.map((name, i) => {
   const hasContract = Math.random() > 0.3;
   return {
-    id: `emp-summary-${i + 1}`,
+    id: `${i + 1}`,
     name: name,
     role: roles[i % roles.length],
     status: statuses[i % statuses.length],
@@ -88,7 +85,7 @@ export const mockEmployeeDetails: EmployeeDetail[] = names
     );
 
     return {
-      id: `emp-detail-${i + 1}`,
+      id: `${i + 1}`,
       name: name,
       role: roles[i % roles.length],
       status: statuses[i % statuses.length],
