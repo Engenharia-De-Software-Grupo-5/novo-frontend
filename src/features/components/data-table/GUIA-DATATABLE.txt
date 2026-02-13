@@ -1,0 +1,227 @@
+# GUIA: Como criar uma nova DataTable
+
+## Contexto
+
+Este projeto usa um DataTable genérico reutilizável localizado em:
+`src/features/components/data-table/`
+
+O DataTable já inclui: paginação, busca com debounce, filtros facetados,
+ordenação, visibilidade de colunas, e sincronização bidirecional com a URL.
+
+A implementação de referência é a tabela de **Funcionários**.
+Use-a como modelo para qualquer nova tabela.
+
+---
+
+## Arquivos de Referência (Funcionários)
+
+Estude estes arquivos antes de começar:
+
+| Arquivo | Caminho | Propósito |
+|---|---|---|
+| Tipo da entidade | `src/types/employee.ts` | Define `EmployeeSummary` e `EmployeeDetail` |
+| Service da API | `src/features/funcionarios/services/funcionarioService.ts` | Funções de API (get, post, put, patch, delete) |
+| Mock de dados | `src/mocks/employees.ts` | Dados mock para desenvolvimento |
+| Rota da API | `src/app/api/condominios/[condId]/funcionarios/route.ts` | GET paginado com filtros |
+| Rota da API (id) | `src/app/api/condominios/[condId]/funcionarios/[funcId]/route.ts` | GET por id, DELETE, PUT, PATCH |
+| Definição de colunas | `src/features/funcionarios/components/columns.tsx` | Define como cada coluna é renderizada |
+| Wrapper client | `src/features/funcionarios/components/funcionarios-data-table.tsx` | Configura o DataTable genérico para funcionários |
+| Ações de linha | `src/features/funcionarios/components/data-table-row-actions.tsx` | Menu dropdown com ações (ver, editar, ativar/desativar, excluir) |
+| Dialog criar/editar | `src/features/funcionarios/components/add-employee-dialog.tsx` | Formulário para criar e editar funcionário |
+| Dialog visualizar | `src/features/funcionarios/components/view-employee-dialog.tsx` | Exibe detalhes em modo somente leitura |
+| Page (Server) | `src/app/condominios/[condId]/(admin)/funcionarios/page.tsx` | Server Component que busca dados e renderiza a tabela |
+
+---
+
+## Passo a Passo para criar uma nova tabela
+
+Substitua `[Feature]` pelo nome da sua entidade (ex: `Imovel`, `Morador`, `Servico`).
+Substitua `[feature]` pela versão lowercase/kebab-case (ex: `imoveis`, `moradores`, `servicos`).
+
+### Passo 1: Defina o tipo da entidade
+
+Crie `src/types/[feature].ts` com os tipos `[Feature]Summary` (para a tabela) e `[Feature]Detail` (para visualização/edição).
+
+Referência: `src/types/employee.ts`
+
+### Passo 2: Crie o service da API
+
+Crie `src/features/[feature]/services/[feature]Service.ts` com as funções:
+- `get[Feature]s(condId, params)` — lista paginada com filtros
+- `get[Feature]ById(condId, id)` — detalhes completos
+- `post[Feature](condId, data)` — criar
+- `put[Feature](condId, id, data)` — atualizar (completo)
+- `patch[Feature](condId, id, data)` — atualizar parcial (ex: status)
+- `delete[Feature](condId, id)` — excluir
+
+Referência: `src/features/funcionarios/services/funcionarioService.ts`
+
+### Passo 3: Crie os dados mock
+
+Crie `src/mocks/[feature].ts` com arrays de dados mock.
+
+Dica: gere os details primeiro e derive os summaries deles para manter consistência.
+
+Referência: `src/mocks/employees.ts`
+
+### Passo 4: Crie as rotas de API
+
+Crie as rotas no padrão do App Router:
+- `src/app/api/condominios/[condId]/[feature]/route.ts` — GET (lista paginada) e POST
+- `src/app/api/condominios/[condId]/[feature]/[id]/route.ts` — GET, PUT, PATCH, DELETE
+
+A rota GET de lista deve aceitar query params: `page`, `limit`, `search`, e filtros específicos.
+
+Referência: `src/app/api/condominios/[condId]/funcionarios/route.ts`
+
+### Passo 5: Crie o columns.tsx
+
+Crie `src/features/[feature]/components/columns.tsx`.
+
+Este arquivo define como cada coluna da tabela é renderizada.
+É um arquivo `'use client'`.
+
+Instruções:
+- Importe `DataTableColumnHeader` de `@/features/components/data-table`
+- Defina `export const columns: ColumnDef<[Feature]Summary>[] = [...]`
+- Para cada coluna, defina `accessorKey`, `header` (use DataTableColumnHeader), e opcionalmente `cell` para renderização customizada
+- A última coluna deve ser de `actions` com o componente de ações de linha
+- Se a coluna tiver filtro facetado, adicione `filterFn: (row, id, value) => value.includes(row.getValue(id))`
+
+Referência: `src/features/funcionarios/components/columns.tsx`
+
+### Passo 6: Crie o wrapper client (OBRIGATÓRIO)
+
+Crie `src/features/[feature]/components/[feature]-data-table.tsx`.
+
+Este é um componente `'use client'` que:
+1. Importa `DataTable` de `@/features/components/data-table`
+2. Importa `columns` do passo 5
+3. Importa os dialogs de ação (ex: AddDialog)
+4. Recebe APENAS `data` e `pageCount` como props (dados serializáveis)
+5. Passa toda a configuração para o DataTable:
+   - `columns` — do import
+   - `searchColumnId` — string com o id da coluna para busca
+   - `searchPlaceholder` — texto do placeholder
+   - `facetedFilters` — array de `{ columnId, title, options: [{ label, value }] }`
+   - `columnLabels` — `Record<string, string>` para visibilidade de colunas
+   - `filterMappings` — array de `{ urlParam, columnId, isArray? }` para sincronizar filtros com URL
+   - `actions` — ReactNode (ex: `<AddDialog />`)
+
+**POR QUE É OBRIGATÓRIO**: No Next.js App Router, a page.tsx é um Server Component.
+O DataTable é `'use client'`. Columns contém funções e componentes React que NÃO são
+serializáveis. Se passar diretamente da page para o DataTable, haverá erro.
+O wrapper client resolve isso importando tudo internamente.
+
+Referência: `src/features/funcionarios/components/funcionarios-data-table.tsx`
+
+### Passo 7: Crie os componentes de ações (opcional mas recomendado)
+
+Crie `src/features/[feature]/components/data-table-row-actions.tsx`.
+
+Este componente renderiza um DropdownMenu com ações como:
+- Visualizar (abre ViewDialog)
+- Editar (abre EditDialog)
+- Ativar/Desativar (patch de status com AlertDialog de confirmação)
+- Excluir (delete com AlertDialog de confirmação)
+
+Após cada ação bem-sucedida, chame `router.refresh()` para atualizar a tabela.
+
+Referência: `src/features/funcionarios/components/data-table-row-actions.tsx`
+
+### Passo 8: Crie os dialogs (opcional)
+
+- Dialog de criar/editar: formulário com `react-hook-form` + `zod` para validação
+- Dialog de visualizar: exibição somente leitura dos detalhes
+
+Referência Criar/Editar: `src/features/funcionarios/components/add-employee-dialog.tsx`
+Referência Visualizar: `src/features/funcionarios/components/view-employee-dialog.tsx`
+
+### Passo 9: Crie a page.tsx (Server Component)
+
+Crie `src/app/condominios/[condId]/(admin)/[feature]/page.tsx`.
+
+Esta page deve:
+1. Ser um Server Component (sem `'use client'`)
+2. Extrair `condId` de `params` e query params de `searchParams`
+3. Chamar o service para buscar dados paginados
+4. Renderizar o wrapper client passando APENAS `data` e `pageCount`
+
+Referência: `src/app/condominios/[condId]/(admin)/funcionarios/page.tsx`
+
+---
+
+## Componentes genéricos disponíveis (NÃO recrie)
+
+Importar de `@/features/components/data-table`:
+
+| Componente | O que faz |
+|---|---|
+| `DataTable` | Tabela completa com paginação, filtros, ordenação e sync de URL |
+| `DataTableColumnHeader` | Header de coluna com sort (asc, desc) e opção de esconder |
+| `DataTableToolbar` | Barra de busca + filtros + ações (usado internamente pelo DataTable) |
+| `DataTablePagination` | Controles de paginação (usado internamente pelo DataTable) |
+| `DataTableFacetedFilter` | Filtro multi-seleção (usado internamente pelo DataTableToolbar) |
+| `DataTableViewOptions` | Menu de visibilidade de colunas (usado internamente pelo DataTableToolbar) |
+
+Desses, você só precisa importar diretamente:
+- `DataTable` — no wrapper client
+- `DataTableColumnHeader` — no columns.tsx
+
+Os demais são usados internamente pelo DataTable e não precisam ser instanciados.
+
+---
+
+## Props do DataTable (referência rápida)
+
+```typescript
+interface DataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];  // Definição das colunas
+  data: TData[];                         // Array de dados
+  pageCount: number;                     // Total de páginas da API
+  searchColumnId?: string;               // Coluna para busca (default: 'name')
+  searchPlaceholder?: string;            // Placeholder do input (default: 'Filtrar...')
+  facetedFilters?: FacetedFilterConfig[]; // Filtros facetados
+  columnLabels?: Record<string, string>; // Labels das colunas para menu de visibilidade
+  filterMappings?: FilterMapping[];      // Mapeamento URL param ↔ coluna
+  actions?: React.ReactNode;             // Botões de ação (ex: dialog de criar)
+}
+
+interface FacetedFilterConfig {
+  columnId: string;     // ID da coluna na tabela
+  title: string;        // Título exibido no botão do filtro
+  options: {
+    label: string;      // Label exibida na lista
+    value: string;      // Valor usado no filtro
+    icon?: ComponentType; // Ícone opcional
+  }[];
+}
+
+interface FilterMapping {
+  urlParam: string;   // Nome do query param na URL (ex: 'search', 'role')
+  columnId: string;   // ID da coluna correspondente (ex: 'name', 'role')
+  isArray?: boolean;  // true se o filtro aceita múltiplos valores (ex: role, status)
+}
+```
+
+---
+
+## Estrutura de pastas esperada para uma nova feature
+
+```
+src/types/[feature].ts
+src/mocks/[feature].ts
+src/features/[feature]/
+  ├── services/[feature]Service.ts
+  └── components/
+      ├── columns.tsx
+      ├── [feature]-data-table.tsx         ← wrapper client (OBRIGATÓRIO)
+      ├── data-table-row-actions.tsx       ← ações de linha
+      ├── add-[feature]-dialog.tsx         ← dialog criar/editar
+      └── view-[feature]-dialog.tsx        ← dialog visualizar
+src/app/api/condominios/[condId]/[feature]/
+  ├── route.ts                            ← GET lista + POST
+  └── [id]/route.ts                       ← GET, PUT, PATCH, DELETE
+src/app/condominios/[condId]/(admin)/[feature]/
+  └── page.tsx                            ← Server Component
+```

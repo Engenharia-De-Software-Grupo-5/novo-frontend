@@ -27,18 +27,40 @@ import {
 } from '@tanstack/react-table';
 
 import { DataTablePagination } from './data-table-pagination';
-import { DataTableToolbar } from './data-table-toolbar';
+import { DataTableToolbar, FacetedFilterConfig } from './data-table-toolbar';
+
+/**
+ * Maps a URL query param to a table column filter.
+ * Example: { urlParam: 'search', columnId: 'name' }
+ */
+export interface FilterMapping {
+  urlParam: string;
+  columnId: string;
+  isArray?: boolean;
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   pageCount: number;
+  searchColumnId?: string;
+  searchPlaceholder?: string;
+  facetedFilters?: FacetedFilterConfig[];
+  columnLabels?: Record<string, string>;
+  filterMappings?: FilterMapping[];
+  actions?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   pageCount,
+  searchColumnId = 'name',
+  searchPlaceholder = 'Filtrar...',
+  facetedFilters = [],
+  columnLabels = {},
+  filterMappings = [],
+  actions,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const pathname = usePathname();
@@ -51,24 +73,6 @@ export function DataTable<TData, TValue>({
     : 10;
   const sort = searchParams?.get('sort');
   const [column, order] = sort?.split('.') ?? [];
-
-  // Create query string helper
-  const createQueryString = React.useCallback(
-    (params: Record<string, string | number | null>) => {
-      const newSearchParams = new URLSearchParams(searchParams?.toString());
-
-      for (const [key, value] of Object.entries(params)) {
-        if (value === null) {
-          newSearchParams.delete(key);
-        } else {
-          newSearchParams.set(key, String(value));
-        }
-      }
-
-      return newSearchParams.toString();
-    },
-    [searchParams]
-  );
 
   // Table state
   const [rowSelection, setRowSelection] = React.useState({});
@@ -87,25 +91,26 @@ export function DataTable<TData, TValue>({
       pageSize: per_page,
     });
 
-  // Helper to parse filters from URL
+  // Helper to parse filters from URL based on filterMappings
   const parseFiltersFromURL = React.useCallback(() => {
     const filters: ColumnFiltersState = [];
-    const search = searchParams?.get('search');
-    if (search) {
-      filters.push({ id: 'name', value: search });
+
+    for (const mapping of filterMappings) {
+      if (mapping.isArray) {
+        const values = searchParams?.getAll(mapping.urlParam);
+        if (values && values.length > 0) {
+          filters.push({ id: mapping.columnId, value: values });
+        }
+      } else {
+        const value = searchParams?.get(mapping.urlParam);
+        if (value) {
+          filters.push({ id: mapping.columnId, value });
+        }
+      }
     }
 
-    const role = searchParams?.getAll('role');
-    if (role && role.length > 0) {
-      filters.push({ id: 'role', value: role });
-    }
-
-    const status = searchParams?.getAll('status');
-    if (status && status.length > 0) {
-      filters.push({ id: 'status', value: status });
-    }
     return filters;
-  }, [searchParams]);
+  }, [searchParams, filterMappings]);
 
   // Initialize filters from URL
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -114,40 +119,6 @@ export function DataTable<TData, TValue>({
 
   // Sync Table State -> URL
   React.useEffect(() => {
-    const params: Record<string, string | number | null> = {
-      page: pageIndex + 1,
-      limit: pageSize,
-    };
-
-    // Handle sorting
-    if (sorting.length > 0) {
-      const { id, desc } = sorting[0];
-      params.sort = `${id}.${desc ? 'desc' : 'asc'}`;
-    } else {
-      params.sort = null;
-    }
-
-    // Handle filters
-    // Reset specific filter keys first
-    // We don't have access to "previous" params easily without reparsing,
-    // but createQueryString merges with existing.
-    // However, createQueryString implementation from previous steps was:
-    // "const newSearchParams = new URLSearchParams(searchParams?.toString()); ... newSearchParams.set(key, val) ... delete(key)"
-    // This merges updates into existing params.
-    // We need to be careful to remove keys if filter is cleared.
-    // So we should iterate known filter keys and set/delete them based on current state.
-
-    // Helper to find filter value
-    const getFilterValue = (id: string) =>
-      columnFilters.find((f) => f.id === id)?.value;
-
-    const nameFilter = getFilterValue('name');
-    params.search = (nameFilter as string) || null;
-
-    // For array filters, we can't use our simple createQueryString which takes Record<string, string|number|null>
-    // functionality needs to be expanded or handled handled manually.
-    // let's manually construct the URLSearchParams derived from state/base.
-
     const newSearchParams = new URLSearchParams(searchParams?.toString());
 
     // Helper to update param
@@ -164,19 +135,22 @@ export function DataTable<TData, TValue>({
 
     updateParam('page', pageIndex + 1);
     updateParam('limit', pageSize);
+
+    // Handle sorting
     if (sorting.length > 0) {
-      updateParam('sort', params.sort);
+      const { id, desc } = sorting[0];
+      updateParam('sort', `${id}.${desc ? 'desc' : 'asc'}`);
     } else {
       newSearchParams.delete('sort');
     }
 
-    updateParam('search', nameFilter);
-
-    const roleFilter = getFilterValue('role');
-    updateParam('role', roleFilter);
-
-    const statusFilter = getFilterValue('status');
-    updateParam('status', statusFilter);
+    // Handle filters based on filterMappings
+    for (const mapping of filterMappings) {
+      const filterValue = columnFilters.find(
+        (f) => f.id === mapping.columnId
+      )?.value;
+      updateParam(mapping.urlParam, filterValue);
+    }
 
     const queryString = newSearchParams.toString();
 
@@ -195,6 +169,7 @@ export function DataTable<TData, TValue>({
     pathname,
     router,
     searchParams,
+    filterMappings,
   ]);
 
   // Sync URL -> Table State (e.g. back button)
@@ -203,7 +178,6 @@ export function DataTable<TData, TValue>({
       pageIndex: page - 1,
       pageSize: per_page,
     });
-    // Sync sorting from URL if needed as well
     const [column, order] = searchParams?.get('sort')?.split('.') ?? [];
     setSorting(column && order ? [{ id: column, desc: order === 'desc' }] : []);
 
@@ -240,7 +214,14 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar
+        table={table}
+        searchColumnId={searchColumnId}
+        searchPlaceholder={searchPlaceholder}
+        facetedFilters={facetedFilters}
+        columnLabels={columnLabels}
+        actions={actions}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>

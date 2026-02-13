@@ -1,5 +1,6 @@
 'use client';
 
+import { DataTableColumnHeader } from '@/features/components/data-table';
 import { Badge } from '@/features/components/ui/badge';
 import { Button } from '@/features/components/ui/button';
 import { ColumnDef } from '@tanstack/react-table';
@@ -7,7 +8,6 @@ import { CircleCheck, CircleX, Download, FileText, Loader } from 'lucide-react';
 
 import { EmployeeSummary } from '@/types/employee';
 
-import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 
 export const columns: ColumnDef<EmployeeSummary>[] = [

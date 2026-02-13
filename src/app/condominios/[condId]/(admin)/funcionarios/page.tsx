@@ -1,8 +1,6 @@
 import { Metadata } from 'next';
-import { columns } from '@/features/funcionarios/components/columns';
-import { DataTable } from '@/features/funcionarios/components/data-table';
+import { FuncionariosDataTable } from '@/features/funcionarios/components/funcionarios-data-table';
 import { getFuncionarios } from '@/features/funcionarios/services/funcionarioService';
-import { z } from 'zod';
 
 export const metadata: Metadata = {
   title: 'Funcionários',
@@ -37,22 +35,21 @@ export default async function FuncionariosPage({
     role,
     status,
   });
+
   return (
     <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
       <div className="flex items-center justify-between space-y-2">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Funcionários</h2>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Gerenciar Funcionários
+          </h2>
           <p className="text-muted-foreground">
             Gerencie os usuários do sistema, aprove acessos pendentes, atribua
             cargos e acompanhe informações essenciais como status e contratos.
           </p>
         </div>
       </div>
-      <DataTable
-        data={funcionarios}
-        columns={columns}
-        pageCount={meta.totalPages}
-      />
+      <FuncionariosDataTable data={funcionarios} pageCount={meta.totalPages} />
     </div>
   );
 }
