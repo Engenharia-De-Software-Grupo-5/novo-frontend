@@ -6,7 +6,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/features/components/ui/dropdown-menu';
@@ -16,8 +15,12 @@ import {
   CircleX,
   Download,
   FileText,
+  FlagOff,
   Loader,
   MoreHorizontal,
+  PencilLine,
+  ScanEye,
+  Trash2,
 } from 'lucide-react';
 
 import { EmployeeSummary } from '@/types/employee';
@@ -60,9 +63,13 @@ export const columns: ColumnDef<EmployeeSummary>[] = [
           variant="muted"
           className="flex w-fit items-center gap-1 capitalize"
         >
-          {status === 'ativo' && <CircleCheck className="h-3 w-3" />}
+          {status === 'ativo' && (
+            <CircleCheck className="h-3 w-3 text-green-500" />
+          )}
           {status === 'pendente' && <Loader className="h-3 w-3" />}
-          {status === 'inativo' && <CircleX className="h-3 w-3" />}
+          {status === 'inativo' && (
+            <CircleX className="text-destructive h-3 w-3" />
+          )}
           {status}
         </Badge>
       );
@@ -111,17 +118,22 @@ export const columns: ColumnDef<EmployeeSummary>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(employee.id)}
-            >
-              Copiar ID
+            <DropdownMenuItem className="flex items-center justify-between gap-2">
+              Visualizar
+              <ScanEye className="h-4 w-4" />
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center justify-between gap-2">
+              Editar
+              <PencilLine className="h-4 w-4" />
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center justify-between gap-2">
+              Desativar
+              <FlagOff className="h-4 w-4" />
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Visualizar</DropdownMenuItem>
-            <DropdownMenuItem>Editar</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">
-              Apagar
+            <DropdownMenuItem className="text-destructive focus:text-destructive flex items-center justify-between gap-2">
+              Excluir
+              <Trash2 className="h-4 w-4" />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

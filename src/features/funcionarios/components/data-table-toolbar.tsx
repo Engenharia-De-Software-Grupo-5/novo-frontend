@@ -6,6 +6,7 @@ import { Input } from '@/features/components/ui/input';
 import { Table } from '@tanstack/react-table';
 import { X } from 'lucide-react';
 
+import { AddEmployeeDialog } from './add-employee-dialog';
 import { DataTableFacetedFilter } from './data-table-faceted-filter';
 import { DataTableViewOptions } from './data-table-view-options';
 
@@ -41,7 +42,7 @@ export function DataTableToolbar<TData>({
   }, [searchValue, table]);
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex flex-wrap items-center justify-between gap-2">
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder="Filtrar nomes..."
@@ -84,14 +85,9 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <div className="flex items-center space-x-2">
+      <div className="flex shrink-0 items-center space-x-2">
         <DataTableViewOptions table={table} />
-        <Button
-          size="sm"
-          className="h-8 bg-[#1447E6] text-white hover:bg-[#1447E6]/90"
-        >
-          Adicionar Funcionário
-        </Button>
+        <AddEmployeeDialog />
       </div>
     </div>
   );
