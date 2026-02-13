@@ -8,9 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/features/components/ui/dialog';
-import { CircleCheck, CircleX, Download, FileText, Loader } from 'lucide-react';
+import { Download, FileText } from 'lucide-react';
 
 import { EmployeeDetail } from '@/types/employee';
+
+import { StatusBadge } from './status-badge';
 
 interface ViewEmployeeDialogProps {
   employee: EmployeeDetail;
@@ -24,17 +26,6 @@ function FieldItem({ label, value }: { label: string; value?: string | null }) {
       <p className="text-sm font-medium">{label}</p>
       <p className="text-muted-foreground text-xs">{value || '—'}</p>
     </div>
-  );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  return (
-    <Badge variant="muted" className="flex w-fit items-center gap-1 capitalize">
-      {status === 'ativo' && <CircleCheck className="h-3 w-3 text-green-500" />}
-      {status === 'pendente' && <Loader className="h-3 w-3" />}
-      {status === 'inativo' && <CircleX className="text-destructive h-3 w-3" />}
-      {status}
-    </Badge>
   );
 }
 

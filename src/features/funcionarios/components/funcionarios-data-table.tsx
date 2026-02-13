@@ -4,6 +4,11 @@ import { DataTable } from '@/features/components/data-table';
 
 import { EmployeeSummary } from '@/types/employee';
 
+import {
+  EMPLOYEE_COLUMN_LABELS,
+  EMPLOYEE_ROLES,
+  EMPLOYEE_STATUSES,
+} from '../constants';
 import { AddEmployeeDialog } from './add-employee-dialog';
 import { columns } from './columns';
 
@@ -27,29 +32,21 @@ export function FuncionariosDataTable({
         {
           columnId: 'role',
           title: 'Cargo',
-          options: [
-            { label: 'Gerente', value: 'gerente' },
-            { label: 'Porteiro', value: 'porteiro' },
-            { label: 'Zelador', value: 'zelador' },
-            { label: 'Faxineiro', value: 'faxineiro' },
-          ],
+          options: EMPLOYEE_ROLES.map((r) => ({
+            label: r.label,
+            value: r.value,
+          })),
         },
         {
           columnId: 'status',
           title: 'Status',
-          options: [
-            { label: 'Ativo', value: 'ativo' },
-            { label: 'Pendente', value: 'pendente' },
-            { label: 'Inativo', value: 'inativo' },
-          ],
+          options: EMPLOYEE_STATUSES.map((s) => ({
+            label: s.label,
+            value: s.value,
+          })),
         },
       ]}
-      columnLabels={{
-        name: 'Nome',
-        role: 'Cargo',
-        status: 'Status',
-        lastContract: 'Último Contrato',
-      }}
+      columnLabels={EMPLOYEE_COLUMN_LABELS}
       filterMappings={[
         { urlParam: 'search', columnId: 'name' },
         { urlParam: 'role', columnId: 'role', isArray: true },

@@ -4,11 +4,12 @@ import { DataTableColumnHeader } from '@/features/components/data-table';
 import { Badge } from '@/features/components/ui/badge';
 import { Button } from '@/features/components/ui/button';
 import { ColumnDef } from '@tanstack/react-table';
-import { CircleCheck, CircleX, Download, FileText, Loader } from 'lucide-react';
+import { Download, FileText } from 'lucide-react';
 
 import { EmployeeSummary } from '@/types/employee';
 
 import { DataTableRowActions } from './data-table-row-actions';
+import { StatusBadge } from './status-badge';
 
 export const columns: ColumnDef<EmployeeSummary>[] = [
   {
@@ -41,21 +42,7 @@ export const columns: ColumnDef<EmployeeSummary>[] = [
     ),
     cell: ({ row }) => {
       const status = row.getValue('status') as string;
-      return (
-        <Badge
-          variant="muted"
-          className="flex w-fit items-center gap-1 capitalize"
-        >
-          {status === 'ativo' && (
-            <CircleCheck className="h-3 w-3 text-green-500" />
-          )}
-          {status === 'pendente' && <Loader className="h-3 w-3" />}
-          {status === 'inativo' && (
-            <CircleX className="text-destructive h-3 w-3" />
-          )}
-          {status}
-        </Badge>
-      );
+      return <StatusBadge status={status} />;
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));

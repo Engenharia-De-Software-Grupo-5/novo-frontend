@@ -20,14 +20,19 @@ Estude estes arquivos antes de começar:
 | Arquivo | Caminho | Propósito |
 |---|---|---|
 | Tipo da entidade | `src/types/employee.ts` | Define `EmployeeSummary` e `EmployeeDetail` |
-| Service da API | `src/features/funcionarios/services/funcionarioService.ts` | Funções de API (get, post, put, patch, delete) |
+| Constantes | `src/features/funcionarios/constants.ts` | Roles, statuses (com ícones) e column labels centralizados |
+| Schema Zod | `src/features/funcionarios/schemas/employeeSchema.ts` | Schema de validação do formulário de funcionário |
+| Hook de upload | `src/features/funcionarios/hooks/useFileUpload.ts` | Hook reutilizável para upload de arquivos PDF |
+| API client | `src/lib/api-client.ts` | Helper genérico de fetch (apiRequest + buildQueryString) |
+| Service da API | `src/features/funcionarios/services/funcionarioService.ts` | Funções de API (get, post, put, patch, delete) usando apiClient |
 | Mock de dados | `src/mocks/employees.ts` | Dados mock para desenvolvimento |
-| Rota da API | `src/app/api/condominios/[condId]/funcionarios/route.ts` | GET paginado com filtros |
+| Rota da API | `src/app/api/condominios/[condId]/funcionarios/route.ts` | GET paginado com filtros e POST |
 | Rota da API (id) | `src/app/api/condominios/[condId]/funcionarios/[funcId]/route.ts` | GET por id, DELETE, PUT, PATCH |
+| StatusBadge | `src/features/funcionarios/components/status-badge.tsx` | Componente reutilizável de badge com ícone por status |
 | Definição de colunas | `src/features/funcionarios/components/columns.tsx` | Define como cada coluna é renderizada |
 | Wrapper client | `src/features/funcionarios/components/funcionarios-data-table.tsx` | Configura o DataTable genérico para funcionários |
 | Ações de linha | `src/features/funcionarios/components/data-table-row-actions.tsx` | Menu dropdown com ações (ver, editar, ativar/desativar, excluir) |
-| Dialog criar/editar | `src/features/funcionarios/components/add-employee-dialog.tsx` | Formulário para criar e editar funcionário |
+| Dialog criar/editar | `src/features/funcionarios/components/add-employee-dialog.tsx` | Formulário com react-hook-form + zod (usa schema e hook extraídos) |
 | Dialog visualizar | `src/features/funcionarios/components/view-employee-dialog.tsx` | Exibe detalhes em modo somente leitura |
 | Page (Server) | `src/app/condominios/[condId]/(admin)/funcionarios/page.tsx` | Server Component que busca dados e renderiza a tabela |
 
@@ -44,7 +49,18 @@ Crie `src/types/[feature].ts` com os tipos `[Feature]Summary` (para a tabela) e 
 
 Referência: `src/types/employee.ts`
 
-### Passo 2: Crie o service da API
+### Passo 2: Crie as constantes
+
+Crie `src/features/[feature]/constants.ts` com:
+- Lista de opções de filtros (ex: roles, statuses) com `label` e `value`
+- Status com ícones (usado em badges e filtros facetados)
+- Labels de colunas `Record<string, string>` para o menu de visibilidade
+
+Centralizar essas constantes evita duplicação entre dialog, colunas, e wrapper da tabela.
+
+Referência: `src/features/funcionarios/constants.ts`
+
+### Passo 3: Crie o service da API
 
 Crie `src/features/[feature]/services/[feature]Service.ts` com as funções:
 - `get[Feature]s(condId, params)` — lista paginada com filtros
@@ -54,9 +70,13 @@ Crie `src/features/[feature]/services/[feature]Service.ts` com as funções:
 - `patch[Feature](condId, id, data)` — atualizar parcial (ex: status)
 - `delete[Feature](condId, id)` — excluir
 
-Referência: `src/features/funcionarios/services/funcionarioService.ts`
+Use o helper `apiRequest` de `@/lib/api-client` para evitar boilerplate de fetch.
+Use `buildQueryString` do mesmo módulo para montar query params.
 
-### Passo 3: Crie os dados mock
+Referência: `src/features/funcionarios/services/funcionarioService.ts`
+Referência API client: `src/lib/api-client.ts`
+
+### Passo 4: Crie os dados mock
 
 Crie `src/mocks/[feature].ts` com arrays de dados mock.
 
@@ -64,7 +84,7 @@ Dica: gere os details primeiro e derive os summaries deles para manter consistê
 
 Referência: `src/mocks/employees.ts`
 
-### Passo 4: Crie as rotas de API
+### Passo 5: Crie as rotas de API
 
 Crie as rotas no padrão do App Router:
 - `src/app/api/condominios/[condId]/[feature]/route.ts` — GET (lista paginada) e POST
@@ -74,7 +94,7 @@ A rota GET de lista deve aceitar query params: `page`, `limit`, `search`, e filt
 
 Referência: `src/app/api/condominios/[condId]/funcionarios/route.ts`
 
-### Passo 5: Crie o columns.tsx
+### Passo 6: Crie o columns.tsx
 
 Crie `src/features/[feature]/components/columns.tsx`.
 
@@ -87,24 +107,26 @@ Instruções:
 - Para cada coluna, defina `accessorKey`, `header` (use DataTableColumnHeader), e opcionalmente `cell` para renderização customizada
 - A última coluna deve ser de `actions` com o componente de ações de linha
 - Se a coluna tiver filtro facetado, adicione `filterFn: (row, id, value) => value.includes(row.getValue(id))`
+- Use componentes reutilizáveis para badges (ex: `StatusBadge`) em vez de inline JSX
 
 Referência: `src/features/funcionarios/components/columns.tsx`
 
-### Passo 6: Crie o wrapper client (OBRIGATÓRIO)
+### Passo 7: Crie o wrapper client (OBRIGATÓRIO)
 
 Crie `src/features/[feature]/components/[feature]-data-table.tsx`.
 
 Este é um componente `'use client'` que:
 1. Importa `DataTable` de `@/features/components/data-table`
-2. Importa `columns` do passo 5
-3. Importa os dialogs de ação (ex: AddDialog)
-4. Recebe APENAS `data` e `pageCount` como props (dados serializáveis)
-5. Passa toda a configuração para o DataTable:
+2. Importa `columns` do passo 6
+3. Importa as constantes do passo 2 (roles, statuses, columnLabels)
+4. Importa os dialogs de ação (ex: AddDialog)
+5. Recebe APENAS `data` e `pageCount` como props (dados serializáveis)
+6. Passa toda a configuração para o DataTable:
    - `columns` — do import
    - `searchColumnId` — string com o id da coluna para busca
    - `searchPlaceholder` — texto do placeholder
-   - `facetedFilters` — array de `{ columnId, title, options: [{ label, value }] }`
-   - `columnLabels` — `Record<string, string>` para visibilidade de colunas
+   - `facetedFilters` — use as constantes (ex: `EMPLOYEE_ROLES.map(...)`)
+   - `columnLabels` — use a constante (ex: `EMPLOYEE_COLUMN_LABELS`)
    - `filterMappings` — array de `{ urlParam, columnId, isArray? }` para sincronizar filtros com URL
    - `actions` — ReactNode (ex: `<AddDialog />`)
 
@@ -115,7 +137,7 @@ O wrapper client resolve isso importando tudo internamente.
 
 Referência: `src/features/funcionarios/components/funcionarios-data-table.tsx`
 
-### Passo 7: Crie os componentes de ações (opcional mas recomendado)
+### Passo 8: Crie os componentes de ações (opcional mas recomendado)
 
 Crie `src/features/[feature]/components/data-table-row-actions.tsx`.
 
@@ -129,15 +151,34 @@ Após cada ação bem-sucedida, chame `router.refresh()` para atualizar a tabela
 
 Referência: `src/features/funcionarios/components/data-table-row-actions.tsx`
 
-### Passo 8: Crie os dialogs (opcional)
+### Passo 9: Crie o schema Zod e hooks
 
-- Dialog de criar/editar: formulário com `react-hook-form` + `zod` para validação
+Crie `src/features/[feature]/schemas/[feature]Schema.ts` com:
+- O schema Zod de validação do formulário
+- O type `[Feature]FormValues = z.infer<typeof schema>`
+
+Isso separa a validação do componente visual, facilitando testes e reutilização.
+
+Se tiver upload de arquivos, crie `src/features/[feature]/hooks/useFileUpload.ts` com:
+- Estado de `files` (novos) e `existingContracts` (do servidor)
+- `handleFileChange` com validação de tipo
+- `removeFile`, `removeExistingContract`, `resetFiles`, `setInitialContracts`
+- `hasAnyFiles` (computed)
+
+Referência Schema: `src/features/funcionarios/schemas/employeeSchema.ts`
+Referência Hook: `src/features/funcionarios/hooks/useFileUpload.ts`
+
+### Passo 10: Crie os dialogs (opcional)
+
+- Dialog de criar/editar: formulário com `react-hook-form` + schema do passo 9
+- Use o hook `useFileUpload` do passo 9 para gerenciar arquivos
+- Use as constantes do passo 2 para popular selects e opções
 - Dialog de visualizar: exibição somente leitura dos detalhes
 
 Referência Criar/Editar: `src/features/funcionarios/components/add-employee-dialog.tsx`
 Referência Visualizar: `src/features/funcionarios/components/view-employee-dialog.tsx`
 
-### Passo 9: Crie a page.tsx (Server Component)
+### Passo 11: Crie a page.tsx (Server Component)
 
 Crie `src/app/condominios/[condId]/(admin)/[feature]/page.tsx`.
 
@@ -206,22 +247,36 @@ interface FilterMapping {
 
 ---
 
+## Utilitários genéricos disponíveis (NÃO recrie)
+
+| Utilitário | Caminho | O que faz |
+|---|---|---|
+| `apiRequest` | `src/lib/api-client.ts` | Fetch genérico com JSON, error handling, e suporte a body vazio |
+| `buildQueryString` | `src/lib/api-client.ts` | Monta query string a partir de objeto, suportando arrays |
+
+---
+
 ## Estrutura de pastas esperada para uma nova feature
 
 ```
 src/types/[feature].ts
 src/mocks/[feature].ts
+src/lib/api-client.ts                       ← já existe, reutilize
 src/features/[feature]/
-  ├── services/[feature]Service.ts
+  ├── constants.ts                          ← roles, statuses, column labels
+  ├── schemas/[feature]Schema.ts            ← schema Zod + types do form
+  ├── hooks/useFileUpload.ts                ← hook de upload (se aplicável)
+  ├── services/[feature]Service.ts          ← funções de API usando apiClient
   └── components/
-      ├── columns.tsx
-      ├── [feature]-data-table.tsx         ← wrapper client (OBRIGATÓRIO)
-      ├── data-table-row-actions.tsx       ← ações de linha
-      ├── add-[feature]-dialog.tsx         ← dialog criar/editar
-      └── view-[feature]-dialog.tsx        ← dialog visualizar
+      ├── status-badge.tsx                  ← badge com ícone por status
+      ├── columns.tsx                       ← definição de colunas
+      ├── [feature]-data-table.tsx           ← wrapper client (OBRIGATÓRIO)
+      ├── data-table-row-actions.tsx         ← ações de linha
+      ├── add-[feature]-dialog.tsx           ← dialog criar/editar
+      └── view-[feature]-dialog.tsx          ← dialog visualizar
 src/app/api/condominios/[condId]/[feature]/
-  ├── route.ts                            ← GET lista + POST
-  └── [id]/route.ts                       ← GET, PUT, PATCH, DELETE
+  ├── route.ts                              ← GET lista + POST
+  └── [id]/route.ts                         ← GET, PUT, PATCH, DELETE
 src/app/condominios/[condId]/(admin)/[feature]/
-  └── page.tsx                            ← Server Component
+  └── page.tsx                              ← Server Component
 ```

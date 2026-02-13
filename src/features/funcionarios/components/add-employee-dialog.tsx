@@ -32,37 +32,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { FileText, Trash2, Upload } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import * as z from 'zod';
 
-import { EmployeeDetail, EmployeeFile } from '@/types/employee';
+import { EmployeeDetail } from '@/types/employee';
 
-import { putFuncionario } from '../services/funcionarioService';
-
-const employeeFormSchema = z.object({
-  email: z
-    .string()
-    .email({ message: 'Email inválido.' })
-    .optional()
-    .or(z.literal('')),
-  name: z.string().min(2, {
-    message: 'Nome deve ter pelo menos 2 caracteres.',
-  }),
-  cpf: z
-    .string()
-    .min(11, { message: 'CPF deve ter 11 dígitos.' })
-    .max(14, { message: 'CPF muito longo.' }),
-  birthDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: 'Data de nascimento inválida.',
-  }),
-  admissionDate: z.string().optional(),
-  role: z.string({
-    message: 'Por favor selecione um cargo.',
-  }),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-});
-
-type EmployeeFormValues = z.infer<typeof employeeFormSchema>;
+import { EMPLOYEE_ROLES } from '../constants';
+import { useFileUpload } from '../hooks/useFileUpload';
+import {
+  employeeFormSchema,
+  EmployeeFormValues,
+} from '../schemas/employeeSchema';
+import {
+  postFuncionario,
+  putFuncionario,
+} from '../services/funcionarioService';
 
 interface EmployeeDialogProps {
   employee?: EmployeeDetail;
@@ -76,10 +58,6 @@ export function EmployeeDialog({
   onOpenChange: controlledOnOpenChange,
 }: EmployeeDialogProps) {
   const [internalOpen, setInternalOpen] = useState(false);
-  const [files, setFiles] = useState<File[]>([]);
-  const [existingContracts, setExistingContracts] = useState<EmployeeFile[]>(
-    []
-  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const params = useParams();
@@ -91,6 +69,17 @@ export function EmployeeDialog({
   const setOpen = isControlled
     ? (value: boolean) => controlledOnOpenChange?.(value)
     : setInternalOpen;
+
+  const {
+    files,
+    existingContracts,
+    hasAnyFiles,
+    handleFileChange,
+    removeFile,
+    removeExistingContract,
+    resetFiles,
+    setInitialContracts,
+  } = useFileUpload();
 
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeFormSchema),
@@ -119,9 +108,9 @@ export function EmployeeDialog({
         phone: employee.phone ?? '',
         address: employee.address ?? '',
       });
-      setExistingContracts(employee.Contracts ?? []);
+      setInitialContracts(employee.Contracts ?? []);
     }
-  }, [employee, open, form]);
+  }, [employee, open, form, setInitialContracts]);
 
   async function onSubmit(data: EmployeeFormValues) {
     try {
@@ -129,16 +118,15 @@ export function EmployeeDialog({
       if (isEditing) {
         await putFuncionario(condId, employee.id, { ...data });
         toast.success(`Funcionário "${data.name}" atualizado com sucesso!`);
-        router.refresh();
       } else {
-        console.log('Form submitted:', { ...data, files });
-        // TODO: Implement POST API call
-        toast.success('Funcionário adicionado com sucesso!');
+        await postFuncionario(condId, { ...data });
+        toast.success(`Funcionário "${data.name}" adicionado com sucesso!`);
       }
+      router.refresh();
       setOpen(false);
       if (!isEditing) {
         form.reset();
-        setFiles([]);
+        resetFiles();
       }
     } catch (error) {
       console.error('Error submitting employee:', error);
@@ -151,32 +139,6 @@ export function EmployeeDialog({
       setIsSubmitting(false);
     }
   }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files);
-      const invalidFiles = newFiles.filter(
-        (file) => file.type !== 'application/pdf'
-      );
-      if (invalidFiles.length > 0) {
-        toast.error('Apenas arquivos PDF são permitidos.');
-        e.target.value = '';
-        return;
-      }
-      setFiles((prev) => [...prev, ...newFiles]);
-      e.target.value = '';
-    }
-  };
-
-  const removeFile = (indexToRemove: number) => {
-    setFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
-  };
-
-  const removeExistingContract = (contractId: string) => {
-    setExistingContracts((prev) => prev.filter((c) => c.id !== contractId));
-  };
-
-  const hasAnyFiles = files.length > 0 || existingContracts.length > 0;
 
   const dialogContent = (
     <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[425px]">
@@ -281,10 +243,11 @@ export function EmployeeDialog({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="gerente">Gerente</SelectItem>
-                    <SelectItem value="porteiro">Porteiro</SelectItem>
-                    <SelectItem value="zelador">Zelador</SelectItem>
-                    <SelectItem value="faxineiro">Faxineiro</SelectItem>
+                    {EMPLOYEE_ROLES.map((role) => (
+                      <SelectItem key={role.value} value={role.value}>
+                        {role.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />

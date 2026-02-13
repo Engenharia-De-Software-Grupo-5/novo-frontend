@@ -1,6 +1,7 @@
 import { EmployeeDetail, EmployeeResponse } from '@/types/employee';
+import { apiRequest, buildQueryString } from '@/lib/api-client';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const basePath = (condId: string) => `/api/condominios/${condId}/funcionarios`;
 
 export const getFuncionarios = async (
   condId: string,
@@ -13,91 +14,31 @@ export const getFuncionarios = async (
   }
 ): Promise<EmployeeResponse> => {
   try {
-    const queryParams = new URLSearchParams();
-    if (params?.page) queryParams.set('page', params.page.toString());
-    if (params?.limit) queryParams.set('limit', params.limit.toString());
-    if (params?.search) queryParams.set('name', params.search);
-    if (params?.role) {
-      if (Array.isArray(params.role)) {
-        params.role.forEach((r) => queryParams.append('role', r));
-      } else {
-        queryParams.set('role', params.role);
-      }
-    }
-    if (params?.status) {
-      if (Array.isArray(params.status)) {
-        params.status.forEach((s) => queryParams.append('status', s));
-      } else {
-        queryParams.set('status', params.status);
-      }
-    }
-
-    const queryString = queryParams.toString();
-    const url = `${API_URL}/api/condominios/${condId}/funcionarios${queryString ? `?${queryString}` : ''}`;
-
-    console.log(url);
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    const query = buildQueryString({
+      page: params?.page,
+      limit: params?.limit,
+      name: params?.search,
+      role: params?.role
+        ? Array.isArray(params.role)
+          ? params.role
+          : [params.role]
+        : undefined,
+      status: params?.status
+        ? Array.isArray(params.status)
+          ? params.status
+          : [params.status]
+        : undefined,
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch employees: ${response.statusText}`);
-    }
-
-    return await response.json();
+    return await apiRequest<EmployeeResponse>(`${basePath(condId)}${query}`, {
+      method: 'GET',
+    });
   } catch (error) {
     console.error('Error fetching employees:', error);
-    // Return empty array or rethrow depending on desired error handling
     return {
       data: [],
-      meta: {
-        total: 0,
-        page: 1,
-        limit: 10,
-        totalPages: 1,
-      },
+      meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
     };
-  }
-};
-
-export const deleteFuncionario = async (
-  condId: string,
-  funcId: string
-): Promise<void> => {
-  const url = `${API_URL}/api/condominios/${condId}/funcionarios/${funcId}`;
-
-  const response = await fetch(url, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to delete employee: ${response.statusText}`);
-  }
-};
-
-export const patchFuncionario = async (
-  condId: string,
-  funcId: string,
-  data: Record<string, unknown>
-): Promise<void> => {
-  const url = `${API_URL}/api/condominios/${condId}/funcionarios/${funcId}`;
-
-  const response = await fetch(url, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to update employee: ${response.statusText}`);
   }
 };
 
@@ -105,20 +46,19 @@ export const getFuncionarioById = async (
   condId: string,
   funcId: string
 ): Promise<EmployeeDetail> => {
-  const url = `${API_URL}/api/condominios/${condId}/funcionarios/${funcId}`;
-
-  const response = await fetch(url, {
+  return apiRequest<EmployeeDetail>(`${basePath(condId)}/${funcId}`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
   });
+};
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch employee: ${response.statusText}`);
-  }
-
-  return await response.json();
+export const postFuncionario = async (
+  condId: string,
+  data: Partial<EmployeeDetail>
+): Promise<void> => {
+  await apiRequest(basePath(condId), {
+    method: 'POST',
+    body: data,
+  });
 };
 
 export const putFuncionario = async (
@@ -126,17 +66,28 @@ export const putFuncionario = async (
   funcId: string,
   data: Partial<EmployeeDetail>
 ): Promise<void> => {
-  const url = `${API_URL}/api/condominios/${condId}/funcionarios/${funcId}`;
-
-  const response = await fetch(url, {
+  await apiRequest(`${basePath(condId)}/${funcId}`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
+    body: data,
   });
+};
 
-  if (!response.ok) {
-    throw new Error(`Failed to update employee: ${response.statusText}`);
-  }
+export const patchFuncionario = async (
+  condId: string,
+  funcId: string,
+  data: Record<string, unknown>
+): Promise<void> => {
+  await apiRequest(`${basePath(condId)}/${funcId}`, {
+    method: 'PATCH',
+    body: data,
+  });
+};
+
+export const deleteFuncionario = async (
+  condId: string,
+  funcId: string
+): Promise<void> => {
+  await apiRequest(`${basePath(condId)}/${funcId}`, {
+    method: 'DELETE',
+  });
 };
