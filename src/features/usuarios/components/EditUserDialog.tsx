@@ -21,9 +21,7 @@ import {
 import { useUpdateUser } from '@/features/usuarios/hooks/mutations/use-update-user';
 import { toast } from 'sonner';
 
-import { User } from '@/types/user';
-
-import { useRoles } from '../hooks/queries/use-roles';
+import { Role, User } from '@/types/user';
 
 type UserStatus = 'ativo' | 'inativo' | 'pendente';
 
@@ -41,12 +39,12 @@ export function EditUserDialog({
   condominioId,
 }: EditUserDialogProps) {
   const [role, setRole] = useState<string | undefined>(undefined);
-  const { data: roles, isLoading: rolesLoading } = useRoles();
+
+  const roles: Role[] = ['Financeiro', 'RH'];
 
   const [status, setStatus] = useState<UserStatus>('pendente');
 
   const { mutate: updateUser, isPending } = useUpdateUser(condominioId);
-
   // sempre que abrir o dialog, sincroniza com o user
   useEffect(() => {
     if (user) {
@@ -113,15 +111,9 @@ export function EditUserDialog({
                 </SelectTrigger>
 
                 <SelectContent>
-                  {rolesLoading && (
-                    <div className="text-muted-foreground px-2 py-1 text-sm">
-                      Carregando cargos...
-                    </div>
-                  )}
-
-                  {roles?.map((role) => (
-                    <SelectItem key={role.id} value={role.name}>
-                      {role.name}
+                  {roles.map((roleOption) => (
+                    <SelectItem key={roleOption} value={roleOption}>
+                      {roleOption}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -33,12 +33,10 @@ import { EditUserDialog } from './EditUserDialog';
 import { StatusBadge } from './StatusBadge';
 import { ViewUserDialog } from './ViewUserDialog';
 
-
 export interface UsersTableProps {
   users: User[];
   condominioId: string;
 }
-
 
 export function UsersTable({ users, condominioId }: UsersTableProps) {
   const [openView, setOpenView] = useState(false);
@@ -68,34 +66,32 @@ export function UsersTable({ users, condominioId }: UsersTableProps) {
   }
 
   return (
-    <div className="relative w-full overflow-x-auto rounded-xl border bg-white">
-      <Table>
-        <TableHeader className="bg-brand-background">
+    <div className="app-table-container">
+      <Table className="app-table">
+        <TableHeader className="app-table-header">
           <TableRow>
-            <TableHead className="w-8" />
-            <TableHead className="text-brand-dark w-[40%] pl-6">Nome</TableHead>
-            <TableHead className="text-brand-dark">Cargo</TableHead>
-            <TableHead className="text-brand-dark">Status</TableHead>
-            <TableHead className="text-brand-dark">Último acesso</TableHead>
-            <TableHead className="w-10 text-right" />
+            <TableHead className="col-drag" />
+            <TableHead className="col-name">Nome</TableHead>
+            <TableHead>Cargo</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Último acesso</TableHead>
+            <TableHead className="col-actions" />
           </TableRow>
         </TableHeader>
 
         <TableBody>
           {users.map((user) => (
-            <TableRow key={user.id} className="hover:bg-muted/50">
-              <TableCell className="text-muted-foreground w-8">
-                <GripVertical className="h-4 w-4" />
+            <TableRow key={user.id} className="app-table-row">
+              <TableCell className="col-drag cell-muted">
+                <GripVertical className="icon-sm" />
               </TableCell>
 
               {/* Nome */}
-              <TableCell className="pl-6 font-medium">{user.name}</TableCell>
+              <TableCell className="cell-name">{user.name}</TableCell>
 
               {/* Cargo */}
               <TableCell>
-                <span className="text-muted-foreground rounded-md border px-2 py-0.5 text-xs">
-                  {user.role}
-                </span>
+                <span className="badge-role">{user.role}</span>
               </TableCell>
 
               {/* Status */}
@@ -104,56 +100,48 @@ export function UsersTable({ users, condominioId }: UsersTableProps) {
               </TableCell>
 
               {/* Último acesso */}
-              <TableCell className="text-brand-dark text-sm">
-                {/* //{user.lastAccess} */}
-                {'Hoje'}
-              </TableCell>
+              <TableCell className="cell-last-access">Hoje</TableCell>
 
               {/* Menu */}
-              <TableCell className="w-10 text-right">
+              <TableCell className="col-actions">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
-                      <EllipsisVertical className="h-4 w-4" />
+                      <EllipsisVertical className="icon-sm" />
                     </Button>
                   </DropdownMenuTrigger>
 
-                  <DropdownMenuContent align="end" className="w-44">
+                  <DropdownMenuContent align="end" className="dropdown-menu">
                     <DropdownMenuItem
-                      className="flex items-center gap-2"
-                      onSelect={() => {
-                        handleViewUser(user);
-                      }}
+                      className="dropdown-item"
+                      onSelect={() => handleViewUser(user)}
                     >
-                      <span className="ml-auto text-right">Visualizar</span>
-                      <ScanEye className="text-brand-dark h-4 w-4" />
+                      <span>Visualizar</span>
+                      <ScanEye className="icon-sm icon-brand" />
                     </DropdownMenuItem>
 
                     <DropdownMenuItem
-                      className="flex items-center gap-2"
-                      onSelect={() => {
-                        handleEditUser(user);
-                      }}
+                      className="dropdown-item"
+                      onSelect={() => handleEditUser(user)}
                     >
-                      <span className="ml-auto text-right">Editar</span>
-                      <PencilLine className="text-brand-dark h-4 w-4" />
+                      <span>Editar</span>
+                      <PencilLine className="icon-sm icon-brand" />
                     </DropdownMenuItem>
 
                     <DropdownMenuItem
-                      className="flex items-center gap-2"
-                      onSelect={() => {
-                        handleDeactivateUser(user);
-                      }}
+                      className="dropdown-item"
+                      onSelect={() => handleDeactivateUser(user)}
                     >
-                      <span className="ml-auto text-right">Desativar</span>
-                      <FlagOff className="text-brand-dark h-4 w-4" />
+                      <span>Desativar</span>
+                      <FlagOff className="icon-sm icon-brand" />
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem className="text-brand-red-vivid focus:text-brand-red-vivid flex items-center gap-2"  onSelect={() => {
-                        handleDeleteUser(user);
-                      }}>
-                      <span className="ml-auto text-right">Excluir</span>
-                      <Trash2 className="h-4 w-4" />
+                    <DropdownMenuItem
+                      className="dropdown-item dropdown-danger"
+                      onSelect={() => handleDeleteUser(user)}
+                    >
+                      <span>Excluir</span>
+                      <Trash2 className="icon-sm" />
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -163,6 +151,7 @@ export function UsersTable({ users, condominioId }: UsersTableProps) {
         </TableBody>
       </Table>
 
+      {/* dialogs continuam iguais */}
       <ViewUserDialog
         open={openView}
         onOpenChange={setOpenView}

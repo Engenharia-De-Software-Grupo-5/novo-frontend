@@ -2,19 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/features/components/ui/button';
 import { Input } from '@/features/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/features/components/ui/select';
 import { RolesFilter } from '@/features/usuarios/components/RolesFilter';
-import { useRoles } from '@/features/usuarios/hooks/queries/use-roles';
 import { useUsers } from '@/features/usuarios/hooks/queries/use-users';
-import { Plus, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 
 import { Role, Status } from '@/types/user';
 
@@ -22,6 +13,7 @@ import { AddUserDialog } from '../../../../../features/usuarios/components/AddUs
 import { PaginationFooter } from '../../../../../features/usuarios/components/PaginationFooter';
 import { UsersTable } from '../../../../../features/usuarios/components/UsersTable';
 import { StatusFilter } from '@/features/usuarios/components/StatusFilter';
+import { notFound } from 'next/navigation';
 
 export default function UsersPage() {
   const [page, setPage] = useState(1);
@@ -39,6 +31,13 @@ export default function UsersPage() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+   useEffect(() => {
+    if (!user) {
+      notFound()
+    }
+  }, [user])
+
+
   const { data, isLoading } = useUsers({
     condominioId: user?.condominioId,
     page,
@@ -48,6 +47,7 @@ export default function UsersPage() {
     statuses: statusFilter,
   });
 
+
   const users = data?.items ?? [];
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function UsersPage() {
       setFilter(filterInput);
       setPage(1);
       inputRef.current?.focus();
-    }, 400); // 300–500ms é o padrão
+    }, 400); 
 
     return () => clearTimeout(timeout);
   }, [filterInput]);
@@ -65,10 +65,10 @@ export default function UsersPage() {
     setMounted(true);
   }, []);
 
-  // evita hydration mismatch
+ 
   if (!mounted) return null;
-  // if (!user) return null;
 
+  
   return (
     <div className="p-4 md:p-6">
       <ul className="space-y-2">

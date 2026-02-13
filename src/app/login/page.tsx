@@ -21,25 +21,22 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
+  e.preventDefault();
+  setError('');
 
-    try {
-      await login(email, password);
-      router.push('/usuarios'); // página protegida
-    } catch {
-      setError('Email ou senha inválidos');
-    }
+  try {
+    const user = await login(email, password);
+
+    router.push(`/condominios/${user.condominioId}/usuarios`);
+
+  } catch {
+    setError('Email ou senha inválidos');
   }
+}
 
   return (
-    // Fundo da página (Cinza claro #f7f7f8)
     <div className="bg-brand-background flex min-h-screen flex-col items-center justify-center p-4">
-      {/* O Card aqui serve como o "Frame" que divide as duas partes. 
-         Removemos o bg-white e as bordas dele. 
-      */}
       <Card className="grid w-full max-w-4xl grid-cols-1 overflow-hidden border-none bg-transparent shadow-none md:grid-cols-2">
-        {/* LADO ESQUERDO: FUNDO BRANCO (#ffffff) */}
         <div className="bg-brand-white flex flex-col justify-center rounded-l-2xl p-8 md:p-12 lg:p-16">
           <div className="mb-12 flex flex-col items-center gap-4 text-center">
             <Image
@@ -118,7 +115,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* LADO DIREITO: MESMO FUNDO DA PÁGINA (#f7f7f8) */}
         <div className="bg-brand-background hidden items-center justify-center rounded-r-2xl p-8 md:flex">
           <div className="relative aspect-square w-full max-w-sm">
             <Image
@@ -132,7 +128,7 @@ export default function LoginPage() {
         </div>
       </Card>
 
-      {/* Rodapé fixo */}
+ 
       <div className="text-brand-gray bottom-8 text-center text-[10px] md:text-xs">
         Ao continuar você concorda com os nossos{' '}
         <Link href="#" className="underline">

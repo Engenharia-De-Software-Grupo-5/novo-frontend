@@ -7,7 +7,7 @@ import { User } from '@/types/user';
 
 interface AuthContextData {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => void;
 }
 
@@ -21,10 +21,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return saved ? JSON.parse(saved) : null;
   });
 
-  async function login(email: string, password: string) {
+  async function login(email: string, password: string): Promise<User> {
     const loggedUser = await loginService(email, password);
+
     setUser(loggedUser);
     localStorage.setItem('authUser', JSON.stringify(loggedUser));
+
+    return loggedUser;
   }
 
   function logout() {
