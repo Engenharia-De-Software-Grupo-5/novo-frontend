@@ -23,3 +23,13 @@ export interface EmployeeDetail extends EmployeeSummary {
   address?: string;
   Contracts?: EmployeeFile[];
 }
+
+export interface EmployeeResponse {
+  data: EmployeeSummary[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
