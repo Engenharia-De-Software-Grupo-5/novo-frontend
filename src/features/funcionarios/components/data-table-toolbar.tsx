@@ -84,7 +84,15 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} />
+      <div className="flex items-center space-x-2">
+        <DataTableViewOptions table={table} />
+        <Button
+          size="sm"
+          className="h-8 bg-[#1447E6] text-white hover:bg-[#1447E6]/90"
+        >
+          Adicionar Funcionário
+        </Button>
+      </div>
     </div>
   );
 }

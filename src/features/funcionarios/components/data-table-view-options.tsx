@@ -19,6 +19,13 @@ interface DataTableViewOptionsProps<TData> {
 export function DataTableViewOptions<TData>({
   table,
 }: DataTableViewOptionsProps<TData>) {
+  const labels: Record<string, string> = {
+    name: 'Nome',
+    role: 'Cargo',
+    status: 'Status',
+    lastContract: 'Último Contrato',
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -48,7 +55,7 @@ export function DataTableViewOptions<TData>({
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {column.id}
+                {labels[column.id] || column.id}
               </DropdownMenuCheckboxItem>
             );
           })}

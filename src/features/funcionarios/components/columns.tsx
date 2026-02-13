@@ -11,7 +11,14 @@ import {
   DropdownMenuTrigger,
 } from '@/features/components/ui/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-import { Download, FileText, MoreHorizontal } from 'lucide-react';
+import {
+  CircleCheck,
+  CircleX,
+  Download,
+  FileText,
+  Loader,
+  MoreHorizontal,
+} from 'lucide-react';
 
 import { EmployeeSummary } from '@/types/employee';
 
@@ -31,7 +38,11 @@ export const columns: ColumnDef<EmployeeSummary>[] = [
     ),
     cell: ({ row }) => {
       const role = row.getValue('role') as string;
-      return <Badge variant="outline">{role}</Badge>;
+      return (
+        <Badge variant="muted" className="capitalize">
+          {role}
+        </Badge>
+      );
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -46,14 +57,12 @@ export const columns: ColumnDef<EmployeeSummary>[] = [
       const status = row.getValue('status') as string;
       return (
         <Badge
-          variant={
-            status === 'ativo'
-              ? 'default'
-              : status === 'pendente'
-                ? 'secondary'
-                : 'destructive'
-          }
+          variant="muted"
+          className="flex w-fit items-center gap-1 capitalize"
         >
+          {status === 'ativo' && <CircleCheck className="h-3 w-3" />}
+          {status === 'pendente' && <Loader className="h-3 w-3" />}
+          {status === 'inativo' && <CircleX className="h-3 w-3" />}
           {status}
         </Badge>
       );
@@ -72,7 +81,7 @@ export const columns: ColumnDef<EmployeeSummary>[] = [
 
       return (
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="font-normal">
+          <Badge variant="muted" className="font-normal">
             <FileText className="mr-1 h-3 w-3" />
             {contract.name}
           </Badge>
