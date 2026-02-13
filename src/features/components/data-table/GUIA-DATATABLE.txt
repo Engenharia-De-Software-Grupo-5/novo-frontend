@@ -157,13 +157,19 @@ Crie `src/features/[feature]/schemas/[feature]Schema.ts` com:
 - O schema Zod de validação do formulário
 - O type `[Feature]FormValues = z.infer<typeof schema>`
 
+**Dica**: Use `z.enum` derivado das constantes (ex: `EMPLOYEE_ROLES`) em vez de `z.string`
+para garantir type safety rigoroso nos campos de seleção.
+
 Isso separa a validação do componente visual, facilitando testes e reutilização.
 
 Se tiver upload de arquivos, crie `src/features/[feature]/hooks/useFileUpload.ts` com:
 - Estado de `files` (novos) e `existingContracts` (do servidor)
-- `handleFileChange` com validação de tipo
-- `removeFile`, `removeExistingContract`, `resetFiles`, `setInitialContracts`
+- `handleFileChange` com validação de tipo (envolva em `useCallback`)
+- `removeFile`, `removeExistingContract`, `resetFiles`, `setInitialContracts` (envolva em `useCallback`)
 - `hasAnyFiles` (computed)
+
+**Importante**: Envolva as funções exportadas em `useCallback` para evitar re-renders
+desnecessários e loops infinitos quando usadas em `useEffect`.
 
 Referência Schema: `src/features/funcionarios/schemas/employeeSchema.ts`
 Referência Hook: `src/features/funcionarios/hooks/useFileUpload.ts`
@@ -187,6 +193,9 @@ Esta page deve:
 2. Extrair `condId` de `params` e query params de `searchParams`
 3. Chamar o service para buscar dados paginados
 4. Renderizar o wrapper client passando APENAS `data` e `pageCount`
+
+**Layout**: Use classes como `flex h-full flex-1 flex-col space-y-8 p-8` no container principal.
+NÃO use `hidden md:flex` pois isso esconderá a tabela em dispositivos móveis.
 
 Referência: `src/app/condominios/[condId]/(admin)/funcionarios/page.tsx`
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
 import { EmployeeFile } from '@/types/employee';
@@ -15,38 +15,41 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
   const [existingContracts, setExistingContracts] =
     useState<EmployeeFile[]>(existingFiles);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files);
-      const invalidFiles = newFiles.filter((file) => file.type !== accept);
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files.length > 0) {
+        const newFiles = Array.from(e.target.files);
+        const invalidFiles = newFiles.filter((file) => file.type !== accept);
 
-      if (invalidFiles.length > 0) {
-        toast.error('Apenas arquivos PDF são permitidos.');
+        if (invalidFiles.length > 0) {
+          toast.error('Apenas arquivos PDF são permitidos.');
+          e.target.value = '';
+          return;
+        }
+
+        setFiles((prev) => [...prev, ...newFiles]);
         e.target.value = '';
-        return;
       }
+    },
+    [accept]
+  );
 
-      setFiles((prev) => [...prev, ...newFiles]);
-      e.target.value = '';
-    }
-  };
-
-  const removeFile = (indexToRemove: number) => {
+  const removeFile = useCallback((indexToRemove: number) => {
     setFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
-  };
+  }, []);
 
-  const removeExistingContract = (contractId: string) => {
+  const removeExistingContract = useCallback((contractId: string) => {
     setExistingContracts((prev) => prev.filter((c) => c.id !== contractId));
-  };
+  }, []);
 
-  const resetFiles = () => {
+  const resetFiles = useCallback(() => {
     setFiles([]);
     setExistingContracts([]);
-  };
+  }, []);
 
-  const setInitialContracts = (contracts: EmployeeFile[]) => {
+  const setInitialContracts = useCallback((contracts: EmployeeFile[]) => {
     setExistingContracts(contracts);
-  };
+  }, []);
 
   const hasAnyFiles = files.length > 0 || existingContracts.length > 0;
 

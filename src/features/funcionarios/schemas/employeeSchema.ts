@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { EMPLOYEE_ROLES } from '../constants';
+
 export const employeeFormSchema = z.object({
   email: z
     .string()
@@ -17,8 +19,8 @@ export const employeeFormSchema = z.object({
     message: 'Data de nascimento inválida.',
   }),
   admissionDate: z.string().optional(),
-  role: z.string({
-    message: 'Por favor selecione um cargo.',
+  role: z.enum(EMPLOYEE_ROLES.map((r) => r.value) as [string, ...string[]], {
+    message: 'Por favor selecione um cargo válido.',
   }),
   phone: z.string().optional(),
   address: z.string().optional(),
