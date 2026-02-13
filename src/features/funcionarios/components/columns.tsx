@@ -2,30 +2,13 @@
 
 import { Badge } from '@/features/components/ui/badge';
 import { Button } from '@/features/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/features/components/ui/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-import {
-  CircleCheck,
-  CircleX,
-  Download,
-  FileText,
-  FlagOff,
-  Loader,
-  MoreHorizontal,
-  PencilLine,
-  ScanEye,
-  Trash2,
-} from 'lucide-react';
+import { CircleCheck, CircleX, Download, FileText, Loader } from 'lucide-react';
 
 import { EmployeeSummary } from '@/types/employee';
 
 import { DataTableColumnHeader } from './data-table-column-header';
+import { DataTableRowActions } from './data-table-row-actions';
 
 export const columns: ColumnDef<EmployeeSummary>[] = [
   {
@@ -106,38 +89,6 @@ export const columns: ColumnDef<EmployeeSummary>[] = [
   },
   {
     id: 'actions',
-    cell: ({ row }) => {
-      const employee = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem className="flex items-center justify-between gap-2">
-              Visualizar
-              <ScanEye className="h-4 w-4" />
-            </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center justify-between gap-2">
-              Editar
-              <PencilLine className="h-4 w-4" />
-            </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center justify-between gap-2">
-              Desativar
-              <FlagOff className="h-4 w-4" />
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive focus:text-destructive flex items-center justify-between gap-2">
-              Excluir
-              <Trash2 className="h-4 w-4" />
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ row }) => <DataTableRowActions employee={row.original} />,
   },
 ];

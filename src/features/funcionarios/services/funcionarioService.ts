@@ -1,4 +1,4 @@
-import { EmployeeResponse } from '@/types/employee';
+import { EmployeeDetail, EmployeeResponse } from '@/types/employee';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -60,5 +60,83 @@ export const getFuncionarios = async (
         totalPages: 1,
       },
     };
+  }
+};
+
+export const deleteFuncionario = async (
+  condId: string,
+  funcId: string
+): Promise<void> => {
+  const url = `${API_URL}/api/condominios/${condId}/funcionarios/${funcId}`;
+
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete employee: ${response.statusText}`);
+  }
+};
+
+export const patchFuncionario = async (
+  condId: string,
+  funcId: string,
+  data: Record<string, unknown>
+): Promise<void> => {
+  const url = `${API_URL}/api/condominios/${condId}/funcionarios/${funcId}`;
+
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update employee: ${response.statusText}`);
+  }
+};
+
+export const getFuncionarioById = async (
+  condId: string,
+  funcId: string
+): Promise<EmployeeDetail> => {
+  const url = `${API_URL}/api/condominios/${condId}/funcionarios/${funcId}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch employee: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+export const putFuncionario = async (
+  condId: string,
+  funcId: string,
+  data: Partial<EmployeeDetail>
+): Promise<void> => {
+  const url = `${API_URL}/api/condominios/${condId}/funcionarios/${funcId}`;
+
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update employee: ${response.statusText}`);
   }
 };
