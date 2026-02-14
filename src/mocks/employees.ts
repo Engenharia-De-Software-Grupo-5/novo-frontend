@@ -1,18 +1,11 @@
+import { EMPLOYEE_ROLES } from '../features/funcionarios/constants';
 import {
   EmployeeDetail,
   EmployeeFile,
   EmployeeSummary,
 } from '../types/employee';
 
-const roles = [
-  'porteiro',
-  'faxineiro',
-  'zelador',
-  'segurança',
-  'jardineiro',
-  'administrador',
-  'síndico',
-];
+const roles = EMPLOYEE_ROLES.map((r) => r.value);
 
 const names = [
   'Ana Silva',
