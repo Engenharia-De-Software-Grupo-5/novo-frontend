@@ -4,4 +4,5 @@ export const ROUTE_CONFIG: Record<string, string> = {
   '/usuarios': 'Gerenciar Usuários',
   '/imoveis/listagem': 'Listagem',
   '/funcionarios': 'Gerenciar Funcionários',
+  '/pagamentos': 'Gerenciar Pagamentos',
 };

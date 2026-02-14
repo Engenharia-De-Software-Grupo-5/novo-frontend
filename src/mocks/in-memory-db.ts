@@ -1,6 +1,8 @@
 import { mockEmployeeDetails } from './employees';
+import { mockPaymentDetails } from './payments';
 
 // "Database" in memory.
 // This allows persistence while the server is running.
 // Resetting the server (npm run dev) resets the data.
 export const employeesDb = [...mockEmployeeDetails];
+export const paymentsDb = [...mockPaymentDetails];
