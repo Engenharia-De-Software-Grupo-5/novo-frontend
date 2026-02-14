@@ -24,17 +24,27 @@ export default async function FuncionariosPage({
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page) || 1;
   const limit = Number(resolvedSearchParams.limit) || 10;
-  const search = resolvedSearchParams.search as string | undefined;
-  const role = resolvedSearchParams.role as string | string[] | undefined;
-  const status = resolvedSearchParams.status as string | string[] | undefined;
   const sort = resolvedSearchParams.sort as string | undefined;
+
+  // Extract columns and content filter arrays
+  const rawColumns = resolvedSearchParams.columns;
+  const rawContent = resolvedSearchParams.content;
+  const columnsArr = rawColumns
+    ? Array.isArray(rawColumns)
+      ? rawColumns
+      : [rawColumns]
+    : [];
+  const contentArr = rawContent
+    ? Array.isArray(rawContent)
+      ? rawContent
+      : [rawContent]
+    : [];
 
   const { data: funcionarios, meta } = await getFuncionarios(condId, {
     page,
     limit,
-    search,
-    role,
-    status,
+    columns: columnsArr.length > 0 ? columnsArr : undefined,
+    content: contentArr.length > 0 ? contentArr : undefined,
     sort,
   });
 

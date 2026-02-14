@@ -73,6 +73,23 @@ Crie `src/features/[feature]/services/[feature]Service.ts` com as funções:
 Use o helper `apiRequest` de `@/lib/api-client` para evitar boilerplate de fetch.
 Use `buildQueryString` do mesmo módulo para montar query params.
 
+**Formato de filtros**: Os filtros são enviados como dois arrays paralelos:
+- `columns[]` — nomes das colunas a filtrar
+- `content[]` — valores dos filtros (na mesma ordem)
+
+Exemplo de URL gerada: `?columns=name&content=joao&columns=role&content=porteiro`
+
+No service, os params de filtro devem ser:
+```typescript
+params?: {
+  page?: number;
+  limit?: number;
+  columns?: string[];   // nomes das colunas filtradas
+  content?: string[];   // valores dos filtros (paralelo a columns)
+  sort?: string;
+}
+```
+
 Referência: `src/features/funcionarios/services/funcionarioService.ts`
 Referência API client: `src/lib/api-client.ts`
 
@@ -90,7 +107,39 @@ Crie as rotas no padrão do App Router:
 - `src/app/api/condominios/[condId]/[feature]/route.ts` — GET (lista paginada) e POST
 - `src/app/api/condominios/[condId]/[feature]/[id]/route.ts` — GET, PUT, PATCH, DELETE
 
-A rota GET de lista deve aceitar query params: `page`, `limit`, `search`, e filtros específicos.
+A rota GET de lista deve aceitar query params: `page`, `limit`, `sort`, `columns[]` e `content[]`.
+
+**Filtros genéricos via `columns[]` e `content[]`**:
+Os filtros são recebidos como dois arrays paralelos. Para processá-los na API:
+```typescript
+const columnsArr = request.nextUrl.searchParams.getAll('columns');
+const contentArr = request.nextUrl.searchParams.getAll('content');
+
+// Monta mapa: coluna -> valores[]
+const filterMap = new Map<string, string[]>();
+for (let i = 0; i < columnsArr.length; i++) {
+  const col = columnsArr[i];
+  const val = contentArr[i];
+  if (col && val !== undefined) {
+    if (!filterMap.has(col)) filterMap.set(col, []);
+    filterMap.get(col)!.push(val);
+  }
+}
+
+// Aplica filtros genericamente
+for (const [col, values] of filterMap.entries()) {
+  if (col === 'name') {
+    // Busca por prefixo
+    items = items.filter(e => e.name.toLowerCase().startsWith(values[0].toLowerCase()));
+  } else {
+    // Match exato (qualquer valor)
+    items = items.filter(e => {
+      const field = e[col as keyof typeof e];
+      return values.some(v => String(field).toLowerCase() === v.toLowerCase());
+    });
+  }
+}
+```
 
 Referência: `src/app/api/condominios/[condId]/funcionarios/route.ts`
 
@@ -127,8 +176,17 @@ Este é um componente `'use client'` que:
    - `searchPlaceholder` — texto do placeholder
    - `facetedFilters` — use as constantes (ex: `EMPLOYEE_ROLES.map(...)`)
    - `columnLabels` — use a constante (ex: `EMPLOYEE_COLUMN_LABELS`)
-   - `filterMappings` — array de `{ urlParam, columnId, isArray? }` para sincronizar filtros com URL
+   - `filterMappings` — array de `{ columnId, isArray? }` para sincronizar filtros com URL via `columns[]`/`content[]`
    - `actions` — ReactNode (ex: `<AddDialog />`)
+
+Exemplo de filterMappings:
+```typescript
+filterMappings={[
+  { columnId: 'name' },
+  { columnId: 'role', isArray: true },
+  { columnId: 'status', isArray: true },
+]}
+```
 
 **POR QUE É OBRIGATÓRIO**: No Next.js App Router, a page.tsx é um Server Component.
 O DataTable é `'use client'`. Columns contém funções e componentes React que NÃO são
@@ -191,8 +249,19 @@ Crie `src/app/condominios/[condId]/(admin)/[feature]/page.tsx`.
 Esta page deve:
 1. Ser um Server Component (sem `'use client'`)
 2. Extrair `condId` de `params` e query params de `searchParams`
-3. Chamar o service para buscar dados paginados
-4. Renderizar o wrapper client passando APENAS `data` e `pageCount`
+3. Extrair os arrays `columns` e `content` dos search params:
+```typescript
+const rawColumns = resolvedSearchParams.columns;
+const rawContent = resolvedSearchParams.content;
+const columnsArr = rawColumns
+  ? Array.isArray(rawColumns) ? rawColumns : [rawColumns]
+  : [];
+const contentArr = rawContent
+  ? Array.isArray(rawContent) ? rawContent : [rawContent]
+  : [];
+```
+4. Chamar o service passando `columns` e `content` como arrays
+5. Renderizar o wrapper client passando APENAS `data` e `pageCount`
 
 **Layout**: Use classes como `flex h-full flex-1 flex-col space-y-8 p-8` no container principal.
 NÃO use `hidden md:flex` pois isso esconderá a tabela em dispositivos móveis.
@@ -248,11 +317,14 @@ interface FacetedFilterConfig {
 }
 
 interface FilterMapping {
-  urlParam: string;   // Nome do query param na URL (ex: 'search', 'role')
-  columnId: string;   // ID da coluna correspondente (ex: 'name', 'role')
+  columnId: string;   // ID da coluna (ex: 'name', 'role') — usado nos arrays columns[]/content[] da URL
   isArray?: boolean;  // true se o filtro aceita múltiplos valores (ex: role, status)
 }
 ```
+
+**Formato da URL**: Os filtros são sincronizados com a URL usando arrays paralelos
+`columns` e `content`. Exemplo:
+`?page=1&limit=10&columns=name&content=joao&columns=role&content=porteiro&columns=role&content=zelador`
 
 ---
 

@@ -30,11 +30,11 @@ import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar, FacetedFilterConfig } from './data-table-toolbar';
 
 /**
- * Maps a URL query param to a table column filter.
- * Example: { urlParam: 'search', columnId: 'name' }
+ * Maps a column filter in the table.
+ * The URL will use `columns` and `content` arrays.
+ * Example: columns=name&columns=role&content=joao&content=porteiro
  */
 export interface FilterMapping {
-  urlParam: string;
   columnId: string;
   isArray?: boolean;
 }
@@ -91,20 +91,32 @@ export function DataTable<TData, TValue>({
       pageSize: per_page,
     });
 
-  // Helper to parse filters from URL based on filterMappings
+  // Helper to parse filters from URL based on columns[]/content[] arrays
   const parseFiltersFromURL = React.useCallback(() => {
     const filters: ColumnFiltersState = [];
+    const columnsArr = searchParams?.getAll('columns') ?? [];
+    const contentArr = searchParams?.getAll('content') ?? [];
+
+    // Group content values by column name
+    const filterMap = new Map<string, string[]>();
+    for (let i = 0; i < columnsArr.length; i++) {
+      const col = columnsArr[i];
+      const val = contentArr[i];
+      if (col && val !== undefined) {
+        if (!filterMap.has(col)) {
+          filterMap.set(col, []);
+        }
+        filterMap.get(col)!.push(val);
+      }
+    }
 
     for (const mapping of filterMappings) {
-      if (mapping.isArray) {
-        const values = searchParams?.getAll(mapping.urlParam);
-        if (values && values.length > 0) {
+      const values = filterMap.get(mapping.columnId);
+      if (values && values.length > 0) {
+        if (mapping.isArray) {
           filters.push({ id: mapping.columnId, value: values });
-        }
-      } else {
-        const value = searchParams?.get(mapping.urlParam);
-        if (value) {
-          filters.push({ id: mapping.columnId, value });
+        } else {
+          filters.push({ id: mapping.columnId, value: values[0] });
         }
       }
     }
@@ -121,15 +133,11 @@ export function DataTable<TData, TValue>({
   React.useEffect(() => {
     const newSearchParams = new URLSearchParams(searchParams?.toString());
 
-    // Helper to update param
+    // Helper to update simple param
     const updateParam = (key: string, value: unknown) => {
       newSearchParams.delete(key);
       if (value) {
-        if (Array.isArray(value)) {
-          value.forEach((v) => newSearchParams.append(key, String(v)));
-        } else {
-          newSearchParams.set(key, String(value));
-        }
+        newSearchParams.set(key, String(value));
       }
     };
 
@@ -144,12 +152,24 @@ export function DataTable<TData, TValue>({
       newSearchParams.delete('sort');
     }
 
-    // Handle filters based on filterMappings
+    // Handle filters using columns[]/content[] arrays
+    newSearchParams.delete('columns');
+    newSearchParams.delete('content');
     for (const mapping of filterMappings) {
       const filterValue = columnFilters.find(
         (f) => f.id === mapping.columnId
       )?.value;
-      updateParam(mapping.urlParam, filterValue);
+      if (filterValue) {
+        if (Array.isArray(filterValue)) {
+          filterValue.forEach((v: string) => {
+            newSearchParams.append('columns', mapping.columnId);
+            newSearchParams.append('content', String(v));
+          });
+        } else {
+          newSearchParams.append('columns', mapping.columnId);
+          newSearchParams.append('content', String(filterValue));
+        }
+      }
     }
 
     const queryString = newSearchParams.toString();

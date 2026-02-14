@@ -43,20 +43,19 @@ import { EmployeeDetail } from '@/types/employee';
  *           default: asc
  *         description: Sort order
  *       - in: query
- *         name: name
+ *         name: columns
  *         schema:
- *           type: string
- *         description: Filter by name (prefix match)
+ *           type: array
+ *           items:
+ *             type: string
+ *         description: Column names to filter by (parallel array with content)
  *       - in: query
- *         name: role
+ *         name: content
  *         schema:
- *           type: string
- *         description: Filter by role
- *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *         description: Filter by status
+ *           type: array
+ *           items:
+ *             type: string
+ *         description: Filter values (parallel array with columns)
  *     responses:
  *       200:
  *         description: Successful response
@@ -96,43 +95,43 @@ export async function GET(request: NextRequest) {
     sortOrder = order;
   }
 
-  // Filters
-  const name = searchParams.get('name');
-  const role = searchParams.get('role'); // Single role string due to URLSearchParams limitation in simple extraction
-  const status = searchParams.get('status');
+  // Filters via columns[] and content[] parallel arrays
+  const columnsArr = request.nextUrl.searchParams.getAll('columns');
+  const contentArr = request.nextUrl.searchParams.getAll('content');
+
+  // Build a filter map: column -> values[]
+  const filterMap = new Map<string, string[]>();
+  for (let i = 0; i < columnsArr.length; i++) {
+    const col = columnsArr[i];
+    const val = contentArr[i];
+    if (col && val !== undefined) {
+      if (!filterMap.has(col)) {
+        filterMap.set(col, []);
+      }
+      filterMap.get(col)!.push(val);
+    }
+  }
 
   let employees = employeesDb;
-  const roles = request.nextUrl.searchParams.getAll('role'); // Get all roles
-  const statuses = request.nextUrl.searchParams.getAll('status'); // Get all statuses
 
-  // Apply filters
-  if (name) {
-    const nameLower = name.toLowerCase();
-    employees = employees.filter((e) =>
-      e.name.toLowerCase().startsWith(nameLower)
-    );
-  }
-
-  if (roles.length > 0) {
-    employees = employees.filter((e) =>
-      roles.some((r) => r.toLowerCase() === e.role.toLowerCase())
-    );
-  } else if (role) {
-    // Fallback if accessed via .get()
-    employees = employees.filter(
-      (e) => e.role.toLowerCase() === role.toLowerCase()
-    );
-  }
-
-  if (statuses.length > 0) {
-    employees = employees.filter((e) =>
-      statuses.some((s) => s.toLowerCase() === e.status.toLowerCase())
-    );
-  } else if (status) {
-    // Fallback
-    employees = employees.filter(
-      (e) => e.status.toLowerCase() === status.toLowerCase()
-    );
+  // Apply filters generically
+  for (const [col, values] of filterMap.entries()) {
+    if (col === 'name') {
+      // Name uses prefix match (startsWith)
+      const nameLower = values[0].toLowerCase();
+      employees = employees.filter((e) =>
+        e.name.toLowerCase().startsWith(nameLower)
+      );
+    } else {
+      // Other columns use exact match (any of the values)
+      employees = employees.filter((e) => {
+        const fieldValue = e[col as keyof typeof e];
+        if (fieldValue === undefined) return false;
+        return values.some(
+          (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
+        );
+      });
+    }
   }
 
   const sortedEmployees = [...employees];

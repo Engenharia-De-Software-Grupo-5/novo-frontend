@@ -48,9 +48,9 @@ export function FuncionariosDataTable({
       ]}
       columnLabels={EMPLOYEE_COLUMN_LABELS}
       filterMappings={[
-        { urlParam: 'search', columnId: 'name' },
-        { urlParam: 'role', columnId: 'role', isArray: true },
-        { urlParam: 'status', columnId: 'status', isArray: true },
+        { columnId: 'name' },
+        { columnId: 'role', isArray: true },
+        { columnId: 'status', isArray: true },
       ]}
       actions={<AddEmployeeDialog />}
     />

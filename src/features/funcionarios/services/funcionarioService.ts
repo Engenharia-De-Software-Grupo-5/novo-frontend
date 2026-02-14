@@ -8,29 +8,26 @@ export const getFuncionarios = async (
   params?: {
     page?: number;
     limit?: number;
-    search?: string;
-    role?: string | string[];
-    status?: string | string[];
+    columns?: string[];
+    content?: string[];
     sort?: string;
   }
 ): Promise<EmployeeResponse> => {
   try {
-    const query = buildQueryString({
-      page: params?.page,
-      limit: params?.limit,
-      sort: params?.sort,
-      name: params?.search,
-      role: params?.role
-        ? Array.isArray(params.role)
-          ? params.role
-          : [params.role]
-        : undefined,
-      status: params?.status
-        ? Array.isArray(params.status)
-          ? params.status
-          : [params.status]
-        : undefined,
-    });
+    const queryParams: Record<string, string | number | string[] | undefined> =
+      {
+        page: params?.page,
+        limit: params?.limit,
+        sort: params?.sort,
+      };
+
+    // Add columns and content arrays for filtering
+    if (params?.columns && params?.content && params.columns.length > 0) {
+      queryParams.columns = params.columns;
+      queryParams.content = params.content;
+    }
+
+    const query = buildQueryString(queryParams);
 
     return await apiRequest<EmployeeResponse>(`${basePath(condId)}${query}`, {
       method: 'GET',
