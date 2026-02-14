@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { employeesDb } from '@/mocks/in-memory-db';
 
-import { EmployeeDetail, EmployeeFile } from '@/types/employee';
+import { EmployeeDetail } from '@/types/employee';
+import { FileAttachment } from '@/types/file';
 
 /**
  * @swagger
@@ -88,8 +89,8 @@ export async function PUT(
   const { funcId } = await params;
 
   let body: Partial<EmployeeDetail>;
-  let keptContracts: EmployeeFile[] | undefined;
-  let uploadedContracts: EmployeeFile[] = [];
+  let keptContracts: FileAttachment[] | undefined;
+  let uploadedContracts: FileAttachment[] = [];
   const contentType = request.headers.get('content-type') || '';
 
   if (contentType.includes('multipart/form-data')) {
@@ -97,15 +98,15 @@ export async function PUT(
     const dataField = formData.get('data');
     body = dataField ? JSON.parse(dataField as string) : {};
 
-    // Parse existing contract IDs that the user chose to keep
-    const existingIdsField = formData.get('existingContractIds');
-    const existingContractIds: string[] | undefined = existingIdsField
+    // Parse existing file IDs that the user chose to keep
+    const existingIdsField = formData.get('existingFileIds');
+    const existingFileIds: string[] | undefined = existingIdsField
       ? JSON.parse(existingIdsField as string)
       : undefined;
 
-    // Process uploaded files into simulated EmployeeFile objects
-    const contractFiles = formData.getAll('contracts');
-    uploadedContracts = contractFiles
+    // Process uploaded files into simulated FileAttachment objects
+    const uploadedFiles = formData.getAll('files');
+    uploadedContracts = uploadedFiles
       .filter((f): f is File => f instanceof File)
       .map((file) => ({
         id: `file-${Math.random().toString(36).substr(2, 9)}`,
@@ -116,10 +117,10 @@ export async function PUT(
       }));
 
     // Filter the employee's existing contracts to only keep the ones the user didn't remove
-    if (existingContractIds !== undefined) {
+    if (existingFileIds !== undefined) {
       const currentEmployee = employeesDb.find((e) => e.id === funcId);
       keptContracts = (currentEmployee?.Contracts ?? []).filter((c) =>
-        existingContractIds.includes(c.id)
+        existingFileIds.includes(c.id)
       );
     }
 

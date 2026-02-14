@@ -19,7 +19,7 @@ Leia estes arquivos ANTES de começar. Cada um é modelo direto para o equivalen
 | Tipos | `src/types/employee.ts` |
 | Constantes (roles, statuses, labels) | `src/features/funcionarios/constants.ts` |
 | Schema Zod | `src/features/funcionarios/schemas/employeeSchema.ts` |
-| Hook de upload | `src/features/funcionarios/hooks/useFileUpload.ts` |
+| Hook de upload | `src/hooks/useFileUpload.ts` (genérico, reutilizável) |
 | Service API | `src/features/funcionarios/services/funcionarioService.ts` |
 | Mock de dados | `src/mocks/employees.ts` |
 | In-memory DB | `src/mocks/in-memory-db.ts` |
@@ -54,6 +54,17 @@ Crie `src/features/[feature]/services/[feature]Service.ts` com get, getById, pos
 params?: { page?: number; limit?: number; columns?: string[]; content?: string[]; sort?: string; }
 ```
 
+**Upload de arquivos (só se a feature tiver upload)**: post e put aceitam `FileUploadOptions` de `@/lib/form-data`:
+```typescript
+import { buildFormDataBody, FileUploadOptions } from '@/lib/form-data';
+// FileUploadOptions = { newFiles?: File[]; existingFileIds?: string[] }
+```
+Use `buildFormDataBody(data, options, 'nomeDoField')` no body do request. Ela decide o formato:
+- **Sem arquivos** → retorna o objeto JSON puro
+- **Com arquivos** → retorna `FormData` com campos `data`, `existingFileIds`, e o field de arquivos
+
+`apiRequest` detecta `FormData` automaticamente.
+
 ### 4. Dados mock
 Crie `src/mocks/[feature].ts` e adicione ao `src/mocks/in-memory-db.ts`.
 
@@ -64,6 +75,24 @@ Crie `src/mocks/[feature].ts` e adicione ao `src/mocks/in-memory-db.ts`.
 GET aceita: `page`, `limit`, `sort`, `columns[]`, `content[]`.
 Filtros processados assim: `getAll('columns')` e `getAll('content')` → monta Map → filtra.
 Coluna `name` usa `startsWith`; demais usam match exato.
+
+**POST e PUT com arquivos (só se a feature tiver upload)**: checar `content-type` do request:
+- Se `multipart/form-data` → `request.formData()`, ler campo `data` (JSON), campo de arquivos (nome do field)
+- Senão → `request.json()` normal
+
+No mock, usar `FileAttachment` de `@/types/file` para gerar objetos simulados:
+```typescript
+import { FileAttachment } from '@/types/file';
+const uploaded: FileAttachment[] = formData.getAll('files')
+  .filter((f): f is File => f instanceof File)
+  .map((file) => ({
+    id: `file-${Math.random().toString(36).substr(2, 9)}`,
+    name: file.name, type: file.type, size: file.size,
+    url: `/uploads/${Math.random().toString(36).substr(2, 9)}_${file.name}`,
+  }));
+```
+
+**PUT com arquivos existentes**: ler campo `existingFileIds` (JSON array de IDs). Filtrar os registros atuais para manter apenas esses IDs, depois concatenar com os novos uploads.
 
 ### 6. Colunas (columns.tsx)
 Crie `src/features/[feature]/components/columns.tsx` (`'use client'`).
@@ -90,12 +119,29 @@ filterMappings={[
 ### 8. Ações de linha (opcional)
 Crie `data-table-row-actions.tsx` com DropdownMenu (ver, editar, ativar/desativar, excluir). Use `router.refresh()` após ações.
 
-### 9. Schema Zod e hooks
+### 9. Schema Zod
 Crie `schemas/[feature]Schema.ts` com schema + type inferido. Use `z.enum` das constantes.
-Se tiver upload: crie `hooks/useFileUpload.ts`. Envolva funções em `useCallback`.
+Se tiver upload: use o hook genérico `useFileUpload` de `@/hooks/useFileUpload`. O hook gerencia:
+- `files: File[]` — arquivos novos selecionados pelo usuário
+- `existingAttachments: FileAttachment[]` — arquivos vindos do servidor (editáveis com remove)
+- `handleFileChange`, `removeFile`, `removeExistingAttachment`, `resetFiles`, `setInitialAttachments`
 
 ### 10. Dialogs (opcional)
 Dialog criar/editar com `react-hook-form` + schema. Dialog visualizar em modo leitura.
+
+**No `onSubmit` do dialog com upload (só se aplicável)**, passar os arquivos para o service:
+```typescript
+// Edição: enviar novos arquivos + IDs dos existentes mantidos
+await putService(id, { ...data }, {
+  newFiles: files,
+  existingFileIds: existingAttachments.map((a) => a.id),
+});
+
+// Criação: enviar apenas novos arquivos
+await postService({ ...data }, {
+  newFiles: files.length > 0 ? files : undefined,
+});
+```
 
 ### 11. Page (Server Component)
 Crie `src/app/.../[feature]/page.tsx`. Extrai `columns`/`content` de searchParams (normalizar para array), chama o service, renderiza o wrapper passando `data` e `pageCount`.
@@ -118,19 +164,26 @@ Importar de `@/features/components/data-table`:
 
 Os demais (`Toolbar`, `Pagination`, `FacetedFilter`, `ViewOptions`) são internos do DataTable.
 
-Utilitários em `src/lib/api-client.ts`: `apiRequest`, `buildQueryString`.
+Utilitários em `src/lib/`:
+- `api-client.ts` — `apiRequest`, `buildQueryString`
+- `form-data.ts` — `buildFormDataBody`, `FileUploadOptions` (só se tiver upload)
+
+Tipos genéricos em `src/types/file.ts`: `FileAttachment` (tipo base para qualquer arquivo anexo).
+Hook genérico em `src/hooks/useFileUpload.ts` (reutilizável em qualquer feature com upload).
 
 ---
 
 ## Estrutura de pastas
 
 ```
+src/types/file.ts                          (FileAttachment genérico)
 src/types/[feature].ts
+src/hooks/useFileUpload.ts                 (hook genérico, se aplicável)
+src/lib/form-data.ts                       (buildFormDataBody, se aplicável)
 src/mocks/[feature].ts
 src/features/[feature]/
   ├── constants.ts
   ├── schemas/[feature]Schema.ts
-  ├── hooks/useFileUpload.ts               (se aplicável)
   ├── services/[feature]Service.ts
   └── components/
       ├── columns.tsx

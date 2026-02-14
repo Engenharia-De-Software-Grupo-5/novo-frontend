@@ -34,9 +34,9 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { EmployeeDetail } from '@/types/employee';
+import { useFileUpload } from '@/hooks/useFileUpload';
 
 import { EMPLOYEE_ROLES } from '../constants';
-import { useFileUpload } from '../hooks/useFileUpload';
 import {
   employeeFormSchema,
   EmployeeFormValues,
@@ -72,13 +72,13 @@ export function EmployeeDialog({
 
   const {
     files,
-    existingContracts,
+    existingAttachments,
     hasAnyFiles,
     handleFileChange,
     removeFile,
-    removeExistingContract,
+    removeExistingAttachment,
     resetFiles,
-    setInitialContracts,
+    setInitialAttachments,
   } = useFileUpload();
 
   const form = useForm<EmployeeFormValues>({
@@ -108,16 +108,16 @@ export function EmployeeDialog({
         phone: employee.phone ?? '',
         address: employee.address ?? '',
       });
-      setInitialContracts(employee.Contracts ?? []);
+      setInitialAttachments(employee.Contracts ?? []);
     }
-  }, [employee, open, form, setInitialContracts]);
+  }, [employee, open, form, setInitialAttachments]);
 
   async function onSubmit(data: EmployeeFormValues) {
     try {
       setIsSubmitting(true);
 
-      // IDs of existing contracts the user chose to keep (not removed in the UI)
-      const existingContractIds = existingContracts.map((c) => c.id);
+      // IDs of existing files the user chose to keep (not removed in the UI)
+      const existingFileIds = existingAttachments.map((a) => a.id);
 
       if (isEditing) {
         await putFuncionario(
@@ -126,7 +126,7 @@ export function EmployeeDialog({
           { ...data },
           {
             newFiles: files,
-            existingContractIds,
+            existingFileIds,
           }
         );
         toast.success(`Funcionário "${data.name}" atualizado com sucesso!`);
@@ -337,26 +337,26 @@ export function EmployeeDialog({
                     Contratos anexados
                   </span>
 
-                  {/* Existing contracts (from server) */}
-                  {existingContracts.map((contract) => (
+                  {/* Existing files (from server) */}
+                  {existingAttachments.map((attachment) => (
                     <div
-                      key={contract.id}
+                      key={attachment.id}
                       className="flex items-center justify-between rounded-md border bg-gray-50 p-2 text-sm"
                     >
                       <div className="flex items-center gap-2">
                         <FileText className="text-muted-foreground h-4 w-4" />
                         <span
                           className="max-w-[220px] truncate"
-                          title={contract.name}
+                          title={attachment.name}
                         >
-                          {contract.name}
+                          {attachment.name}
                         </span>
                       </div>
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        onClick={() => removeExistingContract(contract.id)}
+                        onClick={() => removeExistingAttachment(attachment.id)}
                         className="h-6 w-6 text-red-500 hover:bg-red-50 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4" />

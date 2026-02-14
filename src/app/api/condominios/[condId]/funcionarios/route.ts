@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { employeesDb } from '@/mocks/in-memory-db';
 
-import { EmployeeDetail, EmployeeFile } from '@/types/employee';
+import { EmployeeDetail } from '@/types/employee';
+import { FileAttachment } from '@/types/file';
 
 /**
  * @swagger
@@ -208,7 +209,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   let body: EmployeeDetail;
-  let uploadedContracts: EmployeeFile[] = [];
+  let uploadedContracts: FileAttachment[] = [];
   const contentType = request.headers.get('content-type') || '';
 
   if (contentType.includes('multipart/form-data')) {
@@ -216,9 +217,9 @@ export async function POST(request: NextRequest) {
     const dataField = formData.get('data');
     body = dataField ? JSON.parse(dataField as string) : {};
 
-    // Process uploaded files into simulated EmployeeFile objects
-    const contractFiles = formData.getAll('contracts');
-    uploadedContracts = contractFiles
+    // Process uploaded files into simulated FileAttachment objects
+    const uploadedFiles = formData.getAll('files');
+    uploadedContracts = uploadedFiles
       .filter((f): f is File => f instanceof File)
       .map((file) => ({
         id: `file-${Math.random().toString(36).substr(2, 9)}`,
@@ -229,7 +230,7 @@ export async function POST(request: NextRequest) {
       }));
 
     console.log(
-      `POST: Received ${contractFiles.length} contract file(s):`,
+      `POST: Received ${uploadedFiles.length} file(s):`,
       uploadedContracts.map((f) => ({ id: f.id, name: f.name, size: f.size }))
     );
   } else {

@@ -1,19 +1,19 @@
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
-import { EmployeeFile } from '@/types/employee';
+import { FileAttachment } from '@/types/file';
 
 interface UseFileUploadOptions {
   accept?: string;
-  existingFiles?: EmployeeFile[];
+  existingFiles?: FileAttachment[];
 }
 
 export function useFileUpload(options: UseFileUploadOptions = {}) {
   const { accept = 'application/pdf', existingFiles = [] } = options;
 
   const [files, setFiles] = useState<File[]>([]);
-  const [existingContracts, setExistingContracts] =
-    useState<EmployeeFile[]>(existingFiles);
+  const [existingAttachments, setExistingAttachments] =
+    useState<FileAttachment[]>(existingFiles);
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,29 +38,29 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     setFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
   }, []);
 
-  const removeExistingContract = useCallback((contractId: string) => {
-    setExistingContracts((prev) => prev.filter((c) => c.id !== contractId));
+  const removeExistingAttachment = useCallback((attachmentId: string) => {
+    setExistingAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
   }, []);
 
   const resetFiles = useCallback(() => {
     setFiles([]);
-    setExistingContracts([]);
+    setExistingAttachments([]);
   }, []);
 
-  const setInitialContracts = useCallback((contracts: EmployeeFile[]) => {
-    setExistingContracts(contracts);
+  const setInitialAttachments = useCallback((attachments: FileAttachment[]) => {
+    setExistingAttachments(attachments);
   }, []);
 
-  const hasAnyFiles = files.length > 0 || existingContracts.length > 0;
+  const hasAnyFiles = files.length > 0 || existingAttachments.length > 0;
 
   return {
     files,
-    existingContracts,
+    existingAttachments,
     hasAnyFiles,
     handleFileChange,
     removeFile,
-    removeExistingContract,
+    removeExistingAttachment,
     resetFiles,
-    setInitialContracts,
+    setInitialAttachments,
   };
 }

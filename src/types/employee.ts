@@ -1,10 +1,7 @@
-export interface EmployeeFile {
-  id: string;
-  name: string;
-  type: string;
-  size: number;
-  url: string;
-}
+import { FileAttachment } from './file';
+
+/** @deprecated Use `FileAttachment` from `@/types/file` directly for new code */
+export type EmployeeFile = FileAttachment;
 
 export interface EmployeeSummary {
   id: string;
