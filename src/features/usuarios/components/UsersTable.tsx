@@ -133,15 +133,15 @@ export function UsersTable({ users, condominioId }: UsersTableProps) {
                       onSelect={() => handleDeactivateUser(user)}
                     >
                       <span>Desativar</span>
-                      <FlagOff className="icon-sm icon-brand" />
+                      <FlagOff className="icon-sm icon-brand to-brand-red-vivid" />
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem
-                      className="dropdown-item dropdown-danger"
+                    <DropdownMenuItem 
+                      className="dropdown-item focus:text-red-600 focus:bg-red-50 text-red-600" 
                       onSelect={() => handleDeleteUser(user)}
                     >
                       <span>Excluir</span>
-                      <Trash2 className="icon-sm" />
+                      <Trash2 className="icon-sm text-red-600" />
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -151,7 +151,6 @@ export function UsersTable({ users, condominioId }: UsersTableProps) {
         </TableBody>
       </Table>
 
-      {/* dialogs continuam iguais */}
       <ViewUserDialog
         open={openView}
         onOpenChange={setOpenView}
