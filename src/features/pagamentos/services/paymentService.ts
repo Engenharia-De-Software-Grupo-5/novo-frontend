@@ -41,3 +41,12 @@ export const getPayments = async (
     };
   }
 };
+
+export const deletePayment = async (
+  condId: string,
+  paymentId: string
+): Promise<void> => {
+  await apiRequest(`${basePath(condId)}/${paymentId}`, {
+    method: 'DELETE',
+  });
+};

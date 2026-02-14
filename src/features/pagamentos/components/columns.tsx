@@ -8,6 +8,7 @@ import { CircleCheck, CircleX, FileText } from 'lucide-react';
 
 import { PaymentSummary } from '@/types/payment';
 
+import { DataTableRowActions } from './data-table-row-actions';
 import { StatusBadge } from './status-badge';
 
 export const columns: ColumnDef<PaymentSummary>[] = [
@@ -76,5 +77,9 @@ export const columns: ColumnDef<PaymentSummary>[] = [
         </div>
       );
     },
+  },
+  {
+    id: 'actions',
+    cell: ({ row }) => <DataTableRowActions payment={row.original} />,
   },
 ];
