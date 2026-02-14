@@ -185,9 +185,11 @@ export async function DELETE(
 
   const index = employeesDb.findIndex((e) => e.id === funcId);
 
-  if (index !== -1) {
-    employeesDb.splice(index, 1);
+  if (index === -1) {
+    return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
   }
+
+  employeesDb.splice(index, 1);
 
   console.log(`employee com id ${funcId} foi apagado`);
   return NextResponse.json({
