@@ -82,10 +82,13 @@ export const mockPaymentDetails: PaymentDetail[] = Array.from({
     dueDate: dueDateStr,
     observation:
       Math.random() > 0.7 ? 'Pagamento referente ao mês anterior.' : undefined,
-    proof:
+    proofs:
       status === 'pago' && hasProof
-        ? generateFile(`proof-${i}`, `comprovante_${i}.pdf`)
-        : undefined,
+        ? Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(
+            (_, idx) =>
+              generateFile(`proof-${i}-${idx}`, `comprovante_${i}_${idx}.pdf`)
+          )
+        : [],
   };
 });
 

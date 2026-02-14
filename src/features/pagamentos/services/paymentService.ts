@@ -1,5 +1,6 @@
-import { PaymentResponse } from '@/types/payment';
+import { PaymentDetail, PaymentResponse } from '@/types/payment';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
+import { buildFormDataBody, FileUploadOptions } from '@/lib/form-data';
 
 const basePath = (condId: string) => `/api/condominios/${condId}/pagamentos`;
 
@@ -40,6 +41,49 @@ export const getPayments = async (
       meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }
+};
+
+export const getPaymentById = async (
+  condId: string,
+  paymentId: string
+): Promise<PaymentDetail> => {
+  return apiRequest<PaymentDetail>(`${basePath(condId)}/${paymentId}`, {
+    method: 'GET',
+  });
+};
+
+export const postPayment = async (
+  condId: string,
+  data: Partial<PaymentDetail>,
+  options?: FileUploadOptions
+): Promise<void> => {
+  await apiRequest(basePath(condId), {
+    method: 'POST',
+    body: buildFormDataBody(data, options),
+  });
+};
+
+export const putPayment = async (
+  condId: string,
+  paymentId: string,
+  data: Partial<PaymentDetail>,
+  options?: FileUploadOptions
+): Promise<void> => {
+  await apiRequest(`${basePath(condId)}/${paymentId}`, {
+    method: 'PUT',
+    body: buildFormDataBody(data, options),
+  });
+};
+
+export const patchPayment = async (
+  condId: string,
+  paymentId: string,
+  data: Record<string, unknown>
+): Promise<void> => {
+  await apiRequest(`${basePath(condId)}/${paymentId}`, {
+    method: 'PATCH',
+    body: data,
+  });
 };
 
 export const deletePayment = async (

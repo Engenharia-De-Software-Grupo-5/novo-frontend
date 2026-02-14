@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { paymentsDb } from '@/mocks/in-memory-db';
+import { employeesDb, paymentsDb } from '@/mocks/in-memory-db';
 
-import { PaymentDetail, PaymentSummary } from '@/types/payment';
+import { FileAttachment } from '@/types/file';
+import { PaymentDetail, PaymentStatus, PaymentSummary } from '@/types/payment';
 
 /**
  * @swagger
@@ -171,4 +172,125 @@ export async function GET(request: NextRequest) {
       totalPages,
     },
   });
+}
+
+/**
+ * @swagger
+ * /api/condominios/{condId}/pagamentos:
+ *   post:
+ *     summary: Create a new payment
+ *     tags:
+ *       - Payments
+ *     parameters:
+ *       - in: path
+ *         name: condId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Condominium ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   employeeId:
+ *                     type: string
+ *                   type:
+ *                     type: string
+ *                   amount:
+ *                     type: string
+ *                   dueDate:
+ *                     type: string
+ *                   paymentDate:
+ *                     type: string
+ *                   observation:
+ *                     type: string
+ *               files:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *     responses:
+ *       201:
+ *         description: Payment created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/PaymentDetail'
+ */
+export async function POST(request: NextRequest) {
+  let body: PaymentDetail;
+  let uploadedProof: FileAttachment | undefined = undefined;
+  const contentType = request.headers.get('content-type') || '';
+
+  if (contentType.includes('multipart/form-data')) {
+    const formData = await request.formData();
+    const dataField = formData.get('data');
+    body = dataField ? JSON.parse(dataField as string) : {};
+
+    // Process uploaded files into simulated FileAttachment objects
+    const uploadedFiles = formData.getAll('files');
+    if (uploadedFiles.length > 0) {
+      const file = uploadedFiles[0] as File;
+      if (file instanceof File) {
+        uploadedProof = {
+          id: `file-${Math.random().toString(36).substr(2, 9)}`,
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          url: `/uploads/contracts/${Math.random().toString(36).substr(2, 9)}_${file.name}`,
+        };
+      }
+    }
+  } else {
+    body = await request.json();
+  }
+
+  // Find employee name for summary
+  const employee = employeesDb.find((e) => e.id === body.employeeId);
+  const employeeName = employee ? employee.name : 'Desconhecido';
+  const employeeRole = employee ? employee.role : 'Outros';
+
+  // Determine status
+  let status: PaymentStatus = 'agendado';
+  if (body.paymentDate) {
+    status = 'pago';
+  } else {
+    const due = new Date(body.dueDate);
+    const today = new Date();
+    // Reset time for comparison
+    due.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    if (due < today) {
+      status = 'atrasado';
+    }
+  }
+
+  const newPayment: PaymentDetail = {
+    ...body,
+    id: Math.random().toString(36).substr(2, 9),
+    name: employeeName,
+    role: employeeRole,
+    value: body.value,
+    status,
+    proofs: uploadedProof ? [uploadedProof] : [],
+  };
+
+  paymentsDb.unshift(newPayment); // Add to beginning of list
+
+  return NextResponse.json(
+    { message: 'Payment created successfully', data: newPayment },
+    { status: 201 }
+  );
 }

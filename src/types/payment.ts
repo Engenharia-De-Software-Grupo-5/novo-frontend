@@ -28,7 +28,7 @@ export interface PaymentDetail extends PaymentSummary {
   type: PaymentType;
   dueDate: string;
   observation?: string;
-  proof?: FileAttachment;
+  proofs?: FileAttachment[];
 }
 
 export interface PaymentResponse {

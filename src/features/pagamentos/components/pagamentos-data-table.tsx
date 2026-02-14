@@ -6,6 +6,7 @@ import { EMPLOYEE_ROLES } from '@/features/funcionarios/constants';
 import { PaymentSummary } from '@/types/payment';
 
 import { PAYMENT_COLUMN_LABELS, PAYMENT_STATUSES } from '../constants';
+import { AddPaymentDialog } from './add-payment-dialog';
 import { columns } from './columns';
 
 interface PagamentosDataTableProps {
@@ -42,6 +43,7 @@ export function PagamentosDataTable({
         { columnId: 'role', isArray: true },
         { columnId: 'status', isArray: true },
       ]}
+      actions={<AddPaymentDialog />}
     />
   );
 }

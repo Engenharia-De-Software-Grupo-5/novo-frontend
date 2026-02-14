@@ -62,6 +62,7 @@ export default async function PagamentosPage({
             Gerencie os pagamentos dos funcionários.
           </p>
         </div>
+        <div className="flex items-center space-x-2"></div>
       </div>
 
       <PagamentosDataTable data={pagamentos} pageCount={meta.totalPages} />

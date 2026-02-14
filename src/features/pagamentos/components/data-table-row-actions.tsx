@@ -23,9 +23,12 @@ import {
 import { MoreHorizontal, PencilLine, ScanEye, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { PaymentSummary } from '@/types/payment';
+import { PaymentDetail, PaymentSummary } from '@/types/payment';
 
-import { deletePayment } from '../services/paymentService';
+// I need:
+import { deletePayment, getPaymentById } from '../services/paymentService';
+import { PaymentDialog } from './add-payment-dialog';
+import { ViewPaymentDialog } from './view-payment-dialog';
 
 interface DataTableRowActionsProps {
   payment: PaymentSummary;
@@ -33,7 +36,13 @@ interface DataTableRowActionsProps {
 
 export function DataTableRowActions({ payment }: DataTableRowActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showViewDialog, setShowViewDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [paymentDetail, setPaymentDetail] = useState<PaymentDetail | null>(
+    null
+  );
+
   const router = useRouter();
   const params = useParams();
   const condId = params?.condId as string;
@@ -53,6 +62,34 @@ export function DataTableRowActions({ payment }: DataTableRowActionsProps) {
     }
   }
 
+  async function handleEdit() {
+    try {
+      toast.loading('Carregando detalhes...');
+      const detail = await getPaymentById(condId, payment.id);
+      setPaymentDetail(detail);
+      toast.dismiss();
+      setShowEditDialog(true);
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Erro ao carregar detalhes do pagamento.');
+      console.error(error);
+    }
+  }
+
+  async function handleView() {
+    try {
+      toast.loading('Carregando detalhes...');
+      const detail = await getPaymentById(condId, payment.id);
+      setPaymentDetail(detail);
+      toast.dismiss();
+      setShowViewDialog(true);
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Erro ao carregar detalhes do pagamento.');
+      console.error(error);
+    }
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -65,14 +102,14 @@ export function DataTableRowActions({ payment }: DataTableRowActionsProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             className="flex items-center justify-between gap-2"
-            onSelect={() => toast.info('Funcionalidade de visualizar em breve')}
+            onSelect={handleView}
           >
             Visualizar
             <ScanEye className="h-4 w-4" />
           </DropdownMenuItem>
           <DropdownMenuItem
             className="flex items-center justify-between gap-2"
-            onSelect={() => toast.info('Funcionalidade de editar em breve')}
+            onSelect={handleEdit}
           >
             Editar
             <PencilLine className="h-4 w-4" />
@@ -88,6 +125,7 @@ export function DataTableRowActions({ payment }: DataTableRowActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
+      {/* Delete Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -114,6 +152,24 @@ export function DataTableRowActions({ payment }: DataTableRowActionsProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit Dialog */}
+      {showEditDialog && paymentDetail && (
+        <PaymentDialog
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          payment={paymentDetail}
+        />
+      )}
+
+      {/* View Dialog */}
+      {showViewDialog && paymentDetail && (
+        <ViewPaymentDialog
+          open={showViewDialog}
+          onOpenChange={setShowViewDialog}
+          payment={paymentDetail}
+        />
+      )}
     </>
   );
 }
