@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { employeesDb } from '@/mocks/in-memory-db';
 
-import { EmployeeDetail } from '@/types/employee';
+import { EmployeeDetail, EmployeeFile } from '@/types/employee';
 
 /**
  * @swagger
@@ -207,14 +207,49 @@ export async function GET(request: NextRequest) {
  *                   $ref: '#/components/schemas/EmployeeDetail'
  */
 export async function POST(request: NextRequest) {
-  const body = (await request.json()) as EmployeeDetail;
+  let body: EmployeeDetail;
+  let uploadedContracts: EmployeeFile[] = [];
+  const contentType = request.headers.get('content-type') || '';
+
+  if (contentType.includes('multipart/form-data')) {
+    const formData = await request.formData();
+    const dataField = formData.get('data');
+    body = dataField ? JSON.parse(dataField as string) : {};
+
+    // Process uploaded files into simulated EmployeeFile objects
+    const contractFiles = formData.getAll('contracts');
+    uploadedContracts = contractFiles
+      .filter((f): f is File => f instanceof File)
+      .map((file) => ({
+        id: `file-${Math.random().toString(36).substr(2, 9)}`,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        url: `/uploads/contracts/${Math.random().toString(36).substr(2, 9)}_${file.name}`,
+      }));
+
+    console.log(
+      `POST: Received ${contractFiles.length} contract file(s):`,
+      uploadedContracts.map((f) => ({ id: f.id, name: f.name, size: f.size }))
+    );
+  } else {
+    body = (await request.json()) as EmployeeDetail;
+  }
+
   console.log('Received employee data:', body);
+
+  const allContracts = [...uploadedContracts];
 
   const newEmployee: EmployeeDetail = {
     ...body,
     id: Math.random().toString(36).substr(2, 9),
     status: 'ativo',
     role: body.role || 'porteiro',
+    Contracts: allContracts,
+    lastContract:
+      allContracts.length > 0
+        ? allContracts[allContracts.length - 1]
+        : undefined,
   };
 
   employeesDb.push(newEmployee);

@@ -10,12 +10,16 @@ export async function apiRequest<T>(
 ): Promise<T> {
   const { body, headers, ...rest } = options;
 
+  const isFormData = body instanceof FormData;
+
   const response = await fetch(`${API_URL}${path}`, {
     headers: {
-      'Content-Type': 'application/json',
+      // Don't set Content-Type for FormData — the browser sets it
+      // automatically with the correct multipart boundary
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...headers,
     },
-    body: body ? JSON.stringify(body) : undefined,
+    body: isFormData ? body : body ? JSON.stringify(body) : undefined,
     ...rest,
   });
 

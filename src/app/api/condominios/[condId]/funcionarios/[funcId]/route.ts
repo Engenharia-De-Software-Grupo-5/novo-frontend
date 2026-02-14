@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { employeesDb } from '@/mocks/in-memory-db';
 
-import { EmployeeDetail } from '@/types/employee';
+import { EmployeeDetail, EmployeeFile } from '@/types/employee';
 
 /**
  * @swagger
@@ -86,12 +86,67 @@ export async function PUT(
   { params }: { params: Promise<{ funcId: string }> }
 ) {
   const { funcId } = await params;
-  const body = (await request.json()) as Partial<EmployeeDetail>;
+
+  let body: Partial<EmployeeDetail>;
+  let keptContracts: EmployeeFile[] | undefined;
+  let uploadedContracts: EmployeeFile[] = [];
+  const contentType = request.headers.get('content-type') || '';
+
+  if (contentType.includes('multipart/form-data')) {
+    const formData = await request.formData();
+    const dataField = formData.get('data');
+    body = dataField ? JSON.parse(dataField as string) : {};
+
+    // Parse existing contract IDs that the user chose to keep
+    const existingIdsField = formData.get('existingContractIds');
+    const existingContractIds: string[] | undefined = existingIdsField
+      ? JSON.parse(existingIdsField as string)
+      : undefined;
+
+    // Process uploaded files into simulated EmployeeFile objects
+    const contractFiles = formData.getAll('contracts');
+    uploadedContracts = contractFiles
+      .filter((f): f is File => f instanceof File)
+      .map((file) => ({
+        id: `file-${Math.random().toString(36).substr(2, 9)}`,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        url: `/uploads/contracts/${Math.random().toString(36).substr(2, 9)}_${file.name}`,
+      }));
+
+    // Filter the employee's existing contracts to only keep the ones the user didn't remove
+    if (existingContractIds !== undefined) {
+      const currentEmployee = employeesDb.find((e) => e.id === funcId);
+      keptContracts = (currentEmployee?.Contracts ?? []).filter((c) =>
+        existingContractIds.includes(c.id)
+      );
+    }
+
+    console.log(
+      `PUT: Kept ${keptContracts?.length ?? 'all'} existing contracts, received ${uploadedContracts.length} new file(s)`
+    );
+  } else {
+    body = (await request.json()) as Partial<EmployeeDetail>;
+  }
 
   const index = employeesDb.findIndex((e) => e.id === funcId);
 
   if (index === -1) {
     return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+  }
+
+  // Merge kept contracts + newly uploaded contracts
+  if (keptContracts !== undefined || uploadedContracts.length > 0) {
+    const finalContracts = [
+      ...(keptContracts ?? employeesDb[index].Contracts ?? []),
+      ...uploadedContracts,
+    ];
+    body.Contracts = finalContracts;
+    body.lastContract =
+      finalContracts.length > 0
+        ? finalContracts[finalContracts.length - 1]
+        : undefined;
   }
 
   employeesDb[index] = { ...employeesDb[index], ...body };

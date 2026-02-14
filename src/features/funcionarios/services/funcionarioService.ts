@@ -3,6 +3,50 @@ import { apiRequest, buildQueryString } from '@/lib/api-client';
 
 const basePath = (condId: string) => `/api/condominios/${condId}/funcionarios`;
 
+interface FileUploadOptions {
+  /** New files to upload */
+  newFiles?: File[];
+  /** IDs of existing contracts that the user chose to KEEP (the ones NOT removed) */
+  existingContractIds?: string[];
+}
+
+/**
+ * Builds the request body for employee creation/update.
+ *
+ * Uses FormData (multipart/form-data) when there are new files to upload
+ * or when the list of existing contracts has been modified.
+ * Otherwise, falls back to plain JSON.
+ */
+function buildEmployeeBody(
+  data: Partial<EmployeeDetail>,
+  options?: FileUploadOptions
+): FormData | Partial<EmployeeDetail> {
+  const { newFiles = [], existingContractIds } = options ?? {};
+
+  const hasNewFiles = newFiles.length > 0;
+  const hasExistingContractChanges = existingContractIds !== undefined;
+
+  // If there's nothing file-related, send plain JSON
+  if (!hasNewFiles && !hasExistingContractChanges) {
+    return data;
+  }
+
+  const formData = new FormData();
+  formData.append('data', JSON.stringify(data));
+
+  // Send the list of existing contract IDs to keep
+  if (existingContractIds) {
+    formData.append('existingContractIds', JSON.stringify(existingContractIds));
+  }
+
+  // Append each new file
+  newFiles.forEach((file) => {
+    formData.append('contracts', file);
+  });
+
+  return formData;
+}
+
 export const getFuncionarios = async (
   condId: string,
   params?: {
@@ -52,22 +96,24 @@ export const getFuncionarioById = async (
 
 export const postFuncionario = async (
   condId: string,
-  data: Partial<EmployeeDetail>
+  data: Partial<EmployeeDetail>,
+  options?: FileUploadOptions
 ): Promise<void> => {
   await apiRequest(basePath(condId), {
     method: 'POST',
-    body: data,
+    body: buildEmployeeBody(data, options),
   });
 };
 
 export const putFuncionario = async (
   condId: string,
   funcId: string,
-  data: Partial<EmployeeDetail>
+  data: Partial<EmployeeDetail>,
+  options?: FileUploadOptions
 ): Promise<void> => {
   await apiRequest(`${basePath(condId)}/${funcId}`, {
     method: 'PUT',
-    body: data,
+    body: buildEmployeeBody(data, options),
   });
 };
 

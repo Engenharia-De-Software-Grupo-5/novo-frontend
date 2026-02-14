@@ -115,11 +115,29 @@ export function EmployeeDialog({
   async function onSubmit(data: EmployeeFormValues) {
     try {
       setIsSubmitting(true);
+
+      // IDs of existing contracts the user chose to keep (not removed in the UI)
+      const existingContractIds = existingContracts.map((c) => c.id);
+
       if (isEditing) {
-        await putFuncionario(condId, employee.id, { ...data });
+        await putFuncionario(
+          condId,
+          employee.id,
+          { ...data },
+          {
+            newFiles: files,
+            existingContractIds,
+          }
+        );
         toast.success(`Funcionário "${data.name}" atualizado com sucesso!`);
       } else {
-        await postFuncionario(condId, { ...data });
+        await postFuncionario(
+          condId,
+          { ...data },
+          {
+            newFiles: files.length > 0 ? files : undefined,
+          }
+        );
         toast.success(`Funcionário "${data.name}" adicionado com sucesso!`);
       }
       router.refresh();
