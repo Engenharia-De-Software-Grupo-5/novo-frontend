@@ -81,6 +81,9 @@ import { EmployeeDetail } from '@/types/employee';
  *                       type: integer
  */
 export async function GET(request: NextRequest) {
+  // Simulate API delay for loading state testing
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
   const searchParams = request.nextUrl.searchParams;
 
   const page = parseInt(searchParams.get('page') || '1');
