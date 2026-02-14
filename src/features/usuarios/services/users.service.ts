@@ -1,14 +1,37 @@
-import { CreateUserData, CreateUserPayload, UpdateUserData, UsersResponse } from "./users";
+import {UpdateUserPayload } from "./users";
+
+import { apiRequest, buildQueryString } from '@/lib/api-client';
+import { UsersResponse } from '@/types/user';
+
+interface GetUsersParams {
+  page: number;
+  limit: number;
+  search?: string;
+  roles?: string[];
+  statuses?: string[];
+}
 
 export async function getUsers(
   condominioId: string,
-  page: number,
-  limit: number
+  params: GetUsersParams
 ): Promise<UsersResponse> {
+  if (!condominioId || condominioId === 'undefined') {
+    throw new Error('Condomínio ID é obrigatório');
+  }
 
-  const res = await fetch(
-    `/api/condominios/${condominioId}/users?page=${page}&limit=${limit}`
-  );
+  
+  const queryString = buildQueryString({
+    page: params.page,
+    limit: params.limit,
+    search: params.search,
+    role: params.roles, 
+    status: params.statuses,
+  });
+
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  const url = `${baseUrl}/api/condominios/${condominioId}/users${queryString}`;
+  
+  const res = await fetch(url, { cache: 'no-store' });
 
   if (!res.ok) {
     throw new Error('Erro ao buscar usuários');
@@ -17,113 +40,54 @@ export async function getUsers(
   const json = await res.json();
 
   return {
-    items: json.data,                   // já vem paginado do backend
-    totalItems: json.meta.total,        // total de usuários
-    totalPages: json.meta.totalPages,   // total de páginas
-    page: json.meta.page,               // página atual
-    limit: json.meta.limit,             // limite usado
+    items: json.data,
+    totalItems: json.meta.total,
+    totalPages: json.meta.totalPages,
+    page: json.meta.page,
+    limit: json.meta.limit,
   };
 }
 
-
-export async function createUser(
-  condominioId: string,
-  data: CreateUserPayload
-): Promise<unknown> {
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
-  const payload: CreateUserData = {
-    ...data,
-    condominioId,
-  };
-
-  console.log(
-    `[Mock POST] Usuário criado no condomínio: ${condominioId}`,
-    payload
-  );
-
-  return { success: true };
-}
-
-export async function updateUser(
-  condominioId: string,
-  userId: string,
-  data: UpdateUserData
-): Promise<unknown> {
-  const res = await fetch(
-    `/api/condominios/${condominioId}/users/${userId}`,
-    {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    }
-  );
-
-  console.log(data)
-
-  if (!res.ok) {
-    throw new Error('Erro ao atualizar usuário');
-  }
-
-  return res.json();
-}
-
-export async function deactivateUser(
-  condominioId: string,
-  userId: string
-): Promise<unknown> {
-  const payload: UpdateUserData = {
-    status: 'inativo',
-  };
-
-  const res = await fetch(
-    `/api/condominios/${condominioId}/users/${userId}`,
-    {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    }
-  );
-
-  console.log('[Mock PATCH] Usuário desativado:', payload);
-
-  if (!res.ok) {
-    throw new Error('Erro ao desativar usuário');
-  }
-
-  return res.json();
-}
-
-export async function deleteUser(
-  condominioId: string,
-  userId: string
-): Promise<unknown> {
-  // mock de delay
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const res = await fetch(
-    `/api/condominios/${condominioId}/users/${userId}`,
-    {
-      method: 'DELETE',
-    }
-  );
-
-  console.log('[Mock DELETE] Usuário excluído:', {
-    condominioId,
-    userId,
+export async function inviteUser(
+  condominioId: string, 
+  data: { email: string; role: string; inviteDuration: string }
+) {
+ 
+  return apiRequest(`/api/condominios/${condominioId}/users/invite`, {
+    method: 'POST',
+    body: JSON.stringify(data),
   });
+}
 
-  if (!res.ok) {
-    throw new Error('Erro ao excluir usuário');
-  }
+export async function createUser(condominioId: string, data: UpdateUserPayload) {
+  return apiRequest(`/api/condominios/${condominioId}/users`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
 
-  if (res.status === 204) {  
-    return;  
-  }  
-  return res.json();  
+/**
+ * ATUALIZAÇÃO (PUT ou PATCH)
+ */
+export async function updateUser(condominioId: string, userId: string, data: UpdateUserPayload) {
+  return apiRequest(`/api/condominios/${condominioId}/users/${userId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
 
+export async function deactivateUser(condominioId: string, userId: string) {
+  return apiRequest(`/api/condominios/${condominioId}/users/${userId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status: 'inativo' }), 
+  });
+}
+
+/**
+ * EXCLUSÃO
+ */
+export async function deleteUser(condominioId: string, userId: string) {
+  return apiRequest(`/api/condominios/${condominioId}/users/${userId}`, {
+    method: 'DELETE',
+  });
 }
