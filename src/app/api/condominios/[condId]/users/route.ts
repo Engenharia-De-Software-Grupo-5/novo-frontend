@@ -66,18 +66,24 @@ import { User } from '@/types/user';
  *                     totalPages:
  *                       type: integer
  */
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ condId: string }> } // Adicione isso aqui!
+) {
+  const { condId } = await params;
 
+  if (!condId) {
+      return NextResponse.json({ error: "ID não fornecido" }, { status: 400 });
+    }
+
+  // filtra pelos usuários do condomínio
+  const searchParams = request.nextUrl.searchParams;
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '20');
   const sort = searchParams.get('sort');
   const order = searchParams.get('order') || 'asc';
 
-  // extrai condId da URL
-  const condId = request.nextUrl.pathname.split('/')[3]; // /api/condominios/:condId/users
-
-  // filtra pelos usuários do condomínio
+  // Agora o condId vem direto do parametro da rota, sem erro de split
   const condominiumUsers = users.filter((u) => u.condominioId === condId);
 
   // ordena se necessário

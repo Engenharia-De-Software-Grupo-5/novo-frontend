@@ -1,10 +1,20 @@
-import { useDeleteUser } from '@/features/usuarios/hooks/mutations/use-delete-user';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/features/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/features/components/ui/dialog';
-import { User } from '@/types/user';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/features/components/ui/dialog';
 import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { User } from '@/types/user';
+
+import { deleteUser } from '../services/users.service';
 
 interface DeleteUserDialogProps {
   open: boolean;
@@ -17,32 +27,36 @@ export function DeleteUserDialog({
   open,
   onOpenChange,
   user,
-  condominioId
+  condominioId,
 }: DeleteUserDialogProps) {
-  
-
- 
-  const { mutate: deleteUser, isPending } = useDeleteUser(condominioId);
+  const [isPending, setIsPending] = useState(false);
+  const router = useRouter();
 
   if (!user) return null;
 
-  const handleConfirm = () => {
-    deleteUser(user.id, {
-      onSuccess: () => {
-        toast.success('Usuário excluído com sucesso!');
-        onOpenChange(false);
-      },
-      onError: () => {
-        toast.error('Erro ao excluir usuário');
-      },
-    });
+  const handleConfirm = async () => {
+    setIsPending(true);
+    try {
+      await deleteUser(condominioId, user.id);
+
+      onOpenChange(false);
+      toast.success('Usuário excluído com sucesso!');
+
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      router.refresh();
+    } catch (error) {
+      toast.error('Erro ao excluir usuário');
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="items-center text-center">
-          {/* Ícone */}
+          {/* Ícone com seu estilo exato */}
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
             <Trash2 className="h-6 w-6" />
           </div>
@@ -50,8 +64,9 @@ export function DeleteUserDialog({
           <DialogTitle>Excluir usuário</DialogTitle>
 
           <DialogDescription className="text-sm">
-            Essa ação é irreversível e impede que o usuário {' '} <br />
-            {user.name} acesse qualquer conteúdo do sistema <br />
+            Essa ação é irreversível e impede que o usuário <br />
+            <strong>{user.name}</strong> acesse qualquer conteúdo do sistema{' '}
+            <br />
             para sempre.
           </DialogDescription>
         </DialogHeader>
@@ -70,7 +85,7 @@ export function DeleteUserDialog({
             onClick={handleConfirm}
             disabled={isPending}
           >
-            Excluir usuário
+            {isPending ? 'Excluindo...' : 'Excluir usuário'}
           </Button>
         </DialogFooter>
       </DialogContent>

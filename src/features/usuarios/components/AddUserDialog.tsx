@@ -24,42 +24,54 @@ import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Role } from '@/types/user';
+import { inviteUser } from '../services/users.service';
+import { useParams, useRouter } from 'next/navigation';
 
 export function AddUserDialog() {
-  // Filtramos o "Dono" da lista de opções exibidas
-  const rolesDisponiveis: Exclude<Role, 'Dono'>[] = ['Financeiro', 'RH'];
+  const router = useRouter()
+  const params = useParams()
+  const condId = params.condId as string
 
-  const [open, setOpen] = useState(false);
+  const rolesDisponiveis: Exclude<Role, 'Dono'>[] = ['Financeiro', 'RH']
 
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState<Role>('Financeiro');
-  const [inviteDuration, setInviteDuration] = useState<number>(7);
+  const [open, setOpen] = useState(false)
+  const [isPending, setIsPending] = useState(false)
 
-  const { mutate: createUser, isPending } = useCreateUser('condominio-id-aqui');
+  const [email, setEmail] = useState('')
+  const [role, setRole] = useState<Role>('Financeiro')
+  const [inviteDuration, setInviteDuration] = useState<number>(7)
+  const [message, setMessage] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // sendemail to user
-    createUser(
-      {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsPending(true)
+
+    try {
+      // Chama o service diretamente (Lógica do Amigo)
+      await inviteUser(condId, {
         email,
-        role,
-        inviteDuration,
-      },
-      {
-        onSuccess: () => {
-          toast.success('Convite enviado com sucesso!');
-          setOpen(false);
-          setEmail('');
-          setRole('Financeiro');
-          setInviteDuration(7);
-        },
-        onError: () => {
-          toast.error('Erro ao enviar convite');
-        },
-      }
-    );
-  };
+        role: role.toLowerCase(), // Padroniza para bater com a API
+        inviteDuration: `${inviteDuration} days`,
+      })
+
+      toast.success('Convite enviado com sucesso!')
+      
+      // Limpa o formulário
+      setEmail('')
+      setRole('Financeiro')
+      setInviteDuration(7)
+      setMessage('')
+      setOpen(false)
+
+      // ATUALIZA A TABELA (Server Component)
+      router.refresh()
+      
+    } catch (error) {
+      toast.error('Erro ao enviar convite. Tente novamente.')
+    } finally {
+      setIsPending(false)
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -69,17 +81,17 @@ export function AddUserDialog() {
           Adicionar Usuário
         </Button>
       </DialogTrigger>
+      
       <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
           <DialogTitle>Adicionar Novo Usuário</DialogTitle>
           <DialogDescription>
-            Envie um convite por e-mail para que o usuário crie sua conta e
-            tenha acesso ao sistema. O convite terá um link seguro e prazo de
-            validade.
+            Envie um convite por e-mail para que o usuário crie sua conta.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+          {/* E-mail */}
           <div className="grid gap-2">
             <Label htmlFor="email">E-mail</Label>
             <Input
@@ -90,32 +102,29 @@ export function AddUserDialog() {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <div className="text-brand-gray bottom-8 text-left text-[10px] md:text-xs">
-              O convite será enviado para este endereço.
-            </div>
           </div>
+
+          {/* Cargo */}
           <div className="grid gap-2">
             <Label htmlFor="role">Cargo</Label>
-            <Select value={role} onValueChange={(v) => setRole(v as Role)}>
+            <Select value={role.toLowerCase()} onValueChange={(v) => setRole(v as Role)}>
               <SelectTrigger id="role">
                 <SelectValue placeholder="Selecione um cargo" />
               </SelectTrigger>
               <SelectContent>
-                {rolesDisponiveis.map((role) => (
-                  <SelectItem key={role} value={role.toLowerCase()}>
-                    {role}
+                {rolesDisponiveis.map((r) => (
+                  <SelectItem key={r} value={r.toLowerCase()}>
+                    {r}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <div className="text-brand-gray bottom-8 text-left text-[10px] md:text-xs">
-              Define o nível de acesso após o cadastro.
-            </div>
           </div>
+
+          {/* Validade */}
           <div className="grid gap-2">
-            <Label htmlFor="role">Validade do convite</Label>
+            <Label htmlFor="expiry">Validade do convite</Label>
             <Select
-              defaultValue="7"
               value={String(inviteDuration)}
               onValueChange={(v) => setInviteDuration(Number(v))}
             >
@@ -128,14 +137,17 @@ export function AddUserDialog() {
                 <SelectItem value="21">21 dias</SelectItem>
               </SelectContent>
             </Select>
-            <div className="text-brand-gray bottom-8 text-left text-[10px] md:text-xs">
-              O link enviado com o convide expira por padrão em 7 dias.
-            </div>
           </div>
 
+          {/* Mensagem Opcional */}
           <div className="grid gap-2">
-            <Label htmlFor="role">Mensagem</Label>
-            <Textarea placeholder="Type your message here." />
+            <Label htmlFor="message">Mensagem (opcional)</Label>
+            <Textarea 
+              id="message" 
+              placeholder="Olá! Junte-se à nossa equipe..." 
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
           </div>
 
           <DialogFooter className="mt-4">
@@ -146,12 +158,12 @@ export function AddUserDialog() {
             >
               Cancelar
             </Button>
-            <Button type="submit"  disabled={isPending} className="bg-brand-blue">
-              Enviar Convite
+            <Button type="submit" disabled={isPending} className="bg-brand-blue">
+              {isPending ? "Enviando..." : "Enviar Convite"}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

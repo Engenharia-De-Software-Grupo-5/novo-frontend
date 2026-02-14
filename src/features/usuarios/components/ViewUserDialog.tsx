@@ -31,7 +31,7 @@ export function ViewUserDialog({
     e.preventDefault();
     toast.success('Convite enviado com sucesso!');
 
-    // Lógica de envio aqui (API, etc)
+ 
 
     onOpenChange(false);
   };

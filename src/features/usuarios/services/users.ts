@@ -9,18 +9,13 @@ export interface UsersResponse {
 }
 
 
-export interface CreateUserPayload {
+export interface InviteUserPayload {
   email: string;
-  role: Role;
-  inviteDuration: number;
+  role: string;
+  inviteDuration: string; // Ex: "7 days"
 }
 
-
-export interface CreateUserData extends CreateUserPayload {
-  condominioId: string;
-}
-
-export interface UpdateUserData {
+export interface UpdateUserPayload {
   role?: string;
-  status?: 'ativo' | 'pendente' | 'inativo';
+  status?: 'ativo' | 'inativo' | 'pendente';
 }

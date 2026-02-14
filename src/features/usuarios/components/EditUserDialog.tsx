@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/features/components/ui/button';
 import {
   Dialog,
@@ -18,10 +19,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/features/components/ui/select';
-import { useUpdateUser } from '@/features/usuarios/hooks/mutations/use-update-user';
 import { toast } from 'sonner';
 
 import { Role, User } from '@/types/user';
+
+import { updateUser } from '../services/users.service';
 
 type UserStatus = 'ativo' | 'inativo' | 'pendente';
 
@@ -32,23 +34,25 @@ interface EditUserDialogProps {
   condominioId: string;
 }
 
+
 export function EditUserDialog({
   open,
   onOpenChange,
   user,
   condominioId,
 }: EditUserDialogProps) {
+  const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
+
+  // Estados locais para edição
   const [role, setRole] = useState<string | undefined>(undefined);
+  const [status, setStatus] = useState<UserStatus>('pendente');
 
   const roles: Role[] = ['Financeiro', 'RH'];
 
-  const [status, setStatus] = useState<UserStatus>('pendente');
-
-  const { mutate: updateUser, isPending } = useUpdateUser(condominioId);
-  // sempre que abrir o dialog, sincroniza com o user
+  // Sincroniza os estados quando o dialog abre ou o user muda
   useEffect(() => {
-    if (user) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (user && open) {
       setRole(user.role);
       setStatus(user.status);
     }
@@ -56,22 +60,25 @@ export function EditUserDialog({
 
   if (!user) return null;
 
-  const handleSubmit = () => {
-    updateUser(
-      {
-        userId: user.id,
-        data: {
-          role,
-          status,
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success('Usuário atualizado com sucesso!');
-          onOpenChange(false);
-        },
-      }
-    );
+  const handleSubmit = async () => {
+    setIsPending(true);
+    try {
+      await updateUser(condominioId, user.id, {
+        role: role as string,
+        status: status,
+      });
+
+      onOpenChange(false);
+      toast.success('Usuário atualizado com sucesso!');
+
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      router.refresh();
+    } catch (error) {
+      toast.error('Erro ao atualizar usuário');
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
@@ -85,18 +92,18 @@ export function EditUserDialog({
         </DialogHeader>
 
         <div className="grid gap-4 py-4 text-sm">
-          {/* Nome */}
+          {/* Nome (Read-only estilo seu) */}
           <div>
             <Label>Nome</Label>
-            <div className="border-input bg-background text-muted-foreground h-10 rounded-md border px-3 py-2 text-sm">
+            <div className="border-input bg-background text-muted-foreground mt-1 h-10 rounded-md border px-3 py-2 text-sm">
               {user.name}
             </div>
           </div>
 
-          {/* Email */}
+          {/* Email (Read-only estilo seu) */}
           <div>
             <Label>E-mail</Label>
-            <div className="border-input bg-background text-muted-foreground h-10 rounded-md border px-3 py-2 text-sm">
+            <div className="border-input bg-background text-muted-foreground mt-1 h-10 rounded-md border px-3 py-2 text-sm">
               {user.email}
             </div>
           </div>
@@ -106,10 +113,9 @@ export function EditUserDialog({
             <div className="grid gap-1">
               <Label>Cargo</Label>
               <Select value={role} onValueChange={setRole}>
-                <SelectTrigger>
+                <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Selecione o cargo" />
                 </SelectTrigger>
-
                 <SelectContent>
                   {roles.map((roleOption) => (
                     <SelectItem key={roleOption} value={roleOption}>
@@ -126,7 +132,7 @@ export function EditUserDialog({
                 value={status}
                 onValueChange={(value) => setStatus(value as UserStatus)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Selecione o status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -138,7 +144,7 @@ export function EditUserDialog({
             </div>
           </div>
 
-          {/* Informações extras (readonly) */}
+          {/* Informações extras (Renderização condicional mantida) */}
           {user.status === 'ativo' && (
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-1">
@@ -158,16 +164,21 @@ export function EditUserDialog({
           )}
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="gap-2">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
             Cancelar
           </Button>
 
           <Button
             className="bg-brand-blue hover:bg-blue-900"
             onClick={handleSubmit}
+            disabled={isPending}
           >
-            Salvar alterações
+            {isPending ? 'Salvando...' : 'Salvar alterações'}
           </Button>
         </DialogFooter>
       </DialogContent>

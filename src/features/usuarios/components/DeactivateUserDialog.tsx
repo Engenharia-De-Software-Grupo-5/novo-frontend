@@ -1,4 +1,5 @@
-import { useDeactivateUser } from '@/features/usuarios/hooks/mutations/use-deactivate-user';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/features/components/ui/button';
 import {
   Dialog,
@@ -9,9 +10,11 @@ import {
   DialogTitle,
 } from '@/features/components/ui/dialog';
 import { FlagOff } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { User } from '@/types/user';
-import { toast } from 'sonner';
+
+import { deactivateUser } from '../services/users.service';
 
 interface DeactivateUserDialogProps {
   open: boolean;
@@ -24,52 +27,59 @@ export function DeactivateUserDialog({
   open,
   onOpenChange,
   user,
-  condominioId
+  condominioId,
 }: DeactivateUserDialogProps) {
- 
+  const [isPending, setIsPending] = useState(false);
+  const router = useRouter();
 
-  const { mutate:deactivateUser, isPending } = useDeactivateUser(condominioId);
+  if (!user) return null;
 
-   if (!user) return null;
 
-  const handleConfirm = () => {
-    deactivateUser(user.id, {
-      onSuccess: () => {
-        toast.success('Usuário atualizado com sucesso!');
-        onOpenChange(false);
-      },
-    });
+  const handleConfirm = async () => {
+    setIsPending(true);
+    try {
+      await deactivateUser(condominioId, user.id);
+      onOpenChange(false);
+
+      toast.success('Usuário desativado com sucesso!');
+
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      
+      router.refresh();
+    } catch (error) {
+      toast.error('Erro ao desativar usuário');
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="items-center text-center">
-          {/* Ícone */}
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
             <FlagOff className="h-6 w-6" />
           </div>
-
           <DialogTitle>Você tem certeza?</DialogTitle>
-
           <DialogDescription className="text-sm">
-            Essa ação impede que o usuário{' '}
-            {user.name} {' '}
-            acesse qualquer conteúdo do sistema.
+            Essa ação impede que o usuário <strong>{user.name}</strong> acesse o
+            sistema.
           </DialogDescription>
         </DialogHeader>
-
         <DialogFooter className="mt-6 gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
             Cancelar
           </Button>
-
           <Button
             className="bg-red-100 text-red-700 hover:bg-red-200"
             onClick={handleConfirm}
             disabled={isPending}
           >
-            Tornar inativo
+            {isPending ? 'Processando...' : 'Tornar inativo'}
           </Button>
         </DialogFooter>
       </DialogContent>
