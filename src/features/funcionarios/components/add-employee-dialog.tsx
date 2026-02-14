@@ -28,13 +28,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/features/components/ui/select';
+import { useFileUpload } from '@/features/hooks/useFileUpload';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FileText, Trash2, Upload } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { EmployeeDetail } from '@/types/employee';
-import { useFileUpload } from '@/hooks/useFileUpload';
 
 import { EMPLOYEE_ROLES } from '../constants';
 import {

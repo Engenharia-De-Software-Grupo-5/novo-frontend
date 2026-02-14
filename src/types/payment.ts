@@ -12,7 +12,7 @@ export type PaymentType =
   | 'serviço'
   | 'outros';
 
-export type PaymentStatus = 'pendente' | 'pago' | 'atrasado';
+export type PaymentStatus = 'agendado' | 'pago' | 'atrasado';
 
 export interface PaymentSummary {
   id: string;
