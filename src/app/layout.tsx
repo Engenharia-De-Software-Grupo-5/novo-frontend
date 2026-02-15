@@ -1,23 +1,27 @@
-import type { Metadata } from "next"
-import { Toaster } from "sonner"
-import "./globals.css"
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import { Toaster } from '@/features/components/ui/sonner';
+
+import './globals.css';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: "Moratta",
-  description: "Moratta Frontend",
-}
+  title: 'Moratta',
+  description: 'Moratta Frontend',
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
-      <body>
+    <html lang="pt-BR" className={inter.variable}>
+      <body className="font-sans" suppressHydrationWarning>
         {children}
-        <Toaster richColors position="top-right" />
+        <Toaster position="top-center" />
       </body>
     </html>
-  )
+  );
 }
