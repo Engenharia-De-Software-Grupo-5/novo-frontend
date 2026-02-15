@@ -82,9 +82,6 @@ import { FileAttachment } from '@/types/file';
  *                       type: integer
  */
 export async function GET(request: NextRequest) {
-  // Simulate API delay for loading state testing
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-
   const searchParams = request.nextUrl.searchParams;
 
   const page = parseInt(searchParams.get('page') || '1');
@@ -244,7 +241,7 @@ export async function POST(request: NextRequest) {
   const newEmployee: EmployeeDetail = {
     ...body,
     id: Math.random().toString(36).substr(2, 9),
-    status: 'ativo',
+    status: allContracts.length > 0 ? 'ativo' : 'pendente',
     role: body.role || 'porteiro',
     Contracts: allContracts,
     lastContract:
