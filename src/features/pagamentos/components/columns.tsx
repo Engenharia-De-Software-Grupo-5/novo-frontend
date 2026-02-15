@@ -4,7 +4,7 @@ import { DataTableColumnHeader } from '@/features/components/data-table';
 import { Badge } from '@/features/components/ui/badge';
 import { Button } from '@/features/components/ui/button';
 import { ColumnDef } from '@tanstack/react-table';
-import { CircleCheck, CircleX, FileText } from 'lucide-react';
+import { CircleX, FileText } from 'lucide-react';
 
 import { PaymentSummary } from '@/types/payment';
 
@@ -70,12 +70,7 @@ export const columns: ColumnDef<PaymentSummary>[] = [
     cell: ({ row }) => {
       const date = row.getValue('paymentDate') as string;
       if (!date) return <span className="text-muted-foreground">-</span>;
-      return (
-        <div className="flex items-center">
-          <CircleCheck className="text-muted-foreground mr-2 h-4 w-4" />
-          <span>{new Date(date).toLocaleDateString('pt-BR')}</span>
-        </div>
-      );
+      return <span>{new Date(date).toLocaleDateString('pt-BR')}</span>;
     },
   },
   {
