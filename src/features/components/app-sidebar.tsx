@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { CondominiumSwitcher } from '@/features/components/condominium-switcher';
 import {
   Collapsible,
   CollapsibleContent,
@@ -14,6 +15,7 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -128,6 +130,9 @@ export function AppSidebar({ condId, ...props }: AppSidebarProps) {
 
   return (
     <Sidebar collapsible="icon" className="bg-[#fafafa]" {...props}>
+      <SidebarHeader>
+        <CondominiumSwitcher condId={condId} />
+      </SidebarHeader>
       <SidebarContent className="gap-0">
         <SidebarMenu className="mt-4 px-2">
           {items.map((item) => {
