@@ -40,14 +40,6 @@ const names = [
   'Natalia Cunha',
 ];
 
-const statuses: Array<'ativo' | 'pendente' | 'inativo'> = [
-  'ativo',
-  'ativo',
-  'ativo',
-  'pendente',
-  'inativo',
-];
-
 const generateFile = (id: string, name: string): EmployeeFile => ({
   id,
   name,
@@ -66,7 +58,12 @@ export const mockEmployeeDetails: EmployeeDetail[] = names.map((name, i) => {
     id: `${i + 1}`,
     name: name,
     role: roles[i % roles.length],
-    status: statuses[i % statuses.length],
+    status:
+      Math.random() > 0.5
+        ? contracts.length > 0
+          ? 'ativo'
+          : 'pendente'
+        : 'inativo',
     lastContract:
       contracts.length > 0 ? contracts[contracts.length - 1] : undefined,
     email: `${name.toLowerCase().replace(' ', '.')}@empresa.com`,
