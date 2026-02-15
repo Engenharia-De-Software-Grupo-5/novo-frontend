@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { UserSummary } from "@/types/user";
-import { StatusBadge } from "./StatusBadge"; // Seu componente de badge
-import { UserTableRowActions } from "./UserTableRowActions"; // O que criamos com os hooks
+import { StatusBadge } from "../../components/StatusBadge"; 
+import { UserTableRowActions } from "./UserTableRowActions"; 
 
 export const columns: ColumnDef<UserSummary>[] = [
   {

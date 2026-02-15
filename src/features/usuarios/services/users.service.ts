@@ -29,7 +29,7 @@ export async function getUsers(
   });
 
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-  const url = `${baseUrl}/api/condominios/${condominioId}/users${queryString}`;
+  const url = `${baseUrl}/api/condominios/${condominioId}/usuarios${queryString}`;
   
   const res = await fetch(url, { cache: 'no-store' });
 
@@ -53,14 +53,14 @@ export async function inviteUser(
   data: { email: string; role: string; inviteDuration: string }
 ) {
  
-  return apiRequest(`/api/condominios/${condominioId}/users/invite`, {
+  return apiRequest(`/api/condominios/${condominioId}/usuarios/invite`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
 
 export async function createUser(condominioId: string, data: UpdateUserPayload) {
-  return apiRequest(`/api/condominios/${condominioId}/users`, {
+  return apiRequest(`/api/condominios/${condominioId}/usuarios`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -70,14 +70,14 @@ export async function createUser(condominioId: string, data: UpdateUserPayload) 
  * ATUALIZAÇÃO (PUT ou PATCH)
  */
 export async function updateUser(condominioId: string, userId: string, data: UpdateUserPayload) {
-  return apiRequest(`/api/condominios/${condominioId}/users/${userId}`, {
+  return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
 }
 
 export async function deactivateUser(condominioId: string, userId: string) {
-  return apiRequest(`/api/condominios/${condominioId}/users/${userId}`, {
+  return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
     method: 'PATCH',
     body: JSON.stringify({ status: 'inativo' }), 
   });
@@ -87,7 +87,7 @@ export async function deactivateUser(condominioId: string, userId: string) {
  * EXCLUSÃO
  */
 export async function deleteUser(condominioId: string, userId: string) {
-  return apiRequest(`/api/condominios/${condominioId}/users/${userId}`, {
+  return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
     method: 'DELETE',
   });
 }
