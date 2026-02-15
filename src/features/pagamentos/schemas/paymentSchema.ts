@@ -5,13 +5,13 @@ import { PAYMENT_TYPES } from '../constants';
 export const paymentFormSchema = z
   .object({
     employeeId: z
-      .string({ required_error: 'Selecione um funcionário.' })
+      .string({ message: 'Selecione um funcionário.' })
       .min(1, 'Selecione um funcionário.'),
     type: z.enum(PAYMENT_TYPES.map((t) => t.value) as [string, ...string[]], {
-      required_error: 'Selecione o tipo de pagamento.',
+      message: 'Selecione o tipo de pagamento.',
     }),
     amount: z
-      .string({ required_error: 'Informe o valor.' })
+      .string({ message: 'Informe o valor.' })
       .min(1, 'Informe o valor.'),
     dueDate: z.string().optional(),
     paymentDate: z.string().optional(),

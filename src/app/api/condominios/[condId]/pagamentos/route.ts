@@ -230,7 +230,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   let body: PaymentDetail;
-  let uploadedProof: FileAttachment | undefined = undefined;
+  let uploadedProofs: FileAttachment[] = [];
   const contentType = request.headers.get('content-type') || '';
 
   if (contentType.includes('multipart/form-data')) {
@@ -240,18 +240,15 @@ export async function POST(request: NextRequest) {
 
     // Process uploaded files into simulated FileAttachment objects
     const uploadedFiles = formData.getAll('files');
-    if (uploadedFiles.length > 0) {
-      const file = uploadedFiles[0] as File;
-      if (file instanceof File) {
-        uploadedProof = {
-          id: `file-${Math.random().toString(36).substr(2, 9)}`,
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          url: `/uploads/contracts/${Math.random().toString(36).substr(2, 9)}_${file.name}`,
-        };
-      }
-    }
+    uploadedProofs = uploadedFiles
+      .filter((f): f is File => f instanceof File)
+      .map((file) => ({
+        id: `file-${Math.random().toString(36).substr(2, 9)}`,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        url: `/uploads/contracts/${Math.random().toString(36).substr(2, 9)}_${file.name}`,
+      }));
   } else {
     body = await request.json();
   }
@@ -284,7 +281,7 @@ export async function POST(request: NextRequest) {
     role: employeeRole,
     value: body.value,
     status,
-    proofs: uploadedProof ? [uploadedProof] : [],
+    proofs: uploadedProofs,
   };
 
   paymentsDb.unshift(newPayment); // Add to beginning of list

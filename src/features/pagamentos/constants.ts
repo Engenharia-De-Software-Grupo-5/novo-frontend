@@ -1,9 +1,9 @@
-import { CircleCheck, CircleX, Clock } from 'lucide-react';
+import { Calendar, CircleAlert, CircleCheck } from 'lucide-react';
 
 export const PAYMENT_STATUSES = [
   { label: 'Pago', value: 'pago', icon: CircleCheck },
-  { label: 'Agendado', value: 'agendado', icon: Clock },
-  { label: 'Atrasado', value: 'atrasado', icon: CircleX },
+  { label: 'Agendado', value: 'agendado', icon: Calendar },
+  { label: 'Atrasado', value: 'atrasado', icon: CircleAlert },
 ] as const;
 
 export const PAYMENT_COLUMN_LABELS: Record<string, string> = {

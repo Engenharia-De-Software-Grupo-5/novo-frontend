@@ -44,8 +44,6 @@ import {
 import { Textarea } from '@/features/components/ui/textarea';
 import { getFuncionarios } from '@/features/funcionarios/services/funcionarioService';
 import { useFileUpload } from '@/features/hooks/useFileUpload';
-import { employeesDb } from '@/mocks/in-memory-db'; // Direct import for mock data (In real app, use service/hook)
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Check,
@@ -57,6 +55,7 @@ import {
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { useDebounce } from 'use-debounce';
 
 import { EmployeeSummary } from '@/types/employee';
 import { PaymentDetail, PaymentSummary, PaymentType } from '@/types/payment';
@@ -81,6 +80,8 @@ export function PaymentDialog({
   const [openEmployee, setOpenEmployee] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [employees, setEmployees] = useState<EmployeeSummary[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
   const router = useRouter();
   const params = useParams();
   const condId = params?.condId as string;
@@ -119,7 +120,16 @@ export function PaymentDialog({
     const fetchEmployees = async () => {
       if (open) {
         try {
-          const response = await getFuncionarios(condId, { limit: 100 });
+          const params: {
+            limit: number;
+            columns?: string[];
+            content?: string[];
+          } = { limit: 20 };
+          if (debouncedSearchQuery) {
+            params.columns = ['name'];
+            params.content = [debouncedSearchQuery];
+          }
+          const response = await getFuncionarios(condId, params);
           setEmployees(response.data);
         } catch (error) {
           console.error('Failed to fetch employees', error);
@@ -128,7 +138,7 @@ export function PaymentDialog({
       }
     };
     fetchEmployees();
-  }, [open, condId]);
+  }, [open, condId, debouncedSearchQuery]);
 
   useEffect(() => {
     if (payment && open) {
@@ -228,15 +238,22 @@ export function PaymentDialog({
                         {field.value
                           ? employees.find(
                               (employee) => employee.id === field.value
-                            )?.name
+                            )?.name ||
+                            (payment?.employeeId === field.value
+                              ? payment.name
+                              : 'Selecione um funcionário')
                           : 'Selecione um funcionário'}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-[--radix-popover-trigger-width] min-w-[300px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Procurar funcionário..." />
+                    <Command shouldFilter={false}>
+                      <CommandInput
+                        placeholder="Procurar funcionário..."
+                        value={searchQuery}
+                        onValueChange={setSearchQuery}
+                      />
                       <CommandList>
                         <CommandEmpty>
                           Nenhum funcionário encontrado.

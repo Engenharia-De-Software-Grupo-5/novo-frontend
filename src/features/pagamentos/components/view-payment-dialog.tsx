@@ -14,7 +14,9 @@ import {
 // I'll create a local badge helper or just use Badge directly with color mapping.
 import { Download, FileText } from 'lucide-react';
 
-import { PaymentDetail, PaymentStatus } from '@/types/payment';
+import { PaymentDetail } from '@/types/payment';
+
+import { StatusBadge } from './status-badge';
 
 interface ViewPaymentDialogProps {
   payment: PaymentDetail;
@@ -28,30 +30,6 @@ function FieldItem({ label, value }: { label: string; value?: string | null }) {
       <p className="text-sm font-medium">{label}</p>
       <p className="text-muted-foreground text-xs">{value || '—'}</p>
     </div>
-  );
-}
-
-function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
-  let variant: 'default' | 'secondary' | 'destructive' | 'outline' = 'outline';
-  let className = '';
-
-  switch (status) {
-    case 'pago':
-      variant = 'default';
-      className = 'bg-green-500 hover:bg-green-600 border-transparent';
-      break;
-    case 'atrasado':
-      variant = 'destructive';
-      break;
-    case 'agendado':
-      variant = 'secondary';
-      break;
-  }
-
-  return (
-    <Badge variant={variant} className={`capitalize ${className}`}>
-      {status}
-    </Badge>
   );
 }
 
@@ -107,7 +85,7 @@ export function ViewPaymentDialog({
 
           <div className="space-y-0.5">
             <p className="text-sm font-medium">Status</p>
-            <PaymentStatusBadge status={payment.status} />
+            <StatusBadge status={payment.status} />
           </div>
 
           <FieldItem label="Observação" value={payment.observation} />

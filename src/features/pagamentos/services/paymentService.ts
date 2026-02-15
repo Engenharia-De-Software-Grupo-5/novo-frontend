@@ -11,8 +11,7 @@ export const getPayments = async (
     limit?: number;
     sort?: string;
     columns?: string[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    content?: any[];
+    content?: string[];
   }
 ): Promise<PaymentResponse> => {
   try {

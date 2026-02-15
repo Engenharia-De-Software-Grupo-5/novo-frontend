@@ -29,12 +29,18 @@ export function PagamentosDataTable({
         {
           columnId: 'role',
           title: 'Cargo',
-          options: EMPLOYEE_ROLES,
+          options: EMPLOYEE_ROLES.map((r) => ({
+            label: r.label,
+            value: r.value,
+          })),
         },
         {
           columnId: 'status',
           title: 'Status',
-          options: PAYMENT_STATUSES,
+          options: PAYMENT_STATUSES.map((r) => ({
+            label: r.label,
+            value: r.value,
+          })),
         },
       ]}
       columnLabels={PAYMENT_COLUMN_LABELS}
