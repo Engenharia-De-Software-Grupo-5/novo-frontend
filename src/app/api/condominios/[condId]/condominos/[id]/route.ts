@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { condominos } from "@/mocks/condominos";
-import { CondominiumFull, CondominiumStatus } from "@/types/condomino";
 
 
 /**
@@ -136,15 +135,26 @@ export async function PATCH(
  */
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ condId: string; id: string }>}
+  { params }: { params: Promise<{ condId: string; id: string }> }
 ) {
   const { id } = await params;
+
+  // Busca o índice no banco de dados de condôminos
   const index = condominos.findIndex((c) => c.id === id);
 
   if (index === -1) {
-    return NextResponse.json({ error: "Condômino not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Condômino não encontrado" }, 
+      { status: 404 }
+    );
   }
 
+  // Remove o item do array
   condominos.splice(index, 1);
-  return NextResponse.json({ message: `Condômino ${id} deleted` });
+
+  console.log(`Condômino com id ${id} foi apagado`);
+  
+  return NextResponse.json({ 
+    message: `Condômino com id ${id} foi apagado` 
+  });
 }

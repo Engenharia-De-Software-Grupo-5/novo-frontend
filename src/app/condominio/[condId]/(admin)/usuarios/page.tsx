@@ -6,6 +6,9 @@ interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function UsersPage({ params, searchParams }: PageProps) {
 
   const resolvedParams = await params;

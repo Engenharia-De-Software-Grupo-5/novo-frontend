@@ -3,6 +3,9 @@ import { users } from '@/mocks/users';
 
 import { User } from '@/types/user';
 
+export const dynamic = 'force-dynamic'; // ADICIONE ISSO NO TOPO
+export const revalidate = 0;
+export const fetchCache = 'force-no-store'
 /**
  * @swagger
  * /api/condominios/{condId}/users:

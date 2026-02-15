@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { condominos } from "@/mocks/condominos";
-import { CondominoListItem } from "@/features/condominos/services/condominos";
+import { NextRequest, NextResponse } from 'next/server';
+import { condominos } from '@/mocks/condominos';
 
+import { CondominosResponse, CondominoSummary } from '@/types/condomino';
 
 /**
  * @swagger
@@ -52,16 +52,27 @@ import { CondominoListItem } from "@/features/condominos/services/condominos";
  *                     totalPages:
  *                       type: integer
  */
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const condId = request.nextUrl.pathname.split("/")[3];
 
-  const page = Number(searchParams.get("page") ?? 1);
-  const limit = Number(searchParams.get("limit") ?? 10);
+  // Captura o ID do condomínio da URL (ex: COND-001)
+  const condId = request.nextUrl.pathname.split('/')[3];
 
-  const filtered = condominos.filter((c) => c.condominiumId === condId);
+  const page = Number(searchParams.get('page') ?? 1);
+  const limit = Number(searchParams.get('limit') ?? 10);
+  const search = searchParams.get('q')?.toLowerCase();
 
-  const mapped: CondominoListItem[] = filtered.map((m) => ({
+
+  let filtered = condominos.filter((c) => c.condominiumId === condId);
+
+  if (search) {
+    filtered = filtered.filter(
+      (c) => c.name.toLowerCase().includes(search) || c.cpf.includes(search)
+    );
+  }
+
+  const mapped: CondominoSummary[] = filtered.map((m) => ({
     id: m.id,
     name: m.name,
     email: m.email,

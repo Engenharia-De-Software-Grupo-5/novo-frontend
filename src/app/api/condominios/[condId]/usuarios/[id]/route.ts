@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 import { NextRequest, NextResponse } from 'next/server';
 import { users } from '@/mocks/users';
 
@@ -98,11 +100,37 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const body = (await request.json()) as Partial<User>;
-  console.log(`Updated information for user ${id}:`, body);
-  return NextResponse.json(body);
-}
+  let body: any;
+  
+  const contentType = request.headers.get('content-type') || '';
 
+  // Seguindo o exemplo de funcionários para tratar multipart (FormData) ou JSON
+  if (contentType.includes('multipart/form-data')) {
+    const formData = await request.formData();
+    const dataField = formData.get('data');
+    body = dataField ? JSON.parse(dataField as string) : {};
+  } else {
+    body = await request.json();
+  }
+
+  const index = users.findIndex((u) => u.id === id);
+
+  if (index === -1) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  // Atualização robusta conforme sua interface User
+  users[index] = { 
+    ...users[index], 
+    ...body,
+    // Garante que o ID e o Condomínio não mudem por acidente no PUT
+    id: users[index].id,
+    condominioId: users[index].condominioId 
+  };
+
+  console.log(`PUT: Usuário ${id} editado com sucesso:`, body);
+  return NextResponse.json(users[index]);
+}
 /**
  * @swagger
  * /api/condominios/{condId}/users/{id}:
@@ -145,9 +173,24 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const body = (await request.json()) as Partial<User>;
-  console.log(`Patched information for user ${id}:`, body);
-  return NextResponse.json(body);
+  const body = await request.json();
+
+  // 1. Localiza o usuário original no mock
+  const user = users.find((u) => u.id === id);
+
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  
+  const dataToUpdate = typeof body === 'string' ? JSON.parse(body) : body;
+
+  
+  Object.assign(user, dataToUpdate);
+
+  console.log('Dados atualizados corretamente no Mock:', user);
+
+  return NextResponse.json(user);;
 }
 
 /**
@@ -179,6 +222,24 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  console.log(`usuario com id ${id} foi apagado`);
-  return NextResponse.json({ message: `User com id ${id} deleted` });
+
+  // Busca o índice no banco de dados de usuários
+  // Substitua 'usersDb' pelo nome real do seu array de usuários
+  const index = users.findIndex((u) => u.id === id);
+
+  if (index === -1) {
+    return NextResponse.json(
+      { error: "Usuário não encontrado" }, 
+      { status: 404 }
+    );
+  }
+
+  // Remove o usuário de verdade
+  users.splice(index, 1);
+
+  console.log(`Usuário com id ${id} foi apagado`);
+  
+  return NextResponse.json({ 
+    message: `Usuário com id ${id} foi apagado` 
+  });
 }

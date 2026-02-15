@@ -1,6 +1,6 @@
-import { CondominiumFull } from "@/types/condomino";
+import { CondominoFull } from "@/types/condomino";
 
-export const condominos: CondominiumFull[] = [
+export const condominos: CondominoFull[] = [
   {
     id: "1",
     condominiumId: "COND-001",
