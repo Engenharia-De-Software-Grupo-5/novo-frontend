@@ -3,18 +3,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@theme {
-  --color-brand-blue: #1447e6;
-    --color-brand-white: #ffffff;
-    --color-brand-background: #f7f7f8;
-    --color-brand-dark: #09090b;
-    --color-brand-gray: #71717b;
-    --color-brand-blue-text: #eff6ff;
-    --color-brand-yellow-bg: #fcebdc;
-    --color-brand-red-light: #fde6e7;
-    --color-brand-red-vivid: #e7000b;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -84,7 +72,6 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(0.985 0 0);
-  --sidebar-width-icon: 3rem;
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -93,7 +80,7 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --sidebar-width: 16rem;
-    --sidebar-width-mobile: 18rem;
+  --sidebar-width-icon: 3rem;
 }
 
 .dark {
