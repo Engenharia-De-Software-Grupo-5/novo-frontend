@@ -4,8 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Save } from "lucide-react";
 import { Button } from "@/features/components/ui/button";
-import { ImovelForm } from "../_components/imovel-form";
-import { ImovelCard } from "../_components/imovel-card";
+import { ImovelForm } from "../../../features/components/imoveis/imovel-form";
+import { ImovelCard } from "../../../features/components/imoveis/imovel-card";
 
 export default function NovoImovelPage() {
   

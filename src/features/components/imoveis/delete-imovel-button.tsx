@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from "next/navigation"; 
 import { Trash2 } from "lucide-react";
 import {
   AlertDialog,
@@ -8,17 +9,17 @@ import {
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogHeader,
+  AlertDialogHeader,  
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/features/components/ui/alert-dialog";
 import { Button } from "@/features/components/ui/button";
 
 export function DeleteImovelButton({ id }: { id: string }) {
-  const handleDelete = () => {
-    console.log(`Excluindo imóvel ${id}...`);
-    alert("Imóvel excluído com sucesso!");
-    window.location.href = "/imoveis";
+  const router = useRouter(); 
+  const handleDelete = () => {    
+    router.push("/imoveis");
+    router.refresh(); 
   };
 
   return (
@@ -37,7 +38,10 @@ export function DeleteImovelButton({ id }: { id: string }) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+          <AlertDialogAction 
+            onClick={handleDelete} 
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
             Sim, excluir imóvel
           </AlertDialogAction>
         </AlertDialogFooter>
