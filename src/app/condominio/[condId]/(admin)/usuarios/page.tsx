@@ -21,7 +21,7 @@ export default async function UsersPage({ params, searchParams }: PageProps) {
     page: Number(sParams.page) || 1,
     limit: Number(sParams.limit) || 10,
     search: sParams.q as string,
-    roles: typeof sParams.role === 'string' ? [sParams.role] : (sParams.role as string[]),
+    roles: typeof sParams.roles === 'string' ? [sParams.roles] : (sParams.roles as string[] ) ?? [],
     statuses: typeof sParams.status === 'string' ? [sParams.status] : (sParams.status as string[]),
   });
 

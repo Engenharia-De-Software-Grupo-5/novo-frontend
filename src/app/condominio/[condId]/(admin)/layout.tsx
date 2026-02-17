@@ -1,3 +1,4 @@
+import { AuthProvider } from '@/contexts/AuthContext';
 import { AppSidebar } from '@/features/components/app-sidebar';
 import { DynamicBreadcrumb } from '@/features/components/dynamic-breadcrumb';
 import { Separator } from '@/features/components/ui/separator';
@@ -15,16 +16,17 @@ export default function AdminLayout({
 }) {  
   return (
     <SidebarProvider defaultOpen={true}>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <DynamicBreadcrumb />
-        </header>
-        <div className="p-4">{children}</div>
-       <Toaster position="top-center"/>
-      </SidebarInset>
+      <AuthProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <DynamicBreadcrumb />
+          </header>
+          <div className="p-4">{children}</div>
+        </SidebarInset>
+      </AuthProvider>
     </SidebarProvider>
   );
 }

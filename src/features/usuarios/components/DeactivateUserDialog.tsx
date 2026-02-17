@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 
 import { User } from '@/types/user';
 
-import { deactivateUser } from '../services/users.service';
+import { changeUserStatus } from '../services/users.service';
 
 interface DeactivateUserDialogProps {
   open: boolean;
@@ -34,20 +34,39 @@ export function DeactivateUserDialog({
 
   if (!user) return null;
 
+  const currentStatus = user.status as
+    | 'ativo'
+    | 'inativo'
+    | 'pendente';
+
+  const newStatus =
+    currentStatus === 'inativo' ? 'ativo' : 'inativo';
+
+  const isActive = currentStatus === 'ativo';
+  const isInactive = currentStatus === 'inativo';
+  const isPendente = currentStatus === 'pendente';
 
   const handleConfirm = async () => {
     setIsPending(true);
     try {
-      await deactivateUser(condominioId, user.id);
+      await changeUserStatus(
+        condominioId,
+        user.id,
+        newStatus
+      );
+
       onOpenChange(false);
 
-      toast.success('Usuário desativado com sucesso!');
+      toast.success(
+        newStatus === 'ativo'
+          ? 'Usuário ativado com sucesso!'
+          : 'Usuário desativado com sucesso!'
+      );
 
       await new Promise((resolve) => setTimeout(resolve, 300));
-      
       router.refresh();
     } catch (error) {
-      toast.error('Erro ao desativar usuário');
+      toast.error('Erro ao alterar status do usuário');
     } finally {
       setIsPending(false);
     }
@@ -57,15 +76,42 @@ export function DeactivateUserDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="items-center text-center">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
+          <div
+            className={`mb-4 flex h-12 w-12 items-center justify-center rounded-full ${
+              newStatus === 'inativo'
+                ? 'bg-red-100 text-red-600'
+                : 'bg-green-100 text-green-600'
+            }`}
+          >
             <FlagOff className="h-6 w-6" />
           </div>
-          <DialogTitle>Você tem certeza?</DialogTitle>
+
+          <DialogTitle>
+            {newStatus === 'ativo'
+              ? 'Ativar usuário?'
+              : 'Desativar usuário?'}
+          </DialogTitle>
+
           <DialogDescription className="text-sm">
-            Essa ação impede que o usuário <strong>{user.name}</strong> acesse o
-            sistema.
+            {newStatus === 'ativo' ? (
+              <>
+                Essa ação permitirá que o usuário{' '}
+                <strong>{user.name}</strong> volte a acessar o sistema.
+              </>
+            ) : isPendente ? (
+              <>
+                O usuário <strong>{user.name}</strong> está pendente.
+                Deseja desativá-lo?
+              </>
+            ) : (
+              <>
+                Essa ação impede que o usuário{' '}
+                <strong>{user.name}</strong> acesse o sistema.
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
+
         <DialogFooter className="mt-6 gap-2">
           <Button
             variant="outline"
@@ -74,12 +120,21 @@ export function DeactivateUserDialog({
           >
             Cancelar
           </Button>
+
           <Button
-            className="bg-red-100 text-red-700 hover:bg-red-200"
+            className={
+              newStatus === 'inativo'
+                ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                : 'bg-green-100 text-green-700 hover:bg-green-200'
+            }
             onClick={handleConfirm}
             disabled={isPending}
           >
-            {isPending ? 'Processando...' : 'Tornar inativo'}
+            {isPending
+              ? 'Processando...'
+              : newStatus === 'ativo'
+              ? 'Tornar ativo'
+              : 'Tornar inativo'}
           </Button>
         </DialogFooter>
       </DialogContent>

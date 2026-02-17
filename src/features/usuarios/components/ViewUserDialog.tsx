@@ -30,11 +30,10 @@ export function ViewUserDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success('Convite enviado com sucesso!');
-
- 
-
     onOpenChange(false);
   };
+
+  const isPendente = user.status === 'pendente';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -48,6 +47,7 @@ export function ViewUserDialog({
         </DialogHeader>
 
         <div className="grid gap-4 py-4 text-sm">
+          {/* Nome */}
           <div>
             <Label>Nome</Label>
             <div className="text-muted-foreground border-input bg-background h-10 rounded-md border px-3 py-2 text-sm">
@@ -55,6 +55,7 @@ export function ViewUserDialog({
             </div>
           </div>
 
+          {/* Email */}
           <div>
             <Label>E-mail</Label>
             <div className="text-muted-foreground border-input bg-background h-10 rounded-md border px-3 py-2 text-sm">
@@ -62,6 +63,7 @@ export function ViewUserDialog({
             </div>
           </div>
 
+          {/* Cargo e Status */}
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-1">
               <Label>Cargo</Label>
@@ -78,26 +80,9 @@ export function ViewUserDialog({
             </div>
           </div>
 
-          {user.status === 'pendente' && (
+          {/* Se for pendente → mostra dados do convite */}
+          {isPendente && (
             <>
-              {/* Cargo / Status */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-1">
-                  <Label>Cargo</Label>
-                  <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2 text-sm">
-                    {user.role}
-                  </div>
-                </div>
-
-                <div className="grid gap-1">
-                  <Label>Status</Label>
-                  <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2 text-sm capitalize">
-                    {user.status}
-                  </div>
-                </div>
-              </div>
-
-              {/* Datas do convite */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-1">
                   <Label>Convite enviado em</Label>
@@ -114,25 +99,26 @@ export function ViewUserDialog({
                 </div>
               </div>
 
-              {/* Aviso */}
               <p className="text-brand-red-vivid text-right text-xs">
                 * convite expirado
               </p>
             </>
           )}
-          {user.status === 'ativo' && (
+
+          {/* Se NÃO for pendente → mostra acessos */}
+          {!isPendente && (
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-1">
                 <Label>Primeiro acesso</Label>
                 <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2 text-sm">
-                  15/01/2026
+                  {user.firstAccess ?? '25-11-2025'}
                 </div>
               </div>
 
               <div className="grid gap-1">
                 <Label>Último acesso</Label>
                 <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2 text-sm">
-                  22/01/2026
+                  {user.lastAccess ?? '25-11-2025'}
                 </div>
               </div>
             </div>
@@ -144,8 +130,11 @@ export function ViewUserDialog({
             Fechar
           </Button>
 
-          {user.status === 'pendente' && (
-            <Button className="bg-brand-blue  hover:bg-blue-900" onClick={handleSubmit}>
+          {isPendente && (
+            <Button
+              className="bg-brand-blue hover:bg-blue-900"
+              onClick={handleSubmit}
+            >
               Reenviar convite
             </Button>
           )}

@@ -93,7 +93,7 @@ export function EmergencyContacts() {
         className="w-full py-6 border-2 border-dashed border-slate-200 text-slate-500 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all"
         onClick={() => append({ name: "", relationship: "", phone: "" })}
       >
-        <Plus className="mr-2 h-4 w-4" /> Adicionar outro contato de emergência
+        <Plus className="mr-2 h-4 w-4" /> Adicionar contato de emergência
       </Button>
     </section>
   );

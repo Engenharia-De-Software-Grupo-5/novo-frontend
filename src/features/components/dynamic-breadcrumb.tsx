@@ -22,16 +22,26 @@ export function DynamicBreadcrumb() {
     <Breadcrumb>
       <BreadcrumbList>
         {segments.map((segment, index) => {
-          const path = `/${segments.slice(0, index + 1).join('/')}`;
+          const fullPath = `/${segments.slice(0, index + 1).join('/')}`;
           const isLast = index === segments.length - 1;
-          const name = ROUTE_CONFIG[path];
 
-          // Skip if no name configured for this route segment (unless it's the last one, maybe? NO, user wants map)
-          // If name is found, render it.
+          if (segment === 'condominios') return null;
+
+          let name = '';
+
+          const isDashboardRoot = /^\/condominios\/[^/]+$/.test(fullPath);
+
+          if (isDashboardRoot) {
+            name = 'Dashboard';
+          } else {
+            const relativePath = fullPath.replace(/^\/condominios\/[^/]+/, '');
+
+            name = ROUTE_CONFIG[relativePath];
+          }
           if (!name) return null;
 
           return (
-            <React.Fragment key={path}>
+            <React.Fragment key={fullPath}>
               <BreadcrumbItem>
                 {isLast ? (
                   <BreadcrumbPage>{name}</BreadcrumbPage>

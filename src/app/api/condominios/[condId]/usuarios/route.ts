@@ -3,9 +3,9 @@ import { users } from '@/mocks/users';
 
 import { User } from '@/types/user';
 
-export const dynamic = 'force-dynamic'; // ADICIONE ISSO NO TOPO
+export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-export const fetchCache = 'force-no-store'
+export const fetchCache = 'force-no-store';
 /**
  * @swagger
  * /api/condominios/{condId}/users:
@@ -71,26 +71,42 @@ export const fetchCache = 'force-no-store'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ condId: string }> } // Adicione isso aqui!
+  { params }: { params: Promise<{ condId: string }> }
 ) {
   const { condId } = await params;
 
   if (!condId) {
-      return NextResponse.json({ error: "ID não fornecido" }, { status: 400 });
-    }
+    return NextResponse.json({ error: 'ID não fornecido' }, { status: 400 });
+  }
 
-  // filtra pelos usuários do condomínio
   const searchParams = request.nextUrl.searchParams;
+
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '20');
   const sort = searchParams.get('sort');
   const order = searchParams.get('order') || 'asc';
 
-  // Agora o condId vem direto do parametro da rota, sem erro de split
-  const condominiumUsers = users.filter((u) => u.condominioId === condId);
+  const statusFilters = searchParams.getAll('status'); // ["inativo", "pendente"]
+  const roleFilters = searchParams.getAll('roles').map((r) => r.toLowerCase());
 
-  // ordena se necessário
-  const sortedUsers = [...condominiumUsers];
+  let filteredUsers = users.filter((u) => u.condominioId === condId);
+
+  
+  if (roleFilters.length > 0) {
+    filteredUsers = filteredUsers.filter((u) =>
+      roleFilters.includes(u.role.toLowerCase())
+    );
+  }
+
+  // iltra por múltiplos status
+  if (statusFilters.length > 0) {
+    filteredUsers = filteredUsers.filter((u) =>
+      statusFilters.includes(u.status.toLowerCase())
+    );
+  }
+
+  const sortedUsers = [...filteredUsers];
+
   if (sort) {
     sortedUsers.sort((a, b) => {
       const fieldA = a[sort as keyof typeof a];
@@ -102,18 +118,19 @@ export async function GET(
     });
   }
 
-  // paginação
+  //  Paginação
   const startIndex = (page - 1) * limit;
   const endIndex = startIndex + limit;
+
   const paginatedUsers = sortedUsers.slice(startIndex, endIndex);
 
   return NextResponse.json({
     data: paginatedUsers,
     meta: {
-      total: condominiumUsers.length,
+      total: filteredUsers.length,
       page,
       limit,
-      totalPages: Math.ceil(condominiumUsers.length / limit),
+      totalPages: Math.ceil(filteredUsers.length / limit),
     },
   });
 }
