@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { condominos } from "@/mocks/condominos";
+import { CondominoStatus } from "@/types/condomino";
 
 
 /**
@@ -52,7 +53,9 @@ export async function GET(
     return NextResponse.json({ error: "Condômino not found" }, { status: 404 });
   }
 
-  return NextResponse.json(morador);
+  
+
+return NextResponse.json({ data: morador });
 }
 /**
  * @swagger
@@ -90,21 +93,42 @@ export async function GET(
  *       404:
  *         description: Condômino not found
  */
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; id: string }> }
 ) {
-  const { id } = await params;
-  const body = (await request.json()) as { status: CondominiumStatus };
-  const index = condominos.findIndex((c) => c.id === id);
+  try {
+    const { condId, id } = await params;
+    const body = await request.json();
+    
+    // 1. Encontrar o índice com comparação "segura"
+    const index = condominos.findIndex(
+      (c) => String(c.id) === String(id) && String(c.condominiumId) === String(condId)
+    );
 
-  if (index === -1) {
-    return NextResponse.json({ error: "Condômino not found" }, { status: 404 });
+    if (index === -1) {
+      console.log(`Falha: Condômino ${id} não achado no cond ${condId}`);
+      return NextResponse.json({ error: "Condômino not found" }, { status: 404 });
+    }
+
+    // 2. Atualizar o status
+    condominos[index] = {
+      ...condominos[index],
+      status: body.status
+    };
+
+    console.log(`Sucesso: Status do ${id} agora é ${condominos[index].status}`);
+
+    // 3. Retornar os dados atualizados
+    return NextResponse.json({ 
+      message: "Status updated", 
+      data: condominos[index] 
+    });
+    
+  } catch (error) {
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
-
-  condominos[index].status = body.status;
-
-  return NextResponse.json({ message: "Status updated", data: condominos[index] });
 }
 
 /**

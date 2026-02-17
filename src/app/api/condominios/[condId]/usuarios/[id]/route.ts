@@ -175,7 +175,7 @@ export async function PATCH(
   const { id } = await params;
   const body = await request.json();
 
-  // 1. Localiza o usuário original no mock
+
   const user = users.find((u) => u.id === id);
 
   if (!user) {

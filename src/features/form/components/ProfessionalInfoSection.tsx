@@ -105,7 +105,7 @@ export function ProfessionalInfoSection() {
 
         <FormField
           control={control}
-          name="professionalInfo.yearsWorking"
+          name="professionalInfo.monthsWorking"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-[13px] font-bold text-slate-800">

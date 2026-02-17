@@ -1,5 +1,11 @@
 import { apiRequest, buildQueryString } from '@/lib/api-client';
-import { CondominoFull, CondominosResponse, CondominoSummary } from '@/types/condomino';
+import {
+  CondominoCreateDTO,
+  CondominoFull,
+  CondominosResponse,
+  CondominoSummary,
+} from '@/types/condomino';
+
 
 interface GetCondominosParams {
   page: number;
@@ -8,9 +14,8 @@ interface GetCondominosParams {
   statuses?: string[];
 }
 
-/**
- * LISTAGEM (Server Side Friendly)
- */
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 export async function getCondominos(
   condominioId: string,
   params: GetCondominosParams
@@ -26,9 +31,8 @@ export async function getCondominos(
     status: params.statuses,
   });
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
   const url = `${baseUrl}/api/condominios/${condominioId}/condominos${queryString}`;
-  
+
   const res = await fetch(url, { cache: 'no-store' });
 
   if (!res.ok) {
@@ -47,61 +51,115 @@ export async function getCondominos(
 }
 
 /**
- * BUSCA ÚNICA (Para detalhes/edição)
+ * BUSCA ÚNICA (Para detalhes)
  */
 export async function getCondominoById(
   condominioId: string,
   condominoId: string
 ): Promise<CondominoFull> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-  const url = `${baseUrl}/api/condominios/${condominioId}/condominos/${condominoId}`;
   
+  const url = `${baseUrl}/api/condominios/${condominioId}/condominos/${condominoId}`;
+
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error('Erro ao buscar detalhes do condômino');
-  
+
   const json = await res.json();
   return json.data;
 }
 
-/**
- * CRIAÇÃO
- */
-export async function createCondomino(condominioId: string, data: Partial<CondominoFull>) {
-  return apiRequest(`/api/condominios/${condominioId}/condominos`, {
+
+export async function createCondomino(
+  condominioId: string,
+  data: CondominoCreateDTO
+) {
+ 
+  const formData = new FormData();
+
+  const { documents, ...rest } = data;
+
+  // JSON principal
+  formData.append('data', JSON.stringify(rest));
+
+  // Arquivos separados
+  if (documents) {
+    if (documents.rg instanceof File) {
+      formData.append('files', documents.rg);
+    }
+
+    if (documents.cpf instanceof File) {
+      formData.append('files', documents.cpf);
+    }
+
+    if (documents.incomeProof instanceof File) {
+      formData.append('files', documents.incomeProof);
+    }
+  }
+
+
+  const url = `${baseUrl}/api/condominios/${condominioId}/condominos`;
+  const response = await fetch(url, {
     method: 'POST',
-    body: JSON.stringify(data),
+    body: formData,
   });
+
+  console.log('STATUS:', response.status);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('API ERROR:', errorText);
+    throw new Error('Erro ao criar condômino');
+  }
+
+  const result = await response.json();
+  console.log('API SUCCESS:', result);
+
+  return result;
 }
 
 /**
  * ATUALIZAÇÃO (Geral)
  */
 export async function updateCondomino(
-  condominioId: string, 
-  condominoId: string, 
+  condominioId: string,
+  condominoId: string,
   data: Partial<CondominoFull> | Partial<CondominoSummary>
 ) {
-  return apiRequest(`/api/condominios/${condominioId}/condominos/${condominoId}`, {
-    method: 'PATCH',
-    body: JSON.stringify(data),
-  });
+  return apiRequest(
+    `/api/condominios/${condominioId}/condominos/${condominoId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }
+  );
 }
 
 /**
  * DESATIVAÇÃO (Apenas Status)
  */
-export async function deactivateCondomino(condominioId: string, condominoId: string) {
-  return apiRequest(`/api/condominios/${condominioId}/condominos/${condominoId}`, {
-    method: 'PATCH',
-    body: JSON.stringify({ status: 'inativo' }), 
-  });
+export async function deactivateCondomino(
+  condominioId: string,
+  condominoId: string
+) {
+  return apiRequest(
+    `/api/condominios/${condominioId}/condominos/${condominoId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'inativo' }),
+    }
+  );
 }
 
 /**
  * EXCLUSÃO
  */
-export async function deleteCondomino(condominioId: string, condominoId: string) {
-  return apiRequest(`/api/condominios/${condominioId}/condominos/${condominoId}`, {
-    method: 'DELETE',
-  });
+export async function deleteCondomino(
+  condominioId: string,
+  condominoId: string
+) {
+  return apiRequest(
+    `/api/condominios/${condominioId}/condominos/${condominoId}`,
+    {
+      method: 'DELETE',
+    }
+  );
 }

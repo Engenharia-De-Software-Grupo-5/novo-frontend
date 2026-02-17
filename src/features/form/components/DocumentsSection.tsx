@@ -8,7 +8,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/features/components/ui/form"
 import { Input } from "@/features/components/ui/input"
 
@@ -18,7 +17,7 @@ export function DocumentsSection() {
   const documentTypes = [
     { name: "documents.rg", label: "RG", description: "Frente e verso (PDF ou Imagem)" },
     { name: "documents.cpf", label: "CPF", description: "Documento oficial contendo o número" },
-    { name: "documents.income", label: "Comprovante de Renda", description: "Últimos 3 holerites ou declaração de IR" },
+    { name: "documents.incomeProof", label: "Comprovante de Renda", description: "Últimos 3 holerites ou declaração de IR" },
   ]
 
   return (
