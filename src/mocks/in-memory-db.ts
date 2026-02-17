@@ -7,3 +7,5 @@ import { mockPaymentDetails } from './payments';
 // Resetting the server (npm run dev) resets the data.
 export const employeesDb = [...mockEmployeeDetails];
 export const condominiumsDb = [...mockCondominiums];
+export const paymentsDb = [...mockPaymentDetails];
+
