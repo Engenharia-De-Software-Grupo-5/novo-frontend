@@ -214,7 +214,6 @@ export default function PreCadastroForm() {
     },
   });
 
-<<<<<<< HEAD
   // async function onSubmit(values: z.infer<typeof formSchema>) {
   //   console.log(values);
   //   // Aqui você chamaria seu service de cadastro
@@ -237,12 +236,6 @@ export default function PreCadastroForm() {
       console.error(error);
     }
   };
-=======
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // service de cadastro
-  }
->>>>>>> origin/31-criar-tela-do-admin
 
   return (
     <div className="container mx-auto max-w-4xl space-y-8 py-10">
