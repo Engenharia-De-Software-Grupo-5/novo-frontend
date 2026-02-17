@@ -81,10 +81,14 @@ import { PaymentDetail, PaymentStatus, PaymentSummary } from '@/types/payment';
  *                     totalPages:
  *                       type: integer
  */
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ condId: string }> }
+) {
   // Simulate API delay for loading state testing
   // await new Promise((resolve) => setTimeout(resolve, 1000));
-
+  
+  const { condId } = await params;  // se precisar usar o condId futuramente
   const searchParams = request.nextUrl.searchParams;
 
   const page = parseInt(searchParams.get('page') || '1');
@@ -228,7 +232,11 @@ export async function GET(request: NextRequest) {
  *                 data:
  *                   $ref: '#/components/schemas/PaymentDetail'
  */
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ condId: string }> }
+) {
+  const { condId } = await params;
   let body: PaymentDetail;
   let uploadedProofs: FileAttachment[] = [];
   const contentType = request.headers.get('content-type') || '';
