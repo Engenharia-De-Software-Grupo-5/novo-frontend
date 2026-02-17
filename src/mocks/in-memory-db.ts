@@ -1,5 +1,6 @@
 import { mockCondominiums } from './condominiums';
 import { mockEmployeeDetails } from './employees';
+import { mockPaymentDetails } from './payments';
 
 // "Database" in memory.
 // This allows persistence while the server is running.

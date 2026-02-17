@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { employeesDb } from '@/mocks/in-memory-db';
+import { employeesDb, paymentsDb } from '@/mocks/in-memory-db';
 
-import { EmployeeDetail } from '@/types/employee';
 import { FileAttachment } from '@/types/file';
+import { PaymentDetail, PaymentStatus, PaymentSummary } from '@/types/payment';
 
 /**
  * @swagger
- * /api/condominios/{condId}/funcionarios:
+ * /api/condominios/{condId}/pagamentos:
  *   get:
- *     summary: List employees
- *     description: Returns a paginated list of employees for a specific condominium.
+ *     summary: List payments
+ *     description: Returns a paginated list of payments for a specific condominium.
  *     tags:
- *       - Employees
+ *       - Payments
  *     parameters:
  *       - in: path
  *         name: condId
@@ -68,7 +68,7 @@ import { FileAttachment } from '@/types/file';
  *                 data:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/EmployeeSummary'
+ *                     $ref: '#/components/schemas/PaymentSummary'
  *                 meta:
  *                   type: object
  *                   properties:
@@ -81,10 +81,14 @@ import { FileAttachment } from '@/types/file';
  *                     totalPages:
  *                       type: integer
  */
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ condId: string }> }
+) {
   // Simulate API delay for loading state testing
-  // await new Promise((resolve) => setTimeout(resolve, 2000));
-
+  // await new Promise((resolve) => setTimeout(resolve, 1000));
+  
+  const { condId } = await params;  // se precisar usar o condId futuramente
   const searchParams = request.nextUrl.searchParams;
 
   const page = parseInt(searchParams.get('page') || '1');
@@ -116,20 +120,20 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  let employees = employeesDb;
+  let payments = paymentsDb;
 
   // Apply filters generically
   for (const [col, values] of filterMap.entries()) {
     if (col === 'name') {
       // Name uses prefix match (startsWith)
       const nameLower = values[0].toLowerCase();
-      employees = employees.filter((e) =>
-        e.name.toLowerCase().startsWith(nameLower)
+      payments = payments.filter((p) =>
+        p.name.toLowerCase().startsWith(nameLower)
       );
     } else {
       // Other columns use exact match (any of the values)
-      employees = employees.filter((e) => {
-        const fieldValue = e[col as keyof typeof e];
+      payments = payments.filter((p) => {
+        const fieldValue = p[col as keyof typeof p];
         if (fieldValue === undefined) return false;
         return values.some(
           (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
@@ -138,10 +142,10 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const sortedEmployees = [...employees];
+  const sortedPayments = [...payments];
 
   if (sortField) {
-    sortedEmployees.sort((a, b) => {
+    sortedPayments.sort((a, b) => {
       const fieldA = a[sortField as keyof typeof a];
       const fieldB = b[sortField as keyof typeof b];
 
@@ -155,16 +159,16 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const totalItems = employees.length;
+  const totalItems = payments.length;
   const totalPages = Math.ceil(totalItems / limit);
   const safePage = Math.max(1, Math.min(page, totalPages > 0 ? totalPages : 1));
 
   const startIndex = (safePage - 1) * limit;
   const endIndex = startIndex + limit;
-  const paginatedEmployees = sortedEmployees.slice(startIndex, endIndex);
+  const paginatedPayments = sortedPayments.slice(startIndex, endIndex);
 
   return NextResponse.json({
-    data: paginatedEmployees,
+    data: paginatedPayments,
     meta: {
       total: totalItems,
       page: safePage,
@@ -176,11 +180,11 @@ export async function GET(request: NextRequest) {
 
 /**
  * @swagger
- * /api/condominios/{condId}/funcionarios:
+ * /api/condominios/{condId}/pagamentos:
  *   post:
- *     summary: Create a new employee
+ *     summary: Create a new payment
  *     tags:
- *       - Employees
+ *       - Payments
  *     parameters:
  *       - in: path
  *         name: condId
@@ -191,12 +195,33 @@ export async function GET(request: NextRequest) {
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/EmployeeDetail'
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   employeeId:
+ *                     type: string
+ *                   type:
+ *                     type: string
+ *                   amount:
+ *                     type: string
+ *                   dueDate:
+ *                     type: string
+ *                   paymentDate:
+ *                     type: string
+ *                   observation:
+ *                     type: string
+ *               files:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
  *     responses:
  *       201:
- *         description: Employee created successfully
+ *         description: Payment created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -205,11 +230,15 @@ export async function GET(request: NextRequest) {
  *                 message:
  *                   type: string
  *                 data:
- *                   $ref: '#/components/schemas/EmployeeDetail'
+ *                   $ref: '#/components/schemas/PaymentDetail'
  */
-export async function POST(request: NextRequest) {
-  let body: EmployeeDetail;
-  let uploadedContracts: FileAttachment[] = [];
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ condId: string }> }
+) {
+  const { condId } = await params;
+  let body: PaymentDetail;
+  let uploadedProofs: FileAttachment[] = [];
   const contentType = request.headers.get('content-type') || '';
 
   if (contentType.includes('multipart/form-data')) {
@@ -219,7 +248,7 @@ export async function POST(request: NextRequest) {
 
     // Process uploaded files into simulated FileAttachment objects
     const uploadedFiles = formData.getAll('files');
-    uploadedContracts = uploadedFiles
+    uploadedProofs = uploadedFiles
       .filter((f): f is File => f instanceof File)
       .map((file) => ({
         id: `file-${Math.random().toString(36).substr(2, 9)}`,
@@ -228,35 +257,45 @@ export async function POST(request: NextRequest) {
         size: file.size,
         url: `/uploads/contracts/${Math.random().toString(36).substr(2, 9)}_${file.name}`,
       }));
-
-    console.log(
-      `POST: Received ${uploadedFiles.length} file(s):`,
-      uploadedContracts.map((f) => ({ id: f.id, name: f.name, size: f.size }))
-    );
   } else {
-    body = (await request.json()) as EmployeeDetail;
+    body = await request.json();
   }
 
-  console.log('Received employee data:', body);
+  // Find employee name for summary
+  const employee = employeesDb.find((e) => e.id === body.employeeId);
+  const employeeName = employee ? employee.name : 'Desconhecido';
+  const employeeRole = employee ? employee.role : 'Outros';
 
-  const allContracts = [...uploadedContracts];
+  // Determine status
+  let status: PaymentStatus = 'agendado';
+  if (body.paymentDate) {
+    status = 'pago';
+  } else {
+    const due = new Date(body.dueDate);
+    const today = new Date();
+    // Reset time for comparison
+    due.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
 
-  const newEmployee: EmployeeDetail = {
+    if (due < today) {
+      status = 'atrasado';
+    }
+  }
+
+  const newPayment: PaymentDetail = {
     ...body,
     id: Math.random().toString(36).substr(2, 9),
-    status: allContracts.length > 0 ? 'ativo' : 'pendente',
-    role: body.role || 'porteiro',
-    Contracts: allContracts,
-    lastContract:
-      allContracts.length > 0
-        ? allContracts[allContracts.length - 1]
-        : undefined,
+    name: employeeName,
+    role: employeeRole,
+    value: body.value,
+    status,
+    proofs: uploadedProofs,
   };
 
-  employeesDb.push(newEmployee);
+  paymentsDb.unshift(newPayment); // Add to beginning of list
 
   return NextResponse.json(
-    { message: 'Employee created successfully', data: newEmployee },
+    { message: 'Payment created successfully', data: newPayment },
     { status: 201 }
   );
 }
