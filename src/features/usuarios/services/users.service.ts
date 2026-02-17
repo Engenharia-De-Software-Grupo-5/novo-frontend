@@ -11,6 +11,8 @@ interface GetUsersParams {
   statuses?: string[];
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 export async function getUsers(
   condominioId: string,
   params: GetUsersParams
@@ -24,11 +26,11 @@ export async function getUsers(
     page: params.page,
     limit: params.limit,
     search: params.search,
-    role: params.roles, 
+    roles: params.roles, 
     status: params.statuses,
   });
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  
   const url = `${baseUrl}/api/condominios/${condominioId}/usuarios${queryString}`;
   
   const res = await fetch(url, { cache: 'no-store' });
@@ -76,12 +78,17 @@ export async function updateUser(condominioId: string, userId: string, data: Upd
   });
 }
 
-export async function deactivateUser(condominioId: string, userId: string) {
+export async function changeUserStatus(
+  condominioId: string,
+  userId: string,
+  status: 'ativo' | 'inativo'
+) {
   return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
     method: 'PATCH',
-    body: JSON.stringify({ status: 'inativo' }), 
+    body: JSON.stringify({ status }),
   });
 }
+
 
 /**
  * EXCLUSÃO

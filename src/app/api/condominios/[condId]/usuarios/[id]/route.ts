@@ -123,7 +123,7 @@ export async function PUT(
   users[index] = { 
     ...users[index], 
     ...body,
-    // Garante que o ID e o Condomínio não mudem por acidente no PUT
+   
     id: users[index].id,
     condominioId: users[index].condominioId 
   };

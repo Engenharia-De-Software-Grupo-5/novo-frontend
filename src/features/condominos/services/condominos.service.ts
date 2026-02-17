@@ -117,36 +117,28 @@ export async function createCondomino(
 }
 
 /**
- * ATUALIZAÇÃO (Geral)
+ * ATUALIZAÇÃO GENÉRICA (Padrão igual ao de usuários)
  */
 export async function updateCondomino(
-  condominioId: string,
-  condominoId: string,
-  data: Partial<CondominoFull> | Partial<CondominoSummary>
+  condominioId: string, 
+  condominoId: string, 
+  data: Partial<CondominoFull>
 ) {
-  return apiRequest(
-    `/api/condominios/${condominioId}/condominos/${condominoId}`,
-    {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    }
-  );
+  return apiRequest(`/api/condominios/${condominioId}/condominos/${condominoId}`, {
+    method: 'PATCH',
+    body: data,
+  });
 }
 
 /**
- * DESATIVAÇÃO (Apenas Status)
+ * Helper específico (opcional, igual ao changeUserStatus)
  */
-export async function deactivateCondomino(
+export async function changeCondominoStatus(
   condominioId: string,
-  condominoId: string
+  condominoId: string,
+  status: 'ativo' | 'inativo'
 ) {
-  return apiRequest(
-    `/api/condominios/${condominioId}/condominos/${condominoId}`,
-    {
-      method: 'PATCH',
-      body: JSON.stringify({ status: 'inativo' }),
-    }
-  );
+  return updateCondomino(condominioId, condominoId, { status });
 }
 
 /**

@@ -27,7 +27,7 @@ export default function LoginPage() {
   try {
     const user = await login(email, password);
 
-    router.push(`/condominios/${user.condominioId}/usuarios`);
+    router.push(`/condominio/${user.condominioId}/usuarios`);
 
   } catch {
     setError('Email ou senha inválidos');
