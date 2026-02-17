@@ -244,7 +244,7 @@ export async function POST(request: NextRequest) {
   const newEmployee: EmployeeDetail = {
     ...body,
     id: Math.random().toString(36).substr(2, 9),
-    status: 'ativo',
+    status: allContracts.length > 0 ? 'ativo' : 'pendente',
     role: body.role || 'porteiro',
     Contracts: allContracts,
     lastContract:
