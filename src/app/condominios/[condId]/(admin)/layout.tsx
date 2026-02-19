@@ -8,15 +8,19 @@ import {
   SidebarTrigger,
 } from '@/features/components/ui/sidebar';
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ condId: string }>;
 }) {
+  const { condId } = await params;
+
   return (
     <SidebarProvider defaultOpen={true}>
       <AuthProvider>
-        <AppSidebar />
+        <AppSidebar condId={condId} />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-1" />
