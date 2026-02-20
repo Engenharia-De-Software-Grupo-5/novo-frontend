@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { CondominiumSwitcher } from '@/features/components/condominium-switcher';
 import {
   Collapsible,
   CollapsibleContent,
@@ -14,6 +15,7 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -24,59 +26,160 @@ import {
 } from '@/features/components/ui/sidebar';
 import {
   BookOpen,
+  Bot,
+  BriefcaseBusiness,
   ChevronRight,
+  FileCheck,
   LogOut,
   MoreHorizontal,
+  Receipt,
   Terminal,
+  Users,
 } from 'lucide-react';
 
-// Define items directly.
-const imoveisItems = [
-  {
-    title: 'Imóveis',
-    url: '/imoveis',
-    icon: BookOpen,
-  },
-];
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  condId?: string;
+}
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ condId, ...props }: AppSidebarProps) {
+  const getNavMain = (id: string) => [
+    {
+      title: 'Dashboard',
+      url: `/condominios/${id}/dashboard`,
+      icon: Bot,
+    },
+    {
+      title: 'Imóveis',
+      url: `/condominios/${id}/imoveis`,
+      icon: BookOpen,
+    },
+    {
+      title: 'Admin',
+      url: '#',
+      icon: Terminal,
+      items: [
+        {
+          title: 'Gerenciar Usuários',
+          url: `/condominios/${id}/usuarios`,
+        },
+      ],
+    },
+    {
+      title: 'Contratos',
+      url: '#',
+      icon: FileCheck,
+      items: [
+        {
+          title: 'Gerenciar Contratos',
+          url: `/condominios/${id}/contratos`,
+        },
+        {
+          title: 'Modelos',
+          url: `/condominios/${id}/modelos`,
+        },
+      ],
+    },
+    {
+      title: 'Condôminos',
+      url: '#',
+      icon: Users,
+      items: [
+        {
+          title: 'Gerenciar Condôminos',
+          url: `/condominios/${id}/condominos`,
+        },
+        {
+          title: 'Cobranças',
+          url: `/condominios/${id}/cobrancas`,
+        },
+      ],
+    },
+    {
+      title: 'Funcionários',
+      url: '#',
+      icon: BriefcaseBusiness,
+      items: [
+        {
+          title: 'Gerenciar Funcionários',
+          url: `/condominios/${id}/funcionarios`,
+        },
+        {
+          title: 'Pagamentos',
+          url: `/condominios/${id}/pagamentos`,
+        },
+      ],
+    },
+    {
+      title: 'Despesas',
+      url: '#',
+      icon: Receipt,
+      items: [
+        {
+          title: 'Condomínio',
+          url: `/condominios/${id}/despesas/condominio`,
+        },
+        {
+          title: 'Imóveis',
+          url: `/condominios/${id}/despesas/imoveis`,
+        },
+      ],
+    },
+  ];
+
+  const items = condId ? getNavMain(condId) : [];
+
   return (
     <Sidebar collapsible="icon" className="bg-[#fafafa]" {...props}>
+      <SidebarHeader>
+        <CondominiumSwitcher condId={condId} />
+      </SidebarHeader>
       <SidebarContent className="gap-0">
         <SidebarMenu className="mt-4 px-2">
-          {imoveisItems.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <Link href={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-
-          <Collapsible className="group/collapsible" asChild>
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip="Admin">
-                  <Terminal />
-                  <span>Admin</span>
-                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+          {items.map((item) => {
+            if (item.items) {
+              return (
+                <Collapsible
+                  key={item.title}
+                  asChild
+                  defaultOpen={false}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton tooltip={item.title}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {item.items.map((subItem) => (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton asChild>
+                              <Link href={subItem.url}>
+                                <span>{subItem.title}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </SidebarMenuItem>
+                </Collapsible>
+              );
+            }
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title}>
+                  <Link href={item.url}>
+                    <item.icon />
+                    <span>{item.title}</span>
+                  </Link>
                 </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link href="/usuarios">
-                        <span>Gerenciar Usuários</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarContent>
 

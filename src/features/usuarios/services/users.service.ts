@@ -11,6 +11,8 @@ interface GetUsersParams {
   statuses?: string[];
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 export async function getUsers(
   condominioId: string,
   params: GetUsersParams
@@ -29,7 +31,6 @@ export async function getUsers(
   });
 
   
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
   const url = `${baseUrl}/api/condominios/${condominioId}/usuarios${queryString}`;
   
   const res = await fetch(url, { cache: 'no-store' });

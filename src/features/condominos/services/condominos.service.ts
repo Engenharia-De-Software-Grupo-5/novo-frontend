@@ -8,6 +8,7 @@ interface GetCondominosParams {
   statuses?: string[];
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 /**
  * LISTAGEM (Server Side Friendly)
  */
@@ -26,7 +27,6 @@ export async function getCondominos(
     status: params.statuses,
   });
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
   const url = `${baseUrl}/api/condominios/${condominioId}/condominos${queryString}`;
   
   const res = await fetch(url, { cache: 'no-store' });

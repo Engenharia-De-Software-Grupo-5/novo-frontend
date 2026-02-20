@@ -17,14 +17,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Moratta",
-  description: "Moratta Frontend",
-}
+  title: 'Moratta',
+  description: 'Moratta Frontend',
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en">
@@ -39,5 +39,5 @@ export default function RootLayout({
        <Toaster position="top-center"/>
       </body>
     </html>
-  )
+  );
 }

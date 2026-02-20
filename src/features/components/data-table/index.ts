@@ -1,5 +1,6 @@
 export { DataTable } from './data-table';
 export type { FilterMapping } from './data-table';
+export { DataTableSkeleton } from './data-table-skeleton';
 export { DataTableColumnHeader } from './data-table-column-header';
 export { DataTableFacetedFilter } from './data-table-faceted-filter';
 export { DataTablePagination } from './data-table-pagination';

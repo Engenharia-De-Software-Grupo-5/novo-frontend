@@ -27,7 +27,7 @@ export default function LoginPage() {
   try {
     const user = await login(email, password);
 
-    router.push(`/condominio/${user.condominioId}/usuarios`);
+    router.push(`/condominios/${user.condominioId}/usuarios`);
 
   } catch {
     setError('Email ou senha inválidos');
@@ -40,7 +40,7 @@ export default function LoginPage() {
         <div className="bg-brand-white flex flex-col justify-center rounded-l-2xl p-8 md:p-12 lg:p-16">
           <div className="mb-12 flex flex-col items-center gap-4 text-center">
             <Image
-              src="/images/logo.svg"
+              src="/logo-icon.svg"
               width={40}
               height={40}
               alt="Logo Moratta"
