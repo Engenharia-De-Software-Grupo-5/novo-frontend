@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from '@/features/components/ui/sonner';
+import { SessionProvider } from 'next-auth/react';
 
 import './globals.css';
 
@@ -19,8 +20,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={inter.variable}>
       <body className="font-sans" suppressHydrationWarning>
-        {children}
-        <Toaster position="top-center" />
+        <SessionProvider>
+          {children}
+          <Toaster position="top-center" />
+        </SessionProvider>
       </body>
     </html>
   );
