@@ -1,6 +1,7 @@
 import { mockCondominiums } from './condominiums';
 import { mockEmployeeDetails } from './employees';
 import { mockPaymentDetails } from './payments';
+import { mockDespesas } from './despesas';
 
 // "Database" in memory.
 // This allows persistence while the server is running.
@@ -8,4 +9,5 @@ import { mockPaymentDetails } from './payments';
 export const employeesDb = [...mockEmployeeDetails];
 export const condominiumsDb = [...mockCondominiums];
 export const paymentsDb = [...mockPaymentDetails];
+export const despesasDb  = [...mockDespesas];
 
