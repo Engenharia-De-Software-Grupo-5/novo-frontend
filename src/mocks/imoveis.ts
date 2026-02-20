@@ -2,7 +2,7 @@ import { Imovel } from '@/types/imoveis';
 
 export const mockImoveis: Imovel[] = [
   {
-    idCondominio: 'COND-001',
+    idCondominio: '1',
     idImovel: 'IMV-001',
     tipo: 'apartamento',
     situacao: 'ativo',
@@ -22,7 +22,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: 'COND-001',
+    idCondominio: '1',
     idImovel: 'IMV-002',
     tipo: 'apartamento',
     situacao: 'ativo',
@@ -42,7 +42,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: 'COND-001',
+    idCondominio: '1',
     idImovel: 'IMV-003',
     tipo: 'casa',
     situacao: 'ativo',
@@ -61,7 +61,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: 'COND-001',
+    idCondominio: '2',
     idImovel: 'IMV-004',
     tipo: 'apartamento',
     situacao: 'manutenção',
@@ -77,7 +77,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: 'COND-001',
+    idCondominio: '2',
     idImovel: 'IMV-005',
     tipo: 'apartamento',
     situacao: 'na planta',
@@ -93,7 +93,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: 'COND-001',
+    idCondominio: '3',
     idImovel: 'IMV-006',
     tipo: 'casa',
     situacao: 'inativo',
@@ -108,7 +108,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: 'COND-002',
+    idCondominio: '3',
     idImovel: 'IMV-007',
     tipo: 'apartamento',
     situacao: 'ativo',
@@ -127,7 +127,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: 'COND-002',
+    idCondominio: '3',
     idImovel: 'IMV-008',
     tipo: 'apartamento',
     situacao: 'manutenção',
@@ -142,7 +142,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: 'COND-003',
+    idCondominio: '4',
     idImovel: 'IMV-009',
     tipo: 'casa',
     situacao: 'ativo',
@@ -161,7 +161,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: 'COND-003',
+    idCondominio: '4',
     idImovel: 'IMV-010',
     tipo: 'apartamento',
     situacao: 'na planta',
@@ -177,7 +177,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: 'COND-004',
+    idCondominio: '5',
     idImovel: 'IMV-011',
     tipo: 'casa',
     situacao: 'ativo',
@@ -196,7 +196,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: 'COND-004',
+    idCondominio: '5',
     idImovel: 'IMV-012',
     tipo: 'apartamento',
     situacao: 'inativo',
