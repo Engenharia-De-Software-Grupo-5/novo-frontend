@@ -43,7 +43,7 @@ export default function LoginForm() {
       return;
     }
 
-    router.push('/condominios/0/dashboard');
+    router.push('/condominios/');
   }
 
   const campoComErro = Boolean(erro);
@@ -77,7 +77,7 @@ export default function LoginForm() {
           <div className="flex items-center justify-between">
             <Label htmlFor="senha">Senha</Label>
             <Link
-              href="/forgot-password"
+              href="/auth/forgot-password"
               className="text-primary text-sm hover:underline"
             >
               Esqueceu a senha?
@@ -99,13 +99,6 @@ export default function LoginForm() {
           {loading ? 'Entrando...' : 'Login'}
         </Button>
       </form>
-
-      <p className="text-muted-foreground mt-4 text-center text-sm">
-        Ainda não tem uma conta?{' '}
-        <Link href="/signup" className="text-primary underline">
-          Cadastre-se
-        </Link>
-      </p>
     </>
   );
 }

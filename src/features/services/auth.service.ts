@@ -31,3 +31,25 @@ export async function loginWithApi(email: string, password: string) {
     return null;
   }
 }
+
+export async function logout(): Promise<void> {
+  // Simulando logout do mock (não faz nada assíncrono real, mas limparia estado)
+  return Promise.resolve();
+}
+
+export async function logoutWithApi(token: string) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  try {
+    const response = await fetch(`${apiUrl}/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error connecting to logout API:', error);
+    return false;
+  }
+}

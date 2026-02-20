@@ -205,7 +205,6 @@ export function CondominiumSwitcher({ condId }: { condId?: string }) {
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
-              MenuContent
               <DropdownMenuItem
                 onClick={() => handleOpenDialog()}
                 className="gap-2 p-2"

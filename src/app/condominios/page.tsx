@@ -25,7 +25,8 @@ import {
   postCondominio,
   putCondominio,
 } from '@/features/condominios/services/condominioService';
-import { Building2, PencilLine, Plus, Trash2 } from 'lucide-react';
+import { Building2, LogOut, PencilLine, Plus, Trash2 } from 'lucide-react';
+import { signOut } from 'next-auth/react';
 import { toast } from 'sonner';
 
 import { Condominium } from '@/types/condominium';
@@ -114,7 +115,7 @@ export default function CondominiosPage() {
   };
 
   return (
-    <main className="bg-muted flex min-h-screen flex-col items-center justify-center px-4 py-8">
+    <main className="bg-muted relative flex min-h-screen flex-col items-center justify-center px-4 py-8">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="flex items-center justify-center gap-2 text-2xl font-bold">
@@ -219,6 +220,17 @@ export default function CondominiosPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <div className="absolute bottom-6 left-6">
+        <Button
+          variant="outline"
+          className="text-muted-foreground hover:text-foreground bg-background shadow-sm"
+          onClick={() => signOut({ callbackUrl: '/auth/login' })}
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Sair da Conta
+        </Button>
+      </div>
     </main>
   );
 }

@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { CondominiumSwitcher } from '@/features/components/condominium-switcher';
 import {
@@ -36,12 +38,26 @@ import {
   Terminal,
   Users,
 } from 'lucide-react';
+import { signOut } from 'next-auth/react';
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   condId?: string;
+  user?: {
+    name: string;
+    email: string;
+  };
 }
 
-export function AppSidebar({ condId, ...props }: AppSidebarProps) {
+export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
+  // Configured default in case they are completely undefined via prop spread
+  const name = user?.name || 'Admin User';
+  const email = user?.email || 'admin@example.com';
+  const initials = name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .substring(0, 2)
+    .toUpperCase();
   const getNavMain = (id: string) => [
     {
       title: 'Dashboard',
@@ -193,11 +209,11 @@ export function AppSidebar({ condId, ...props }: AppSidebarProps) {
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-black text-white">
-                    <span className="text-xs font-bold">CN</span>
+                    <span className="text-xs font-bold">{initials}</span>
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Admin User</span>
-                    <span className="truncate text-xs">admin@example.com</span>
+                    <span className="truncate font-semibold">{name}</span>
+                    <span className="truncate text-xs">{email}</span>
                   </div>
                   <MoreHorizontal className="ml-auto size-4" />
                 </SidebarMenuButton>
@@ -206,7 +222,9 @@ export function AppSidebar({ condId, ...props }: AppSidebarProps) {
                 side="top"
                 className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
               >
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => signOut({ callbackUrl: '/auth/login' })}
+                >
                   <LogOut />
                   Log out
                 </DropdownMenuItem>
