@@ -1,6 +1,7 @@
 export const ROUTE_CONFIG: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/imoveis': 'Imóveis',
+  '/imoveis/novo': 'Adicionar Imóvel',
   '/admin': 'Admin',
   '/usuarios': 'Gerenciar Usuários',
   '/contratos': 'Gerenciar Contratos',

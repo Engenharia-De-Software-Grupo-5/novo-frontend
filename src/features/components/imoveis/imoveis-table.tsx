@@ -1,6 +1,6 @@
 'use client'; 
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentType } from "react";
 import { useRouter } from "next/navigation";
 import { MoreVertical, GripVertical, Eye, Pencil, Trash2, CheckCircle2, XCircle, AlertCircle, Clock } from "lucide-react";
 import Link from "next/link";
@@ -34,7 +34,21 @@ interface ImoveisTableProps {
   data: Imovel[];
 }
 
-function SortableRow({ imovel, getStatusConfig, handleDelete }: { imovel: Imovel, getStatusConfig: any, handleDelete: any }) {
+type StatusConfig = {
+  label: string;
+  className: string;
+  icon: ComponentType<{ className?: string }>;
+};
+
+function SortableRow({
+  imovel,
+  getStatusConfig,
+  handleDelete,
+}: {
+  imovel: Imovel;
+  getStatusConfig: (status: string) => StatusConfig;
+  handleDelete: (id: string) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: imovel.idImovel });
   
   const style = {
@@ -81,7 +95,7 @@ function SortableRow({ imovel, getStatusConfig, handleDelete }: { imovel: Imovel
       </TableCell>
 
       <TableCell className="py-3 text-sm text-muted-foreground">
-        {imovel.estrutura.area} m²
+        {imovel.idCondominio}
       </TableCell>
 
       <TableCell className="text-right py-3 pr-4" onPointerDown={(e) => e.stopPropagation()}>
@@ -194,7 +208,7 @@ export function ImoveisTable({ data }: ImoveisTableProps) {
               <TableHead className="text-foreground font-semibold py-3 text-sm">ID / Nome</TableHead>
               <TableHead className="text-foreground font-semibold py-3 text-sm">Localização</TableHead>
               <TableHead className="text-foreground font-semibold py-3 text-sm">Status</TableHead>
-              <TableHead className="text-foreground font-semibold py-3 text-sm">Área</TableHead>
+              <TableHead className="text-foreground font-semibold py-3 text-sm">Condomínio</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>

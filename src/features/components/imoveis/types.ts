@@ -1,4 +1,4 @@
-export type ImovelStatus = "ocupado" | "vago" | "manutencao" | "na planta";
+export type ImovelStatus = 'ocupado' | 'vago' | 'manutencao' | 'na planta';
 
 export interface Endereco {
   rua: string;
@@ -7,7 +7,7 @@ export interface Endereco {
   cidade: string;
   estado: string;
   cep: string;
-  complemento?: string; 
+  complemento?: string;
 }
 
 export interface Locatario {
@@ -22,12 +22,6 @@ export interface Imovel {
   identificacao: string;
   status: ImovelStatus;
   tipo: string;
-  estrutura: {
-    area: string;
-    quartos: string;
-    suites: string;
-    banheiros: string;
-  };
   endereco: Endereco;
   locatario: Locatario | null;
 }

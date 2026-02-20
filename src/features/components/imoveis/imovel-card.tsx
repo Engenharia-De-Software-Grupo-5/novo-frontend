@@ -1,4 +1,4 @@
-import { MapPin, Building2, Clock, CheckCircle2, AlertCircle, XCircle } from "lucide-react";
+import { MapPin, Clock, CheckCircle2, AlertCircle, XCircle } from "lucide-react";
 import { Card, CardContent } from "@/features/components/ui/card";
 import { Badge } from "@/features/components/ui/badge";
 import Link from "next/link";
@@ -66,15 +66,9 @@ export function ImovelCard({ data }: ImovelCardProps) {
                 </span>
               </div>
 
-              <div className="flex items-center gap-4 pt-2">
-                <div className="flex flex-col">
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Área</span>
-                    <span className="text-sm font-medium">{data?.estrutura?.area || 0}m²</span>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Quartos</span>
-                    <span className="text-sm font-medium">{data?.estrutura?.numQuartos || 0}</span>
-                </div>
+              <div className="flex flex-col pt-2">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Código</span>
+                  <span className="text-sm font-medium">{data?.idImovel || '-'}</span>
               </div>
           </div>
 
