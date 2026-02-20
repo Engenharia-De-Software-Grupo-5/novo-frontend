@@ -1,17 +1,17 @@
-"use client"
+'use client';
 
-import { useFormContext } from "react-hook-form"
+import { useFormContext } from 'react-hook-form';
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/features/components/ui/form"
-import { Input } from "@/features/components/ui/input"
+} from '@/features/components/ui/form';
+import { Input } from '@/features/components/ui/input';
 
 export function ContactSection() {
-  const { control } = useFormContext()
+  const { control } = useFormContext();
 
   return (
     <section className="space-y-6">
@@ -85,7 +85,24 @@ export function ContactSection() {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={control}
+          name="address"
+          render={({ field }) => (
+            <FormItem className="md:col-span-2">
+              <FormLabel className="text-[13px] font-bold text-slate-800">
+                Endereço
+              </FormLabel>
+
+              <FormControl>
+                <Input placeholder="Rua, número..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
     </section>
-  )
+  );
 }

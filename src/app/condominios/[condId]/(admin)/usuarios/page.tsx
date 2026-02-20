@@ -1,5 +1,6 @@
 import { getUsers } from "@/features/usuarios/services/users.service";
 import { UsersDataTable } from "@/features/usuarios/components/UsersTable";
+import { parseTableFilters } from "@/features/components/data-table/parse-table-filters";
 
 interface PageProps {
   params: Promise<{ condId: string }>; 
@@ -13,18 +14,18 @@ export default async function UsersPage({ params, searchParams }: PageProps) {
 
   const resolvedParams = await params;
   const sParams = await searchParams;
-  
   const condId = resolvedParams.condId;
 
- 
+  const filterMap = parseTableFilters(sParams);
+
   const data = await getUsers(condId, {
     page: Number(sParams.page) || 1,
     limit: Number(sParams.limit) || 10,
     search: sParams.q as string,
-    roles: typeof sParams.roles === 'string' ? [sParams.roles] : (sParams.roles as string[] ) ?? [],
-    statuses: typeof sParams.status === 'string' ? [sParams.status] : (sParams.status as string[]),
+    roles: filterMap.get('role') ?? [],
+    statuses: filterMap.get('status') ?? [],
   });
-
+  
   return (
     <div className="flex h-full flex-1 flex-col space-y-8 p-4 md:p-8">    
         {/* Header */}

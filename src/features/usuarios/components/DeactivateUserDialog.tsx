@@ -66,6 +66,7 @@ export function DeactivateUserDialog({
       await new Promise((resolve) => setTimeout(resolve, 300));
       router.refresh();
     } catch (error) {
+      console.log(error)
       toast.error('Erro ao alterar status do usuário');
     } finally {
       setIsPending(false);

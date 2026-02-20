@@ -40,7 +40,7 @@ export default function LoginPage() {
         <div className="bg-brand-white flex flex-col justify-center rounded-l-2xl p-8 md:p-12 lg:p-16">
           <div className="mb-12 flex flex-col items-center gap-4 text-center">
             <Image
-              src="/logo-icon.svg"
+              src="/logo-icon.png"
               width={40}
               height={40}
               alt="Logo Moratta"

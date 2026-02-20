@@ -1,3 +1,4 @@
+import { parseTableFilters } from '@/features/components/data-table/parse-table-filters';
 import { CondominosDataTable } from '@/features/condominos/components/CondominosDataTable';
 import { getCondominos } from '@/features/condominos/services/condominos.service';
 
@@ -14,14 +15,13 @@ export default async function CondominosPage({
   const sParams = await searchParams;
   const condId = resolvedParams.condId;
 
+  const filterMap = parseTableFilters(sParams);
+
   const data = await getCondominos(condId, {
     page: Number(sParams.page) || 1,
     limit: Number(sParams.limit) || 10,
     search: sParams.q as string,
-    statuses:
-      typeof sParams.status === 'string'
-        ? [sParams.status]
-        : (sParams.status as string[]),
+    statuses: filterMap.get('status') ?? [],
   });
 
   return (

@@ -123,7 +123,7 @@ export async function PUT(
   users[index] = { 
     ...users[index], 
     ...body,
-    // Garante que o ID e o Condomínio não mudem por acidente no PUT
+   
     id: users[index].id,
     condominioId: users[index].condominioId 
   };
@@ -175,7 +175,7 @@ export async function PATCH(
   const { id } = await params;
   const body = await request.json();
 
-  // 1. Localiza o usuário original no mock
+
   const user = users.find((u) => u.id === id);
 
   if (!user) {

@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { condominos } from "@/mocks/condominos";
-
+import { NextRequest, NextResponse } from 'next/server';
+import { condominos } from '@/mocks/condominos';
+import { CondominoStatus } from '@/types/condomino';
 
 /**
  * @swagger
@@ -37,9 +37,8 @@ import { condominos } from "@/mocks/condominos";
  */
 export async function GET(
   _request: NextRequest,
-  { params }: { params:  Promise<{ condId: string; id: string }> }
+  { params }: { params: Promise<{ condId: string; id: string }> }
 ) {
-  
   const { condId, id } = await params;
 
   // Verifica se os parâmetros estão chegando
@@ -49,10 +48,10 @@ export async function GET(
   );
 
   if (!morador) {
-    return NextResponse.json({ error: "Condômino not found" }, { status: 404 });
+    return NextResponse.json({ error: 'Condômino not found' }, { status: 404 });
   }
 
-  return NextResponse.json(morador);
+  return NextResponse.json({ data: morador });
 }
 /**
  * @swagger
@@ -90,21 +89,38 @@ export async function GET(
  *       404:
  *         description: Condômino not found
  */
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; id: string }> }
 ) {
-  const { id } = await params;
-  const body = (await request.json()) as { status: CondominiumStatus };
-  const index = condominos.findIndex((c) => c.id === id);
+ 
+    const { condId, id } = await params;
+    const rawBody = await request.text();
+  console.log("Raw Body:", rawBody);
 
-  if (index === -1) {
-    return NextResponse.json({ error: "Condômino not found" }, { status: 404 });
+ 
+  const body = JSON.parse(rawBody);
+  
+  
+  const novoStatus = body.status || body['status'];
+
+  const index = condominos.findIndex((c) => String(c.id) === String(id));
+
+  if (index !== -1) {
+    if (novoStatus) {
+     
+      condominos[index] = {
+        ...condominos[index],
+        status: novoStatus
+      };
+      console.log("AGORA FOI! Novo status no array:", condominos[index].status);
+    } else {
+      console.log("ERRO FATAL: O status ainda é nulo. Conteúdo de body:", body);
+    }
   }
 
-  condominos[index].status = body.status;
-
-  return NextResponse.json({ message: "Status updated", data: condominos[index] });
+  return NextResponse.json({ data: condominos[index] });
 }
 
 /**
@@ -144,7 +160,7 @@ export async function DELETE(
 
   if (index === -1) {
     return NextResponse.json(
-      { error: "Condômino não encontrado" }, 
+      { error: 'Condômino não encontrado' },
       { status: 404 }
     );
   }
@@ -153,8 +169,8 @@ export async function DELETE(
   condominos.splice(index, 1);
 
   console.log(`Condômino com id ${id} foi apagado`);
-  
-  return NextResponse.json({ 
-    message: `Condômino com id ${id} foi apagado` 
+
+  return NextResponse.json({
+    message: `Condômino com id ${id} foi apagado`,
   });
 }

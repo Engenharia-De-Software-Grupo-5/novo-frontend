@@ -69,6 +69,72 @@ export const fetchCache = 'force-no-store';
  *                     totalPages:
  *                       type: integer
  */
+// export async function GET(
+//   request: NextRequest,
+//   { params }: { params: Promise<{ condId: string }> }
+// ) {
+//   const { condId } = await params;
+
+//   if (!condId) {
+//     return NextResponse.json({ error: 'ID não fornecido' }, { status: 400 });
+//   }
+
+//   const searchParams = request.nextUrl.searchParams;
+
+//   const page = parseInt(searchParams.get('page') || '1');
+//   const limit = parseInt(searchParams.get('limit') || '20');
+//   const sort = searchParams.get('sort');
+//   const order = searchParams.get('order') || 'asc';
+
+//   const statusFilters = searchParams.getAll('status'); // ["inativo", "pendente"]
+//   const roleFilters = searchParams.getAll('roles').map((r) => r.toLowerCase());
+
+//   let filteredUsers = users.filter((u) => u.condominioId === condId);
+
+  
+//   if (roleFilters.length > 0) {
+//     filteredUsers = filteredUsers.filter((u) =>
+//       roleFilters.includes(u.role.toLowerCase())
+//     );
+//   }
+
+//   // iltra por múltiplos status
+//   if (statusFilters.length > 0) {
+//     filteredUsers = filteredUsers.filter((u) =>
+//       statusFilters.includes(u.status.toLowerCase())
+//     );
+//   }
+
+//   const sortedUsers = [...filteredUsers];
+
+//   if (sort) {
+//     sortedUsers.sort((a, b) => {
+//       const fieldA = a[sort as keyof typeof a];
+//       const fieldB = b[sort as keyof typeof b];
+
+//       if (fieldA < fieldB) return order === 'asc' ? -1 : 1;
+//       if (fieldA > fieldB) return order === 'asc' ? 1 : -1;
+//       return 0;
+//     });
+//   }
+
+//   //  Paginação
+//   const startIndex = (page - 1) * limit;
+//   const endIndex = startIndex + limit;
+
+//   const paginatedUsers = sortedUsers.slice(startIndex, endIndex);
+
+//   return NextResponse.json({
+//     data: paginatedUsers,
+//     meta: {
+//       total: filteredUsers.length,
+//       page,
+//       limit,
+//       totalPages: Math.ceil(filteredUsers.length / limit),
+//     },
+//   });
+// }
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string }> }
@@ -83,46 +149,41 @@ export async function GET(
 
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '20');
-  const sort = searchParams.get('sort');
-  const order = searchParams.get('order') || 'asc';
 
-  const statusFilters = searchParams.getAll('status'); // ["inativo", "pendente"]
-  const roleFilters = searchParams.getAll('roles').map((r) => r.toLowerCase());
+  const sortParam = searchParams.get('sort');
+  const [sortField, sortOrder] = sortParam?.split('.') ?? [];
 
-  let filteredUsers = users.filter((u) => u.condominioId === condId);
+  const roleFilters = searchParams.getAll('roles').map(r => r.toLowerCase());
+  const statusFilters = searchParams.getAll('status').map(s => s.toLowerCase());
 
-  
+  let filteredUsers = users.filter(u => u.condominioId === condId);
+
   if (roleFilters.length > 0) {
-    filteredUsers = filteredUsers.filter((u) =>
+    filteredUsers = filteredUsers.filter(u =>
       roleFilters.includes(u.role.toLowerCase())
     );
   }
 
-  // iltra por múltiplos status
   if (statusFilters.length > 0) {
-    filteredUsers = filteredUsers.filter((u) =>
+    filteredUsers = filteredUsers.filter(u =>
       statusFilters.includes(u.status.toLowerCase())
     );
   }
 
   const sortedUsers = [...filteredUsers];
 
-  if (sort) {
+  if (sortField) {
     sortedUsers.sort((a, b) => {
-      const fieldA = a[sort as keyof typeof a];
-      const fieldB = b[sort as keyof typeof b];
-
-      if (fieldA < fieldB) return order === 'asc' ? -1 : 1;
-      if (fieldA > fieldB) return order === 'asc' ? 1 : -1;
+      const fieldA = a[sortField as keyof typeof a];
+      const fieldB = b[sortField as keyof typeof b];
+      if (fieldA < fieldB) return sortOrder === 'desc' ? 1 : -1;
+      if (fieldA > fieldB) return sortOrder === 'desc' ? -1 : 1;
       return 0;
     });
   }
 
-  //  Paginação
   const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + limit;
-
-  const paginatedUsers = sortedUsers.slice(startIndex, endIndex);
+  const paginatedUsers = sortedUsers.slice(startIndex, startIndex + limit);
 
   return NextResponse.json({
     data: paginatedUsers,

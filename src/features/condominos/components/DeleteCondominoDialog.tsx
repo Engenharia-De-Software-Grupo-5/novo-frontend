@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/features/components/ui/dialog"
 
-// Importe o seu novo service e o tipo correto
+
 import { deleteCondomino } from "../services/condominos.service"
 import { CondominoSummary } from "@/types/condomino"
 

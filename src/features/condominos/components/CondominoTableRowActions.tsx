@@ -1,27 +1,36 @@
-"use client"
+'use client';
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
-import { MoreVertical, ScanEye, PencilLine, Trash2, Flag, FlagOff } from "lucide-react";
-import { Button } from "@/features/components/ui/button";
+import { useState } from 'react';
+import { useParams } from 'next/navigation';
+import {
+  MoreVertical,
+  ScanEye,
+  PencilLine,
+  Trash2,
+  Flag,
+  FlagOff,
+} from 'lucide-react';
+import { Button } from '@/features/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/features/components/ui/dropdown-menu";
+} from '@/features/components/ui/dropdown-menu';
 
-import { CondominoSummary } from "@/types/condomino";
-import { DeleteCondominoDialog } from "./DeleteCondominoDialog";
-import { DeactivateCondominoDialog } from "./DeactivateCondominoDialog";
-import { ViewCondominoDialog } from "./ViewCondominoDialog";
+import { CondominoSummary } from '@/types/condomino';
+import { DeleteCondominoDialog } from './DeleteCondominoDialog';
+import { DeactivateCondominoDialog } from './DeactivateCondominoDialog';
+import { ViewCondominoDialog } from './ViewDialog/ViewCondominoDialog';
 
 interface CondominoTableRowActionsProps {
   condomino: CondominoSummary;
 }
 
-export function CondominoTableRowActions({ condomino }: CondominoTableRowActionsProps) {
+export function CondominoTableRowActions({
+  condomino,
+}: CondominoTableRowActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showToggleStatusDialog, setShowToggleStatusDialog] = useState(false);
   const [showViewDialog, setShowViewDialog] = useState(false);
@@ -39,7 +48,13 @@ export function CondominoTableRowActions({ condomino }: CondominoTableRowActions
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => setShowViewDialog(true)}>
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault(); // IMPORTANTE
+              console.log('Abrindo Dialog para ID:', condomino.id); // Debug
+              setShowViewDialog(true);
+            }}
+          >
             Visualizar <ScanEye className="ml-auto h-4 w-4" />
           </DropdownMenuItem>
 
@@ -61,13 +76,12 @@ export function CondominoTableRowActions({ condomino }: CondominoTableRowActions
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* <ViewCondominoDialog
-        condomino={condomino}
+      <ViewCondominoDialog
+        condominoId={condomino.id}
+        condominioId={condId}
         open={showViewDialog}
         onOpenChange={setShowViewDialog}
-      />  /> */}
-      
-
+      />
 
       <DeleteCondominoDialog
         condomino={condomino}
@@ -80,8 +94,8 @@ export function CondominoTableRowActions({ condomino }: CondominoTableRowActions
         condomino={condomino}
         open={showToggleStatusDialog}
         onOpenChange={setShowToggleStatusDialog}
-        condominioId={condId} />
-     
+        condominioId={condId}
+      />
     </>
   );
 }

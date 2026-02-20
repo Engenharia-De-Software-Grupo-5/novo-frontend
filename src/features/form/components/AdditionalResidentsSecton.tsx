@@ -102,12 +102,7 @@ export function AdditionalResidentsSection() {
         className="w-full py-6 border-2 border-dashed border-slate-200 text-slate-500 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all"
         onClick={() => append({ name: "", relationship: "", age: "" })}
       >
-        <div className="flex flex-col items-center gap-1">
-          <div className="flex items-center font-bold">
-            <Plus className="mr-2 h-4 w-4 transition-transform group-hover:scale-125" /> 
-            Adicionar morador
-          </div>
-        </div>
+        <Plus className="mr-2 h-4 w-4" /> Adicionar morador
       </Button>
     </section>
   )

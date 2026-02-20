@@ -36,12 +36,17 @@ import {
   Terminal,
   Users,
 } from 'lucide-react';
+import { useParams } from 'next/navigation';
 
-interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  condId?: string;
-}
+// interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+//   condId?: string;
+// }
 
-export function AppSidebar({ condId, ...props }: AppSidebarProps) {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const params = useParams()
+  const condId = params.condId as string 
+
+
   const getNavMain = (id: string) => [
     {
       title: 'Dashboard',
