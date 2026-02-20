@@ -1,184 +1,158 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockImoveis } from '@/mocks/imoveis';
 
-import { Imovel } from '@/types/imoveis';
+import { imoveisDb } from '@/mocks/in-memory-db';
+import { ImovelDetail, ImovelSummary } from '@/types/imoveis';
 
-/**
- * @swagger
- * /api/condominios/{condId}/imoveis:
- *   get:
- *     summary: List properties (imoveis)
- *     tags:
- *       - Imoveis
- *     parameters:
- *       - in: path
- *         name: condId
- *         required: true
- *         schema:
- *           type: string
- *         description: Condominium ID
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 20
- *         description: Number of items per page
- *       - in: query
- *         name: sort
- *         schema:
- *           type: string
- *         description: Field to sort by
- *       - in: query
- *         name: order
- *         schema:
- *           type: string
- *           enum: [asc, desc]
- *           default: asc
- *         description: Sort order
- *     responses:
- *       200:
- *         description: Successful response
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                 meta:
- *                   type: object
- *                   properties:
- *                     total:
- *                       type: integer
- *                     page:
- *                       type: integer
- *                     limit:
- *                       type: integer
- *                     totalPages:
- *                       type: integer
- */
-export async function GET(request: NextRequest) {
+function toSummary(imovel: ImovelDetail): ImovelSummary {
+  const name = imovel.endereco.nomePredio
+    ? `${imovel.endereco.nomePredio} - ${imovel.idImovel}`
+    : `${imovel.tipo.toUpperCase()} ${imovel.idImovel}`;
+
+  return {
+    idImovel: imovel.idImovel,
+    name,
+    tipo: imovel.tipo,
+    situacao: imovel.situacao,
+    endereco: `${imovel.endereco.rua}, ${imovel.endereco.numero}`,
+    bairro: imovel.endereco.bairro,
+    cidade: imovel.endereco.cidade,
+  };
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ condId: string }> }
+) {
+  const { condId } = await params;
   const searchParams = request.nextUrl.searchParams;
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '20');
-  const sort = searchParams.get('sort');
-  const order = searchParams.get('order') || 'asc';
 
-  const sortedImoveis = [...mockImoveis];
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = parseInt(searchParams.get('limit') || '20', 10);
+  const sortParam = searchParams.get('sort');
 
-  if (sort) {
-    sortedImoveis.sort((a, b) => {
-      const fieldA = a[sort as keyof typeof a];
-      const fieldB = b[sort as keyof typeof b];
+  let sortField = sortParam;
+  let sortOrder = 'asc';
 
-      if (fieldA < fieldB) return order === 'asc' ? -1 : 1;
-      if (fieldA > fieldB) return order === 'asc' ? 1 : -1;
+  if (sortParam && sortParam.includes('.')) {
+    const [field, order] = sortParam.split('.');
+    sortField = field;
+    sortOrder = order === 'desc' ? 'desc' : 'asc';
+  }
+
+  const columnsArr = searchParams.getAll('columns');
+  const contentArr = searchParams.getAll('content');
+
+  const filterMap = new Map<string, string[]>();
+  for (let i = 0; i < columnsArr.length; i++) {
+    const col = columnsArr[i];
+    const value = contentArr[i];
+
+    if (!col || value === undefined) continue;
+
+    if (!filterMap.has(col)) {
+      filterMap.set(col, []);
+    }
+
+    filterMap.get(col)!.push(value);
+  }
+
+  let summaries = imoveisDb
+    .filter((imovel) => imovel.idCondominio === condId)
+    .map(toSummary);
+
+  for (const [col, values] of filterMap.entries()) {
+    if (col === 'name') {
+      const term = values[0]?.toLowerCase() || '';
+      summaries = summaries.filter((imovel) =>
+        imovel.name.toLowerCase().startsWith(term)
+      );
+      continue;
+    }
+
+    summaries = summaries.filter((imovel) => {
+      const fieldValue = imovel[col as keyof ImovelSummary];
+      if (fieldValue === undefined) return false;
+
+      return values.some((value) => {
+        return String(fieldValue).toLowerCase() === value.toLowerCase();
+      });
+    });
+  }
+
+  if (sortField) {
+    summaries = [...summaries].sort((a, b) => {
+      const fieldA = a[sortField as keyof ImovelSummary];
+      const fieldB = b[sortField as keyof ImovelSummary];
+
+      if (fieldA === undefined && fieldB === undefined) return 0;
+      if (fieldA === undefined) return 1;
+      if (fieldB === undefined) return -1;
+
+      if (fieldA < fieldB) return sortOrder === 'asc' ? -1 : 1;
+      if (fieldA > fieldB) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
   }
 
-  const startIndex = (page - 1) * limit;
+  const totalItems = summaries.length;
+  const totalPages = Math.ceil(totalItems / limit);
+  const safePage = Math.max(1, Math.min(page, totalPages > 0 ? totalPages : 1));
+
+  const startIndex = (safePage - 1) * limit;
   const endIndex = startIndex + limit;
-  const paginatedImoveis = sortedImoveis.slice(startIndex, endIndex);
+  const paginatedImoveis = summaries.slice(startIndex, endIndex);
 
   return NextResponse.json({
     data: paginatedImoveis,
     meta: {
-      total: mockImoveis.length,
-      page,
+      total: totalItems,
+      page: safePage,
       limit,
-      totalPages: Math.ceil(mockImoveis.length / limit),
+      totalPages,
     },
   });
 }
 
-/**
- * @swagger
- * /api/condominios/{condId}/imoveis:
- *   post:
- *     summary: Create a new property (imovel)
- *     tags:
- *       - Imoveis
- *     parameters:
- *       - in: path
- *         name: condId
- *         required: true
- *         schema:
- *           type: string
- *         description: Condominium ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               idCondominio:
- *                 type: string
- *               idImovel:
- *                 type: string
- *               tipo:
- *                 type: string
- *                 enum: [casa, apartamento]
- *               situacao:
- *                 type: string
- *                 enum: [ativo, inativo, manutenção, na planta]
- *               endereco:
- *                 type: object
- *                 properties:
- *                   rua:
- *                     type: string
- *                   numero:
- *                     type: string
- *                   bairro:
- *                     type: string
- *                   cidade:
- *                     type: string
- *                   estado:
- *                     type: string
- *                   nomePredio:
- *                     type: string
- *                   bloco:
- *                     type: string
- *                   torre:
- *                     type: string
- *               estrutura:
- *                 type: object
- *                 properties:
- *                   area:
- *                     type: number
- *                   numSuites:
- *                     type: number
- *                   numQuartos:
- *                     type: number
- *                   numBanheiros:
- *                     type: number
- *               outros:
- *                 type: array
- *                 items:
- *                   type: string
- *     responses:
- *       201:
- *         description: Property created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- */
-export async function POST(request: NextRequest) {
-  const body = (await request.json()) as Imovel;
-  console.log('Received imovel data:', body);
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ condId: string }> }
+) {
+  const { condId } = await params;
+  const body = (await request.json()) as Partial<ImovelDetail>;
+
+  const nowId = `IMV-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+  const hasLocatario =
+    !!body.locatario?.nome || !!body.locatario?.cpf || !!body.locatario?.telefone;
+
+  const newImovel: ImovelDetail = {
+    idCondominio: condId,
+    idImovel: body.idImovel || nowId,
+    tipo: body.tipo || 'apartamento',
+    situacao: body.situacao || 'ativo',
+    endereco: {
+      rua: body.endereco?.rua || '',
+      numero: body.endereco?.numero || '',
+      bairro: body.endereco?.bairro || '',
+      cidade: body.endereco?.cidade || '',
+      estado: body.endereco?.estado || '',
+      nomePredio: body.endereco?.nomePredio,
+      bloco: body.endereco?.bloco,
+      torre: body.endereco?.torre,
+    },
+    locatario: hasLocatario
+      ? {
+          nome: body.locatario?.nome || '',
+          cpf: body.locatario?.cpf || '',
+          telefone: body.locatario?.telefone || '',
+        }
+      : null,
+  };
+
+  imoveisDb.unshift(newImovel);
 
   return NextResponse.json(
-    { message: 'Imovel created successfully', data: body },
+    { message: 'Imóvel criado com sucesso', data: newImovel },
     { status: 201 }
   );
 }

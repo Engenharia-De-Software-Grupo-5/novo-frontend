@@ -1,5 +1,6 @@
 import { mockCondominiums } from './condominiums';
 import { mockEmployeeDetails } from './employees';
+import { mockImoveis } from './imoveis';
 import { mockPaymentDetails } from './payments';
 
 // "Database" in memory.
@@ -8,4 +9,4 @@ import { mockPaymentDetails } from './payments';
 export const employeesDb = [...mockEmployeeDetails];
 export const condominiumsDb = [...mockCondominiums];
 export const paymentsDb = [...mockPaymentDetails];
-
+export const imoveisDb = [...mockImoveis];
