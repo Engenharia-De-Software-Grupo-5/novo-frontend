@@ -3,32 +3,16 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { ImovelForm } from '@/features/components/imoveis/imovel-form';
+import {
+  ImovelForm,
+  ImovelFormData,
+} from '@/features/components/imoveis/imovel-form';
 import { Button } from '@/features/components/ui/button';
 import { postImovel } from '@/features/imoveis/services/imovelService';
 import { ArrowLeft, Building2, MapPin, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { ImovelSituacao, ImovelTipo } from '@/types/imoveis';
-
-interface ImovelFormState {
-  identificacao: string;
-  status: string;
-  tipo?: ImovelTipo;
-  endereco: {
-    logradouro: string;
-    numero: string;
-    complemento: string;
-    bairro: string;
-    cidade: string;
-    cep: string;
-  };
-  locatario: {
-    nome: string;
-    cpf: string;
-    telefone: string;
-  };
-}
 
 function mapStatusToSituacao(status: string): ImovelSituacao {
   if (status === 'manutencao') return 'manutenção';
@@ -43,7 +27,7 @@ export default function NovoImovelAdminPage() {
   const condId = params?.condId as string;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<ImovelFormState>({
+  const [formData, setFormData] = useState<ImovelFormData>({
     identificacao: '',
     status: '',
     tipo: 'apartamento',
@@ -70,9 +54,9 @@ export default function NovoImovelAdminPage() {
       setIsSubmitting(true);
 
       const hasLocatario =
-        !!formData.locatario.nome ||
-        !!formData.locatario.cpf ||
-        !!formData.locatario.telefone;
+        !!formData.locatario?.nome ||
+        !!formData.locatario?.cpf ||
+        !!formData.locatario?.telefone;
 
       const created = await postImovel(condId, {
         idCondominio: condId,
@@ -80,19 +64,19 @@ export default function NovoImovelAdminPage() {
         tipo: formData.tipo || 'apartamento',
         situacao: mapStatusToSituacao(formData.status),
         endereco: {
-          rua: formData.endereco.logradouro,
-          numero: formData.endereco.numero,
-          bairro: formData.endereco.bairro,
-          cidade: formData.endereco.cidade,
+          rua: formData.endereco?.logradouro || '',
+          numero: formData.endereco?.numero || '',
+          bairro: formData.endereco?.bairro || '',
+          cidade: formData.endereco?.cidade || '',
           estado: 'SP',
           nomePredio: formData.identificacao || undefined,
-          bloco: formData.endereco.complemento || undefined,
+          bloco: formData.endereco?.complemento || undefined,
         },
         locatario: hasLocatario
           ? {
-              nome: formData.locatario.nome,
-              cpf: formData.locatario.cpf,
-              telefone: formData.locatario.telefone,
+              nome: formData.locatario?.nome || '',
+              cpf: formData.locatario?.cpf || '',
+              telefone: formData.locatario?.telefone || '',
             }
           : null,
       });
@@ -160,8 +144,8 @@ export default function NovoImovelAdminPage() {
               </h4>
               <p className="text-muted-foreground flex items-center gap-1.5 text-sm">
                 <MapPin className="h-3.5 w-3.5" />
-                {formData.endereco.logradouro
-                  ? `${formData.endereco.logradouro}, ${formData.endereco.numero}`
+                {formData.endereco?.logradouro
+                  ? `${formData.endereco.logradouro}, ${formData.endereco.numero || ''}`
                   : 'Endereço não informado'}
               </p>
               <Button variant="outline" className="w-full" asChild>
