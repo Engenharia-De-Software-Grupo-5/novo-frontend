@@ -1,14 +1,17 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ImovelForm } from '@/features/components/imoveis/imovel-form';
+import { Button } from '@/features/components/ui/button';
+import {
+  getImovelById,
+  putImovel,
+} from '@/features/imoveis/services/imovelService';
 import { ArrowLeft, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { ImovelForm } from '@/features/components/imoveis/imovel-form';
-import { Button } from '@/features/components/ui/button';
-import { getImovelById, putImovel } from '@/features/imoveis/services/imovelService';
 import { ImovelSituacao } from '@/types/imoveis';
 
 interface ImovelFormState {
@@ -146,31 +149,42 @@ export default function EditarImovelAdminPage({
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 max-w-4xl">
+      <div className="container mx-auto max-w-4xl p-6">
         <p className="text-muted-foreground">Carregando imóvel...</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl pb-20">
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="outline" size="icon" className="border-border hover:bg-accent" asChild>
+    <div className="container mx-auto max-w-4xl p-6 pb-20">
+      <div className="mb-8 flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          className="border-border hover:bg-accent"
+          asChild
+        >
           <Link href={`/condominios/${condId}/imoveis/${id}`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Editar Imóvel</h1>
-          <p className="text-muted-foreground">Atualize as informações da unidade.</p>
+          <h1 className="text-foreground text-2xl font-bold">Editar Imóvel</h1>
+          <p className="text-muted-foreground">
+            Atualize as informações da unidade.
+          </p>
         </div>
       </div>
 
       <div className="space-y-6">
         <ImovelForm formData={formData} setFormData={setFormData} />
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-border">
-          <Button variant="outline" className="border-border hover:bg-accent" asChild>
+        <div className="border-border flex justify-end gap-3 border-t pt-4">
+          <Button
+            variant="outline"
+            className="border-border hover:bg-accent"
+            asChild
+          >
             <Link href={`/condominios/${condId}/imoveis/${id}`}>Cancelar</Link>
           </Button>
           <Button
@@ -178,7 +192,7 @@ export default function EditarImovelAdminPage({
             onClick={handleSave}
             disabled={isSubmitting}
           >
-            <Save className="w-4 h-4 mr-2" />
+            <Save className="mr-2 h-4 w-4" />
             {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
           </Button>
         </div>
