@@ -18,6 +18,13 @@ export function DynamicBreadcrumb() {
 
   if (segments.length === 0) return null;
 
+  const currentRelativePath = pathname.replace(/^\/condominios\/[^/]+/, '');
+  const pageLabelBySection: Record<string, string> = {
+    '/cobrancas': 'Gerenciar Cobranças',
+  };
+
+  const pageLabel = pageLabelBySection[currentRelativePath];
+
   return (
     <Breadcrumb>
       <BreadcrumbList>
@@ -29,9 +36,14 @@ export function DynamicBreadcrumb() {
 
           let name = '';
 
-          const isDashboardRoot = /^\/condominios\/[^/]+$/.test(fullPath);
+          const isCondominiumSegment =
+            index === 1 && segments[0] === 'condominios';
 
-          if (isDashboardRoot) {
+          if (isCondominiumSegment && segments.length > 2) {
+            return null;
+          }
+
+          if (/^\/condominios\/[^/]+$/.test(fullPath)) {
             name = 'Dashboard';
           } else {
             const relativePath = fullPath.replace(/^\/condominios\/[^/]+/, '');
@@ -51,10 +63,15 @@ export function DynamicBreadcrumb() {
                   </BreadcrumbPage>
                 )}
               </BreadcrumbItem>
-              {!isLast && <BreadcrumbSeparator />}
+              {(!isLast || !!pageLabel) && <BreadcrumbSeparator />}
             </React.Fragment>
           );
         })}
+        {pageLabel ? (
+          <BreadcrumbItem>
+            <BreadcrumbPage>{pageLabel}</BreadcrumbPage>
+          </BreadcrumbItem>
+        ) : null}
       </BreadcrumbList>
     </Breadcrumb>
   );

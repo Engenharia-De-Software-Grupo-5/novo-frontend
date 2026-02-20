@@ -1,4 +1,5 @@
 import { mockCondominiums } from './condominiums';
+import { mockCobrancaDetails, mockCobrancaTenants } from './cobrancas';
 import { mockEmployeeDetails } from './employees';
 import { mockPaymentDetails } from './payments';
 
@@ -8,4 +9,6 @@ import { mockPaymentDetails } from './payments';
 export const employeesDb = [...mockEmployeeDetails];
 export const condominiumsDb = [...mockCondominiums];
 export const paymentsDb = [...mockPaymentDetails];
+export const cobrancasDb = [...mockCobrancaDetails];
+export const cobrancaTenantsDb = [...mockCobrancaTenants];
 
