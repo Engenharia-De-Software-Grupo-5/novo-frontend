@@ -2,6 +2,16 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/features/components/ui/alert-dialog';
 import { Button } from '@/features/components/ui/button';
 import {
   Card,
@@ -40,6 +50,10 @@ export default function CondominiosPage() {
     null
   );
   const [condoName, setCondoName] = React.useState('');
+  const [deletingCondo, setDeletingCondo] = React.useState<Condominium | null>(
+    null
+  );
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const fetchCondominiums = React.useCallback(async () => {
     try {
@@ -97,16 +111,23 @@ export default function CondominiosPage() {
     }
   };
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, condo: Condominium) => {
     e.stopPropagation();
-    if (!confirm('Tem certeza que deseja excluir este condomínio?')) return;
+    setDeletingCondo(condo);
+  };
 
+  const handleDelete = async () => {
+    if (!deletingCondo) return;
+    setIsDeleting(true);
     try {
-      await deleteCondominio(id);
+      await deleteCondominio(deletingCondo.id);
       toast.success('Condomínio excluído com sucesso');
       fetchCondominiums();
     } catch (error) {
       toast.error('Erro ao excluir condomínio');
+    } finally {
+      setIsDeleting(false);
+      setDeletingCondo(null);
     }
   };
 
@@ -157,7 +178,7 @@ export default function CondominiosPage() {
                     variant="ghost"
                     size="icon"
                     className="hover:text-destructive size-8"
-                    onClick={(e) => handleDelete(e, condo.id)}
+                    onClick={(e) => handleDeleteClick(e, condo)}
                   >
                     <Trash2 className="text-destructive size-4" />
                   </Button>
@@ -220,6 +241,39 @@ export default function CondominiosPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* AlertDialog de confirmação de exclusão */}
+      <AlertDialog
+        open={!!deletingCondo}
+        onOpenChange={(open) => {
+          if (!open) setDeletingCondo(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir condomínio</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o condomínio{' '}
+              <span className="text-foreground font-semibold">
+                {deletingCondo?.name}
+              </span>
+              ? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-destructive hover:bg-destructive/90 text-white"
+            >
+              {isDeleting ? 'Excluindo...' : 'Excluir'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="absolute bottom-6 left-6">
         <Button

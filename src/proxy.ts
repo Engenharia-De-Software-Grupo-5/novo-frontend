@@ -108,8 +108,7 @@ export default auth((req) => {
       allowedRoles: ['Financeiro', 'Admin'],
     },
     {
-      match: (path: string) =>
-        path.includes('/funcionarios') || path.includes('/rh'),
+      match: (path: string) => path.includes('/funcionarios'),
       allowedRoles: ['RH', 'Admin'],
     },
     {
