@@ -53,8 +53,7 @@ export default async function ContratosPage({
             Gerenciar Contratos
           </h2>
           <p className="text-muted-foreground">
-            Visualize contratos ativos, vencidos e agendados com busca por
-            locatário, imóvel e datas de vigência.
+            Visualize imóvel, locatário, datas e PDF dos contratos cadastrados.
           </p>
         </div>
       </div>

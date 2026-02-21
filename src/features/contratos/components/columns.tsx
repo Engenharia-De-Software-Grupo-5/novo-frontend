@@ -1,13 +1,13 @@
 'use client';
 
 import { DataTableColumnHeader } from '@/features/components/data-table';
-import { Badge } from '@/features/components/ui/badge';
+import { Button } from '@/features/components/ui/button';
 import { ColumnDef } from '@tanstack/react-table';
+import { FileText } from 'lucide-react';
 
 import { ContratoSummary } from '@/types/contrato';
 
 import { DataTableRowActions } from './data-table-row-actions';
-import { StatusBadge } from './status-badge';
 
 const formatDate = (value: string) => {
   if (!value) return '-';
@@ -16,63 +16,48 @@ const formatDate = (value: string) => {
 
 export const columns: ColumnDef<ContratoSummary>[] = [
   {
-    accessorKey: 'tenantName',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Nome Locatário" />
-    ),
-    cell: ({ row }) => (
-      <div className="space-y-1">
-        <p className="font-medium">{row.original.tenantName}</p>
-        <p className="text-muted-foreground text-xs">{row.original.propertyAddress}</p>
-      </div>
-    ),
-  },
-  {
     accessorKey: 'property',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Imóvel" />
     ),
-    cell: ({ row }) => {
-      const property = row.getValue('property') as string;
-      return (
-        <Badge variant="muted" className="font-normal">
-          {property}
-        </Badge>
-      );
-    },
+    cell: ({ row }) => (
+      <span className="font-medium">{row.original.property}</span>
+    ),
   },
   {
-    accessorKey: 'status',
+    accessorKey: 'tenantName',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
+      <DataTableColumnHeader column={column} title="Locatário" />
     ),
-    cell: ({ row }) => {
-      const status = row.getValue('status') as string;
-      return <StatusBadge status={status} />;
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
+    cell: ({ row }) => <span>{row.original.tenantName}</span>,
   },
   {
-    accessorKey: 'startDate',
+    accessorKey: 'createdAt',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Data Início" />
+      <DataTableColumnHeader column={column} title="Data de Criação" />
     ),
-    cell: ({ row }) => {
-      const startDate = row.getValue('startDate') as string;
-      return <span>{formatDate(startDate)}</span>;
-    },
+    cell: ({ row }) => <span>{formatDate(row.original.createdAt)}</span>,
   },
   {
-    accessorKey: 'endDate',
+    accessorKey: 'dueDate',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Data Vencimento" />
+      <DataTableColumnHeader column={column} title="Data de Vencimento" />
     ),
-    cell: ({ row }) => {
-      const endDate = row.getValue('endDate') as string;
-      return <span>{formatDate(endDate)}</span>;
-    },
+    cell: ({ row }) => <span>{formatDate(row.original.dueDate)}</span>,
+  },
+  {
+    accessorKey: 'pdfFileName',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="PDF do Contrato" />
+    ),
+    cell: ({ row }) => (
+      <Button variant="outline" size="sm" asChild>
+        <a href={row.original.pdfFileUrl} target="_blank" rel="noreferrer">
+          <FileText className="mr-2 h-4 w-4" />
+          {row.original.pdfFileName}
+        </a>
+      </Button>
+    ),
   },
   {
     id: 'actions',
