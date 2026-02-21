@@ -86,8 +86,8 @@ export default auth((req) => {
   }
 
   // Autorização por role e status (Rotas Privadas)
-  const userRole = req.auth?.user.role as string;
-  const userStatus = req.auth?.user.status as string;
+  const userRole = req.auth?.user?.role as string;
+  const userStatus = req.auth?.user?.status as string;
 
   if (!userRole || !userStatus) {
   // Se não tem role ou status, redireciona ou nega o acesso
