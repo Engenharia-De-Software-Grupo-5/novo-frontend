@@ -1,10 +1,8 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Flag, FlagOff } from "lucide-react"
-import { toast } from "sonner"
-import { Button } from "@/features/components/ui/button"
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/features/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -12,16 +10,19 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/features/components/ui/dialog"
+} from '@/features/components/ui/dialog';
+import { Flag, FlagOff } from 'lucide-react';
+import { toast } from 'sonner';
 
-import { changeCondominoStatus, updateCondomino } from "../services/condominos.service"
-import { CondominoSummary } from "@/types/condomino"
+import { CondominoSummary } from '@/types/condomino';
+
+import { changeCondominoStatus } from '../services/condominos.service';
 
 interface DeactivateCondominoDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  condomino: CondominoSummary
-  condominioId: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  condomino: CondominoSummary;
+  condominioId: string;
 }
 
 export function DeactivateCondominoDialog({
@@ -35,32 +36,28 @@ export function DeactivateCondominoDialog({
 
   if (!condomino) return null;
 
-  const isAtivo = condomino.status === "ativo";
-  const newStatus = isAtivo ? "inativo" : "ativo";
+  const isAtivo = condomino.status === 'ativo';
+  const newStatus = isAtivo ? 'inativo' : 'ativo';
 
   const handleConfirm = async () => {
     try {
       setIsPending(true);
 
-      await changeCondominoStatus(
-        condominioId,
-        condomino.id,
-        newStatus
-      );
+      await changeCondominoStatus(condominioId, condomino.id, newStatus);
 
       onOpenChange(false);
 
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       toast.success(
-        newStatus === "ativo"
-          ? "Condômino ativado com sucesso!"
-          : "Condômino desativado com sucesso!"
+        newStatus === 'ativo'
+          ? 'Condômino ativado com sucesso!'
+          : 'Condômino desativado com sucesso!'
       );
 
       router.refresh();
-    } catch (error) {
-      toast.error("Erro ao alterar status do condômino");
+    } catch {
+      toast.error('Erro ao alterar status do condômino');
     } finally {
       setIsPending(false);
     }
@@ -73,8 +70,8 @@ export function DeactivateCondominoDialog({
           <div
             className={`mb-4 flex h-12 w-12 items-center justify-center rounded-full ${
               isAtivo
-                ? "bg-red-100 text-red-600"
-                : "bg-green-100 text-green-600"
+                ? 'bg-red-100 text-red-600'
+                : 'bg-green-100 text-green-600'
             }`}
           >
             {isAtivo ? (
@@ -85,13 +82,12 @@ export function DeactivateCondominoDialog({
           </div>
 
           <DialogTitle>
-            {isAtivo ? "Desativar condômino?" : "Ativar condômino?"}
+            {isAtivo ? 'Desativar condômino?' : 'Ativar condômino?'}
           </DialogTitle>
 
           <DialogDescription className="text-sm">
-            Essa ação fará com que{" "}
-            <strong>{condomino.name}</strong> fique com o status{" "}
-            <span className="font-bold">{newStatus}</span> no sistema.
+            Essa ação fará com que <strong>{condomino.name}</strong> fique com o
+            status <span className="font-bold">{newStatus}</span> no sistema.
           </DialogDescription>
         </DialogHeader>
 
@@ -107,17 +103,13 @@ export function DeactivateCondominoDialog({
           <Button
             className={
               isAtivo
-                ? "bg-red-100 text-red-700 hover:bg-red-200"
-                : "bg-green-100 text-green-700 hover:bg-green-200"
+                ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                : 'bg-green-100 text-green-700 hover:bg-green-200'
             }
             onClick={handleConfirm}
             disabled={isPending}
           >
-            {isPending
-              ? "Processando..."
-              : isAtivo
-              ? "Desativar"
-              : "Ativar"}
+            {isPending ? 'Processando...' : isAtivo ? 'Desativar' : 'Ativar'}
           </Button>
         </DialogFooter>
       </DialogContent>

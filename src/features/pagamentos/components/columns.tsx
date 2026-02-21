@@ -2,9 +2,7 @@
 
 import { DataTableColumnHeader } from '@/features/components/data-table';
 import { Badge } from '@/features/components/ui/badge';
-import { Button } from '@/features/components/ui/button';
 import { ColumnDef } from '@tanstack/react-table';
-import { CircleX, FileText } from 'lucide-react';
 
 import { PaymentSummary } from '@/types/payment';
 

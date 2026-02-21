@@ -12,7 +12,7 @@ import { postImovel } from '@/features/imoveis/services/imovelService';
 import { ArrowLeft, Building2, MapPin, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { ImovelSituacao, ImovelTipo } from '@/types/imoveis';
+import { ImovelSituacao } from '@/types/imoveis';
 
 function mapStatusToSituacao(status: string): ImovelSituacao {
   if (status === 'manutencao') return 'manutenção';

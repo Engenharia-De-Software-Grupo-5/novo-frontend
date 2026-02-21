@@ -3,7 +3,6 @@ import { Plus, Trash2 } from "lucide-react";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/features/components/ui/form";
 import { Input } from "@/features/components/ui/input";
 import { Button } from "@/features/components/ui/button";
-import { SectionHeader } from "./SectionHeader";
 
 
 

@@ -1,4 +1,4 @@
-import { login, loginWithApi } from '@/features/services/auth.service';
+import { login } from '@/features/services/auth.service';
 import { jwtDecode } from 'jwt-decode';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
@@ -49,7 +49,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             name: userMocado.name,
             accessToken: 'fake-jwt-token-12345',
           };
-        } catch (error) {
+        } catch {
           return null;
         }
       },
@@ -67,7 +67,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         try {
           const decoded = jwtDecode(user.accessToken as string);
           token.exp = decoded.exp; // O NextAuth usará isso para invalidar a sessão
-        } catch (error) {
+        } catch {
           // Usado para lidar com o token falso/mocado (24 horas pra expirar)
           token.exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
         }

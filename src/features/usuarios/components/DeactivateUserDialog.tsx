@@ -12,7 +12,7 @@ import {
 import { FlagOff } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Status, User, UserSummary } from '@/types/user';
+import { Status, User } from '@/types/user';
 
 import { changeUserStatus } from '../services/users.service';
 

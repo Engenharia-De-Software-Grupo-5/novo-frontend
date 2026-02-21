@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useSession } from 'next-auth/react';
 
 import { Role } from '@/types/user';
@@ -17,11 +17,9 @@ export function RoleGuard({
   fallback = null,
 }: RoleGuardProps) {
   const { data: session, status } = useSession();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // Lazy initializer: returns true immediately on the client, false during SSR.
+  // Avoids the useEffect + setState pattern that causes cascading renders.
+  const [mounted] = useState(() => typeof window !== 'undefined');
 
   // Garante árvore estável entre SSR e hidratação inicial no cliente.
   if (!mounted || status === 'loading') {

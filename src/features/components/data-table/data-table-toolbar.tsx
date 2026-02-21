@@ -38,17 +38,17 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
+  const filterValue = table
+    .getColumn(searchColumnId)
+    ?.getFilterValue() as string;
+
   // Local state for debounced search
-  const [searchValue, setSearchValue] = React.useState(
-    (table.getColumn(searchColumnId)?.getFilterValue() as string) ?? ''
-  );
+  const [searchValue, setSearchValue] = React.useState(filterValue ?? '');
 
   // Sync local state when table filter changes externally (e.g. from URL on load)
   React.useEffect(() => {
-    setSearchValue(
-      (table.getColumn(searchColumnId)?.getFilterValue() as string) ?? ''
-    );
-  }, [table.getColumn(searchColumnId)?.getFilterValue()]);
+    setSearchValue(filterValue ?? '');
+  }, [filterValue]);
 
   // Debounce filter update
   React.useEffect(() => {

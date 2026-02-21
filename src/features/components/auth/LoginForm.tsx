@@ -8,7 +8,6 @@ import { Button } from '@/features/components/ui/button';
 import { Input } from '@/features/components/ui/input';
 import { Label } from '@/features/components/ui/label';
 import { signIn } from 'next-auth/react';
-import { toast } from 'sonner';
 
 export default function LoginForm() {
   const router = useRouter();

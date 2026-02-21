@@ -1,4 +1,3 @@
-import { parseTableFilters } from '@/features/components/data-table/parse-table-filters';
 import { CondominosDataTable } from '@/features/condominos/components/CondominosDataTable';
 import { getCondominos } from '@/features/condominos/services/condominos.service';
 

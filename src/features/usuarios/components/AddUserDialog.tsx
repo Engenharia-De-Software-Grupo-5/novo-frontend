@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/features/components/ui/button';
 import {
   Dialog,
@@ -23,52 +24,50 @@ import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Role } from '@/types/user';
-import { inviteUser } from '../services/users.service';
-import { useParams, useRouter } from 'next/navigation';
 
+import { inviteUser } from '../services/users.service';
 
 export function AddUserDialog() {
-  const router = useRouter()
-  const params = useParams()
-  const condId = params.condId as string
+  const router = useRouter();
+  const params = useParams();
+  const condId = params.condId as string;
 
-  const rolesDisponiveis: Exclude<Role, 'Dono'>[] = ['Financeiro', 'RH']
+  const rolesDisponiveis: Exclude<Role, 'Dono'>[] = ['Financeiro', 'RH'];
 
-  const [open, setOpen] = useState(false)
-  const [isPending, setIsPending] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [isPending, setIsPending] = useState(false);
 
-  const [email, setEmail] = useState('')
-  const [role, setRole] = useState<Role>('Financeiro')
-  const [message, setMessage] = useState('')
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState<Role>('Financeiro');
+  const [message, setMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsPending(true)
+    e.preventDefault();
+    setIsPending(true);
 
     try {
       await inviteUser(condId, {
         email,
         role: role.toLowerCase(),
-      })
+      });
 
-      toast.success('Convite enviado com sucesso!')
+      toast.success('Convite enviado com sucesso!');
 
       // Limpa o formulário
-      setEmail('')
-      setRole('Financeiro')
-      setMessage('')
-      setOpen(false)
+      setEmail('');
+      setRole('Financeiro');
+      setMessage('');
+      setOpen(false);
 
       await new Promise((resolve) => setTimeout(resolve, 300));
 
-      router.refresh()
-      
-    } catch (error) {
-      toast.error('Erro ao enviar convite. Tente novamente.')
+      router.refresh();
+    } catch {
+      toast.error('Erro ao enviar convite. Tente novamente.');
     } finally {
-      setIsPending(false)
+      setIsPending(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -78,7 +77,7 @@ export function AddUserDialog() {
           Adicionar Usuário
         </Button>
       </DialogTrigger>
-      
+
       <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
           <DialogTitle>Adicionar Novo Usuário</DialogTitle>
@@ -88,7 +87,6 @@ export function AddUserDialog() {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          
           {/* E-mail */}
           <div className="grid gap-2">
             <Label htmlFor="email">E-mail</Label>
@@ -125,9 +123,9 @@ export function AddUserDialog() {
           {/* Mensagem Opcional */}
           <div className="grid gap-2">
             <Label htmlFor="message">Mensagem (opcional)</Label>
-            <Textarea 
-              id="message" 
-              placeholder="Olá! Junte-se à nossa equipe..." 
+            <Textarea
+              id="message"
+              placeholder="Olá! Junte-se à nossa equipe..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
             />
@@ -146,11 +144,11 @@ export function AddUserDialog() {
               disabled={isPending}
               className="bg-brand-blue"
             >
-              {isPending ? "Enviando..." : "Enviar Convite"}
+              {isPending ? 'Enviando...' : 'Enviar Convite'}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

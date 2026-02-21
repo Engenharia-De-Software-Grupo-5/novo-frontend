@@ -1,6 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table';
 
-import { User, UserSummary } from '@/types/user';
+import { User } from '@/types/user';
 
 import { StatusBadge } from '../../components/StatusBadge';
 import { UserTableRowActions } from './UserTableRowActions';

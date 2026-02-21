@@ -1,7 +1,7 @@
 "use client"
 
 import { useFormContext } from "react-hook-form"
-import { UploadCloud, FileText, Upload } from "lucide-react"
+import { Upload } from "lucide-react"
 import {
   FormControl,
   FormField,

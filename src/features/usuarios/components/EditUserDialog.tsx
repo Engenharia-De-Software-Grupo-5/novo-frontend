@@ -21,7 +21,7 @@ import {
 } from '@/features/components/ui/select';
 import { toast } from 'sonner';
 
-import { Role, User, UserSummary } from '@/types/user';
+import { Role, User } from '@/types/user';
 
 import { updateUser } from '../services/users.service';
 
@@ -73,7 +73,7 @@ export function EditUserDialog({
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Erro ao atualizar usuário');
     } finally {
       setIsPending(false);

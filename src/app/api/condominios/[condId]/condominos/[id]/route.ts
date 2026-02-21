@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { condominos } from '@/mocks/condominos';
-import { CondominoStatus } from '@/types/condomino';
 
 /**
  * @swagger
@@ -94,29 +93,25 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; id: string }> }
 ) {
- 
-    const { condId, id } = await params;
-    const rawBody = await request.text();
-  console.log("Raw Body:", rawBody);
+  const { id } = await params;
+  const rawBody = await request.text();
+  console.log('Raw Body:', rawBody);
 
- 
   const body = JSON.parse(rawBody);
-  
-  
+
   const novoStatus = body.status || body['status'];
 
   const index = condominos.findIndex((c) => String(c.id) === String(id));
 
   if (index !== -1) {
     if (novoStatus) {
-     
       condominos[index] = {
         ...condominos[index],
-        status: novoStatus
+        status: novoStatus,
       };
-      console.log("AGORA FOI! Novo status no array:", condominos[index].status);
+      console.log('AGORA FOI! Novo status no array:', condominos[index].status);
     } else {
-      console.log("ERRO FATAL: O status ainda é nulo. Conteúdo de body:", body);
+      console.log('ERRO FATAL: O status ainda é nulo. Conteúdo de body:', body);
     }
   }
 

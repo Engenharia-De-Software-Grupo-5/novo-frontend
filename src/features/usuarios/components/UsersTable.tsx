@@ -2,7 +2,7 @@
 
 import { DataTable } from '@/features/components/data-table';
 
-import { User, UserSummary } from '@/types/user';
+import { User } from '@/types/user';
 
 import {
   USER_COLUMN_LABELS,

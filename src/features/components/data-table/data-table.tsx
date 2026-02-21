@@ -1,5 +1,4 @@
 'use client';
-'use no memo';
 
 import * as React from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -63,6 +62,7 @@ export function DataTable<TData, TValue>({
   filterMappings = [],
   actions,
 }: DataTableProps<TData, TValue>) {
+  'use no memo';
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

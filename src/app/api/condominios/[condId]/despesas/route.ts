@@ -4,10 +4,7 @@ import { despesasDb } from '@/mocks/in-memory-db';
 import { DespesaDetail } from '@/types/despesa';
 import { FileAttachment } from '@/types/file';
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ condId: string }> }
-) {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '10');
@@ -58,10 +55,7 @@ export async function GET(
   });
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ condId: string }> }
-) {
+export async function POST(request: Request) {
   const contentType = request.headers.get('content-type') || '';
   let data: DespesaDetail;
   let anexos: FileAttachment[] = [];

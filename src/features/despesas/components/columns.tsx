@@ -5,7 +5,7 @@ import { DespesaSummary } from "@/types/despesa";
 import { DataTableColumnHeader } from "@/features/components/data-table/data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Badge } from "@/features/components/ui/badge";
-import { DESPESA_STATUS, DESPESA_TIPOS, FORMA_PAGAMENTO } from "../constants";
+import { DESPESA_TIPOS, FORMA_PAGAMENTO } from "../constants";
 
 export const columns: ColumnDef<DespesaSummary>[] = [
   {

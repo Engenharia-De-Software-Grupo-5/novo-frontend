@@ -58,7 +58,7 @@ import { toast } from 'sonner';
 import { useDebounce } from 'use-debounce';
 
 import { EmployeeSummary } from '@/types/employee';
-import { PaymentDetail, PaymentSummary, PaymentType } from '@/types/payment';
+import { PaymentDetail, PaymentType } from '@/types/payment';
 import { cn } from '@/lib/utils';
 
 import { PAYMENT_TYPES } from '../constants';
