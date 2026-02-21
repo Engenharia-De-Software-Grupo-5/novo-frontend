@@ -27,7 +27,7 @@ export const condominos: CondominoFull[] = [
       companyPhone: '1133334444',
       companyAddress: 'Av. Paulista, 1000',
       position: 'Desenvolvedor',
-      monthsWorking: '5',
+      monthsWorking: 5,
     },
 
     bankingInfo: {
@@ -99,7 +99,7 @@ export const condominos: CondominoFull[] = [
       companyPhone: '2133332222',
       companyAddress: 'Centro - RJ',
       position: 'Gerente Financeira',
-      monthsWorking: '10',
+      monthsWorking: 10,
     },
 
     bankingInfo: {

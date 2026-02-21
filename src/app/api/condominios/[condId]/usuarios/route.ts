@@ -72,7 +72,7 @@ export const fetchCache = 'force-no-store';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { condId: string } }
+  { params }: { params: Promise<{ condId: string }>  }
 ) {
   const { condId } =  await params;
 

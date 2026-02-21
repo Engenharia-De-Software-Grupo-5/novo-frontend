@@ -1,6 +1,5 @@
 import { getUsers } from "@/features/usuarios/services/users.service";
 import { UsersDataTable } from "@/features/usuarios/components/UsersTable";
-import { parseTableFilters } from "@/features/components/data-table/parse-table-filters";
 
 interface PageProps {
   params: Promise<{ condId: string }>; 

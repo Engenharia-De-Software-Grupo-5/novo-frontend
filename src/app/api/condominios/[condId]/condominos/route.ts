@@ -58,7 +58,7 @@ import { FileAttachment } from '@/types/file'
  *                       type: integer
  */
 export async function GET(  request: NextRequest,
-  { params }: { params: { condId: string }}
+  { params }: { params: Promise<{ condId: string }> }
 ) {
 
   const { condId } =  await params;
@@ -255,7 +255,7 @@ export async function GET(  request: NextRequest,
  */
 export async function POST(request: NextRequest) {
   let body: Partial<CondominoFull>;
-  // eslint-disable-next-line prefer-const
+
   const contentType = request.headers.get('content-type') || '';
   let uploadedFiles: FileAttachment[] = [];
 

@@ -4,11 +4,11 @@ import { DataTable } from "@/features/components/data-table"
 import { columns } from "./columns"
 import { USER_ROLES, USER_STATUSES, USER_COLUMN_LABELS } from "../utils/constants"
 import { AddUserDialog } from "./AddUserDialog"
-import { UserSummary } from "@/types/user"
+import { User } from "@/types/user"
 
 
 interface UsersDataTableProps {
-  data: UserSummary[];
+  data: User[];
   pageCount: number;
 }
 

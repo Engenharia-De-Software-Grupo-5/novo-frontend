@@ -1,9 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { UserSummary } from "@/types/user";
+import { User } from "@/types/user";
 import { StatusBadge } from "../../components/StatusBadge"; 
 import { UserTableRowActions } from "./UserTableRowActions"; 
 
-export const columns: ColumnDef<UserSummary>[] = [
+export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "name",
     header: "Nome",

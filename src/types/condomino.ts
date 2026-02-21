@@ -14,7 +14,7 @@ export interface ProfessionalInfo {
   companyPhone: string;
   companyAddress: string;
   position: string;
-  monthsWorking: string;
+  monthsWorking: number;
 }
 
 export interface BankingInfo {
@@ -102,8 +102,5 @@ export interface CondominosResponse {
     limit: number;
     totalPages: number;
   };
-  // totalItems: number;
-  // totalPages: number;
-  // page: number;
-  // limit: number;
+ 
 }
