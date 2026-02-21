@@ -24,9 +24,9 @@ import { Input } from '@/features/components/ui/input';
 import { MoreHorizontal, ScanEye, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { ContratoDetail, ContratoSummary } from '@/types/contrato';
+import { ContratoSummary } from '@/types/contrato';
 
-import { deleteContrato, getContratoById } from '../services/contratoService';
+import { deleteContrato } from '../services/contratoService';
 import { ViewContractDialog } from './view-contract-dialog';
 
 interface DataTableRowActionsProps {
@@ -36,9 +36,6 @@ interface DataTableRowActionsProps {
 export function DataTableRowActions({ contract }: DataTableRowActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showViewDialog, setShowViewDialog] = useState(false);
-  const [contractDetail, setContractDetail] = useState<ContratoDetail | null>(
-    null
-  );
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -47,17 +44,6 @@ export function DataTableRowActions({ contract }: DataTableRowActionsProps) {
   const condId = params?.condId as string;
 
   const canDelete = deleteConfirmation.trim().toLowerCase() === 'deletar contrato';
-
-  async function handleView() {
-    try {
-      const detail = await getContratoById(condId, contract.id);
-      setContractDetail(detail);
-      setShowViewDialog(true);
-    } catch (error) {
-      console.error('Error fetching contract details:', error);
-      toast.error('Erro ao carregar dados do contrato.');
-    }
-  }
 
   async function handleDelete() {
     if (!canDelete) {
@@ -92,7 +78,7 @@ export function DataTableRowActions({ contract }: DataTableRowActionsProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             className="flex items-center justify-between gap-2"
-            onSelect={handleView}
+            onSelect={() => setShowViewDialog(true)}
           >
             Visualizar
             <ScanEye className="h-4 w-4" />
@@ -108,14 +94,12 @@ export function DataTableRowActions({ contract }: DataTableRowActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {contractDetail && showViewDialog && (
+      {showViewDialog && (
         <ViewContractDialog
-          contract={contractDetail}
+          contractId={contract.id}
+          condId={condId}
           open={showViewDialog}
-          onOpenChange={(value) => {
-            setShowViewDialog(value);
-            if (!value) setContractDetail(null);
-          }}
+          onOpenChange={setShowViewDialog}
         />
       )}
 

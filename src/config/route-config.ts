@@ -5,6 +5,7 @@ export const ROUTE_CONFIG: Record<string, string> = {
   '/admin': 'Admin',
   '/usuarios': 'Gerenciar Usuários',
   '/contratos': 'Gerenciar Contratos',
+  '/contratos/novo': 'Adicionar Contrato',
   '/modelos': 'Modelos de Contratos',
   '/condominos': 'Gerenciar Condôminos',
   '/cobrancas': 'Cobranças',

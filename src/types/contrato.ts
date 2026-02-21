@@ -12,6 +12,17 @@ export interface ContratoSummary {
 
 export interface ContratoDetail extends ContratoSummary {
   condId: string;
+  renterName?: string;
+  renterCpf?: string;
+  renterPhone?: string;
+  renterEmail?: string;
+  secondProposerName?: string;
+  secondProposerCpf?: string;
+  rentValue?: number;
+  condoFee?: number;
+  iptuValue?: number;
+  tcrValue?: number;
+  additionalInfo?: string;
 }
 
 export interface ContratoResponse {

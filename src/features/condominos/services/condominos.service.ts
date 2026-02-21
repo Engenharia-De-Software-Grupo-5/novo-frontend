@@ -51,14 +51,11 @@ export async function getCondominoById(
   condominioId: string,
   condominoId: string
 ): Promise<CondominoFull> {
-  
-  const url = `${baseUrl}/api/condominios/${condominioId}/condominos/${condominoId}`;
-
-  const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Erro ao buscar detalhes do condômino');
-
-  const json = await res.json();
-  return json.data;
+  const response = await apiRequest<{ data: CondominoFull }>(
+    `/api/condominios/${condominioId}/condominos/${condominoId}`,
+    { method: 'GET' }
+  );
+  return response.data;
 }
 
 

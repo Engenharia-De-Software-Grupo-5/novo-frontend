@@ -5,7 +5,7 @@ import { DataTable } from '@/features/components/data-table';
 import { ContratoSummary } from '@/types/contrato';
 
 import { CONTRACT_COLUMN_LABELS, CONTRACT_STATUSES } from '../constants';
-import { AddContractDialog } from './add-contract-dialog';
+import { AddContractButton } from './add-contract-button';
 import { columns } from './columns';
 
 interface ContratosDataTableProps {
@@ -34,7 +34,7 @@ export function ContratosDataTable({ data, pageCount }: ContratosDataTableProps)
       ]}
       columnLabels={CONTRACT_COLUMN_LABELS}
       filterMappings={[{ columnId: 'tenantName' }, { columnId: 'status', isArray: true }]}
-      actions={<AddContractDialog />}
+      actions={<AddContractButton />}
     />
   );
 }
