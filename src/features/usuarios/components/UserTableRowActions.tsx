@@ -18,10 +18,11 @@ import {
 } from 'lucide-react';
 
 import { User } from '@/types/user';
+
+import { DeactivateUserDialog } from './DeactivateUserDialog';
+import { DeleteUserDialog } from './DeleteUserDialog';
 import { EditUserDialog } from './EditUserDialog';
 import { ViewUserDialog } from './ViewUserDialog';
-import { DeleteUserDialog } from './DeleteUserDialog';
-import { DeactivateUserDialog } from './DeactivateUserDialog';
 
 interface UserTableRowActionsProps {
   user: User;
@@ -36,7 +37,6 @@ export function UserTableRowActions({ user }: UserTableRowActionsProps) {
   const params = useParams();
   const condId = params?.condId as string;
   const isInactive = user.status === 'inativo' || user.status == 'pendente';
-
 
   return (
     <>
@@ -71,7 +71,6 @@ export function UserTableRowActions({ user }: UserTableRowActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-    
       <ViewUserDialog
         user={user}
         open={showViewDialog}
@@ -83,7 +82,6 @@ export function UserTableRowActions({ user }: UserTableRowActionsProps) {
         onOpenChange={setShowEditDialog}
         condominioId={condId}
       />
-
 
       <DeleteUserDialog
         user={user}

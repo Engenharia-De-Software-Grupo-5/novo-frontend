@@ -1,6 +1,6 @@
-import { FileAttachment } from "./file";
+import { FileAttachment } from './file';
 
-export type CondominoStatus = "ativo" | "inativo" | "pendente";
+export type CondominoStatus = 'ativo' | 'inativo' | 'pendente';
 
 // Tipos auxiliares para organizar o objeto principal
 export interface EmergencyContact {
@@ -14,7 +14,7 @@ export interface ProfessionalInfo {
   companyPhone: string;
   companyAddress: string;
   position: string;
-  monthsWorking: string;
+  monthsWorking: number;
 }
 
 export interface BankingInfo {
@@ -44,7 +44,6 @@ export interface CondominoDocuments {
   incomeProof?: FileAttachment;
 }
 
-
 /**
  * Objeto completo do Condômino (usado em Detalhes)
  */
@@ -71,8 +70,10 @@ export interface CondominoFull {
   status: CondominoStatus;
 }
 
-export interface CondominoCreateDTO
-  extends Omit<CondominoFull, 'id' | 'documents' | 'status'> {
+export interface CondominoCreateDTO extends Omit<
+  CondominoFull,
+  'id' | 'documents' | 'status'
+> {
   documents?: {
     rg?: File;
     cpf?: File;
@@ -81,7 +82,7 @@ export interface CondominoCreateDTO
 }
 
 /**
- * Interface específica para a Tabela 
+ * Interface específica para a Tabela
  */
 export interface CondominoSummary {
   id: string;

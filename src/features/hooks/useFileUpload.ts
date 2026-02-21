@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@/features/components/ui/sonner';
 
 import { FileAttachment } from '@/types/file';
 

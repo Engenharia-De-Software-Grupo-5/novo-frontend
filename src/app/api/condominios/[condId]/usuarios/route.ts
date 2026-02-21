@@ -72,9 +72,9 @@ export const fetchCache = 'force-no-store';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { condId: string } }
+  { params }: { params: Promise<{ condId: string }> }
 ) {
-  const { condId } =  await params;
+  const { condId } = await params;
 
   if (!condId) {
     return NextResponse.json({ error: 'ID não fornecido' }, { status: 400 });
@@ -99,18 +99,14 @@ export async function GET(
   const columnsArr = searchParams.getAll('columns');
   const contentArr = searchParams.getAll('content');
 
-
-
   const filterMap = new Map<string, string[]>();
 
-
-  
   console.log('=== DEBUG ===');
-console.log('columnsArr:', columnsArr);
-console.log('contentArr:', contentArr);
-console.log('filterMap:', Object.fromEntries(filterMap));
-console.log('users total:', users.length);
-console.log('primeiro user:', users[0]);
+  console.log('columnsArr:', columnsArr);
+  console.log('contentArr:', contentArr);
+  console.log('filterMap:', Object.fromEntries(filterMap));
+  console.log('users total:', users.length);
+  console.log('primeiro user:', users[0]);
 
   for (let i = 0; i < columnsArr.length; i++) {
     const col = columnsArr[i];
@@ -234,7 +230,6 @@ export async function POST(request: NextRequest) {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('Payload recebido:');
   console.log(body);
- 
 
   return NextResponse.json(
     { message: 'User created successfully', data: body },

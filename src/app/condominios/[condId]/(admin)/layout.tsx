@@ -7,6 +7,8 @@ import {
   SidebarTrigger,
 } from '@/features/components/ui/sidebar';
 
+import { auth } from '@/lib/auth';
+
 export default async function AdminLayout({
   children,
   params,
@@ -15,18 +17,20 @@ export default async function AdminLayout({
   params: Promise<{ condId: string }>;
 }) {
   const { condId } = await params;
+  const session = await auth();
+  const user = session?.user;
 
   return (
     <SidebarProvider defaultOpen={true}>
-        <AppSidebar condId={condId} />
-        <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <DynamicBreadcrumb />
-          </header>
-          <div className="p-4">{children}</div>
-        </SidebarInset>
+      <AppSidebar condId={condId} user={user} />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <DynamicBreadcrumb />
+        </header>
+        <div className="p-4">{children}</div>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

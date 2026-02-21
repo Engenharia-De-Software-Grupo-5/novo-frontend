@@ -1,14 +1,19 @@
-'use client'
+'use client';
 
-import { DataTable } from "@/features/components/data-table"
-import { columns } from "./columns"
-import { USER_ROLES, USER_STATUSES, USER_COLUMN_LABELS } from "../utils/constants"
-import { AddUserDialog } from "./AddUserDialog"
-import { UserSummary } from "@/types/user"
+import { DataTable } from '@/features/components/data-table';
 
+import { User, UserSummary } from '@/types/user';
+
+import {
+  USER_COLUMN_LABELS,
+  USER_ROLES,
+  USER_STATUSES,
+} from '../utils/constants';
+import { AddUserDialog } from './AddUserDialog';
+import { columns } from './columns';
 
 interface UsersDataTableProps {
-  data: UserSummary[];
+  data: User[];
   pageCount: number;
 }
 
@@ -24,7 +29,7 @@ export function UsersDataTable({ data, pageCount }: UsersDataTableProps) {
         {
           columnId: 'role',
           title: 'Cargo',
-          options: USER_ROLES.map(r => ({
+          options: USER_ROLES.map((r) => ({
             label: r.label,
             value: r.value,
           })),
@@ -32,7 +37,7 @@ export function UsersDataTable({ data, pageCount }: UsersDataTableProps) {
         {
           columnId: 'status',
           title: 'Status',
-          options: USER_STATUSES.map(s => ({
+          options: USER_STATUSES.map((s) => ({
             label: s.label,
             value: s.value,
           })),
