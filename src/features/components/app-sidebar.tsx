@@ -148,18 +148,8 @@ export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
     },
     {
       title: 'Despesas',
-      url: '#',
+      url: `/condominios/${id}/despesas`,
       icon: Receipt,
-      items: [
-        {
-          title: 'Condomínio',
-          url: `/condominios/${id}/despesas/condominio`,
-        },
-        {
-          title: 'Imóveis',
-          url: `/condominios/${id}/despesas/imoveis`,
-        },
-      ],
     },
   ];
 
