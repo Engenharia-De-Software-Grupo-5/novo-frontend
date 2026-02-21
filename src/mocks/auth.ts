@@ -1,14 +1,28 @@
 import { User } from '@/types/user';
 
-
-
-
-
-export const DONO_FAKE: User = {
-  id: 'DONO-001',
-  name: 'Dono Condomínio 001',
-  email: 'owner@condx.com',
+export const ADMIN_FAKE: User = {
+  id: 'ADMIN-001',
+  name: 'admin',
+  email: 'admin@condx.com',
+  role: 'Admin',
   status: 'ativo',
   inviteDate: '01-01-2024',
-  inviteDuration: '7 days',
+};
+
+export const FINANCEIRO_FAKE: User = {
+  id: 'FINANCEIRO-001',
+  name: 'financeiro',
+  email: 'financeiro@condx.com',
+  role: 'Financeiro',
+  status: 'ativo',
+  inviteDate: '01-01-2024',
+};
+
+export const RH_FAKE: User = {
+  id: 'RH-001',
+  name: 'rh',
+  email: 'rh@condx.com',
+  role: 'RH',
+  status: 'ativo',
+  inviteDate: '01-01-2024',
 };

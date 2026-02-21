@@ -3,6 +3,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --color-brand-blue: #1447e6;
+    --color-brand-white: #ffffff;
+    --color-brand-background: #f7f7f8;
+    --color-brand-dark: #09090b;
+    --color-brand-gray: #71717b;
+    --color-brand-blue-text: #eff6ff;
+    --color-brand-yellow-bg: #fcebdc;
+    --color-brand-red-light: #fde6e7;
+    --color-brand-red-vivid: #e7000b;
+}
+
+
 @theme inline {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
@@ -124,4 +137,119 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* =============================
+   TABLE BASE (reutilizável)
+============================= */
+
+.app-table-container {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background-color: #fff;
+}
+
+.app-table {
+  width: 100%;
+}
+
+/* Header */
+.app-table-header {
+  background-color: #f4f4f5;
+}
+
+.app-table-header th {
+  color: var(--brand-dark);
+}
+
+/* Rows */
+.app-table-row {
+  transition: background-color 0.2s ease;
+}
+
+.app-table-row:hover {
+  background-color: var(--muted);
+}
+
+/* =============================
+   COLUMNS
+============================= */
+
+.col-drag {
+  width: 32px;
+}
+
+.col-name {
+  width: 40%;
+  padding-left: 24px;
+}
+
+.col-actions {
+  width: 40px;
+  text-align: right;
+}
+
+.cell-name {
+  padding-left: 24px;
+  font-weight: 500;
+}
+
+.cell-muted {
+  color: var(--muted-foreground);
+}
+
+.cell-last-access {
+  font-size: 0.875rem;
+  color: var(--brand-dark);
+}
+
+/* =============================
+   BADGES
+============================= */
+
+.badge-role {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+}
+
+/* =============================
+   ICONS
+============================= */
+
+.icon-sm {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-brand {
+  color: var(--brand-dark);
+}
+
+/* =============================
+   DROPDOWN
+============================= */
+
+.dropdown-menu {
+  width: 176px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dropdown-danger {
+  color: var(--brand-red-vivid);
+}
+
+.dropdown-danger:focus {
+  color: var(--brand-red-vivid);
 }

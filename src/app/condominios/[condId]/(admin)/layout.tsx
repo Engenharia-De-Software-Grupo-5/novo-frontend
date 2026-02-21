@@ -1,4 +1,3 @@
-import { AuthProvider } from '@/contexts/AuthContext';
 import { AppSidebar } from '@/features/components/app-sidebar';
 import { DynamicBreadcrumb } from '@/features/components/dynamic-breadcrumb';
 import { Separator } from '@/features/components/ui/separator';
@@ -19,7 +18,6 @@ export default async function AdminLayout({
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <AuthProvider>
         <AppSidebar condId={condId} />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -29,7 +27,6 @@ export default async function AdminLayout({
           </header>
           <div className="p-4">{children}</div>
         </SidebarInset>
-      </AuthProvider>
     </SidebarProvider>
   );
 }
