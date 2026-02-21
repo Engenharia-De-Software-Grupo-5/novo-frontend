@@ -5,6 +5,8 @@ import { Toaster } from '@/features/components/ui/sonner';
 
 import './globals.css';
 
+import { SessionProvider } from 'next-auth/react';
+
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {

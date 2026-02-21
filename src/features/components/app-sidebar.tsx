@@ -63,6 +63,7 @@ interface NavItem {
   url: string;
   icon: React.ElementType;
   items?: NavSubItem[];
+  roles?: Role[];
 }
 
 export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
@@ -90,6 +91,7 @@ export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
       title: 'Admin',
       url: '#',
       icon: Terminal,
+      roles: ['Admin'] as Role[],
       items: [
         {
           title: 'Gerenciar Usuários',
@@ -161,53 +163,50 @@ export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
       <SidebarContent className="gap-0">
         <SidebarMenu className="mt-4 px-2">
           {items.map((item) => {
-            if (item.items) {
-              return (
-                <Collapsible
-                  key={item.title}
-                  asChild
-                  defaultOpen={false}
-                  className="group/collapsible"
-                >
-                  <SidebarMenuItem>
-                    <CollapsibleTrigger asChild>
-                      <SidebarMenuButton tooltip={item.title}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                      </SidebarMenuButton>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {item.items.map((subItem) => {
-                          const subItemNode = (
-                            <SidebarMenuSubItem key={subItem.title}>
-                              <SidebarMenuSubButton asChild>
-                                <Link href={subItem.url}>
-                                  <span>{subItem.title}</span>
-                                </Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
+            const itemNode = item.items ? (
+              <Collapsible
+                key={item.title}
+                asChild
+                defaultOpen={false}
+                className="group/collapsible"
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip={item.title}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {item.items.map((subItem) => {
+                        const subItemNode = (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton asChild>
+                              <Link href={subItem.url}>
+                                <span>{subItem.title}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        );
+                        if (subItem.roles) {
+                          return (
+                            <RoleGuard
+                              key={subItem.title}
+                              roles={subItem.roles}
+                            >
+                              {subItemNode}
+                            </RoleGuard>
                           );
-                          if (subItem.roles) {
-                            return (
-                              <RoleGuard
-                                key={subItem.title}
-                                roles={subItem.roles}
-                              >
-                                {subItemNode}
-                              </RoleGuard>
-                            );
-                          }
-                          return subItemNode;
-                        })}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  </SidebarMenuItem>
-                </Collapsible>
-              );
-            }
-            return (
+                        }
+                        return subItemNode;
+                      })}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            ) : (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <Link href={item.url}>
@@ -217,6 +216,16 @@ export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             );
+
+            if (item.roles) {
+              return (
+                <RoleGuard key={item.title} roles={item.roles}>
+                  {itemNode}
+                </RoleGuard>
+              );
+            }
+
+            return itemNode;
           })}
         </SidebarMenu>
       </SidebarContent>
