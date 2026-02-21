@@ -46,7 +46,7 @@ export interface CondominoDocuments {
 
 
 /**
- * Objeto completo do Condômino (usado em Detalhes e Edição)
+ * Objeto completo do Condômino (usado em Detalhes)
  */
 export interface CondominoFull {
   id: string;
@@ -79,7 +79,6 @@ export interface CondominoCreateDTO
     incomeProof?: File;
   };
 }
-
 
 /**
  * Interface específica para a Tabela 
