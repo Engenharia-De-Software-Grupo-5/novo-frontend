@@ -1,4 +1,4 @@
-export type Role = 'Financeiro' | 'RH' | 'Dono';
+export type Role = 'Financeiro' | 'RH' | 'Admin';
 export type Status = 'ativo' | 'inativo' | 'pendente';
 
 export interface User {

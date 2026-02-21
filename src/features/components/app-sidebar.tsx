@@ -40,12 +40,29 @@ import {
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 
+import { Role } from '@/types/user';
+
+import { RoleGuard } from './auth/RoleGuard';
+
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   condId?: string;
   user?: {
     name: string;
     email: string;
   };
+}
+
+interface NavSubItem {
+  title: string;
+  url: string;
+  roles?: Role[];
+}
+
+interface NavItem {
+  title: string;
+  url: string;
+  icon: React.ElementType;
+  items?: NavSubItem[];
 }
 
 export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
@@ -58,7 +75,7 @@ export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
     .join('')
     .substring(0, 2)
     .toUpperCase();
-  const getNavMain = (id: string) => [
+  const getNavMain = (id: string): NavItem[] => [
     {
       title: 'Dashboard',
       url: `/condominios/${id}/dashboard`,
@@ -118,10 +135,12 @@ export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
         {
           title: 'Gerenciar Funcionários',
           url: `/condominios/${id}/funcionarios`,
+          roles: ['RH', 'Admin'] as Role[],
         },
         {
           title: 'Pagamentos',
           url: `/condominios/${id}/pagamentos`,
+          roles: ['Financeiro', 'Admin'] as Role[],
         },
       ],
     },
@@ -170,15 +189,28 @@ export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <SidebarMenuSub>
-                        {item.items.map((subItem) => (
-                          <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton asChild>
-                              <Link href={subItem.url}>
-                                <span>{subItem.title}</span>
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
+                        {item.items.map((subItem) => {
+                          const subItemNode = (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton asChild>
+                                <Link href={subItem.url}>
+                                  <span>{subItem.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          );
+                          if (subItem.roles) {
+                            return (
+                              <RoleGuard
+                                key={subItem.title}
+                                roles={subItem.roles}
+                              >
+                                {subItemNode}
+                              </RoleGuard>
+                            );
+                          }
+                          return subItemNode;
+                        })}
                       </SidebarMenuSub>
                     </CollapsibleContent>
                   </SidebarMenuItem>
