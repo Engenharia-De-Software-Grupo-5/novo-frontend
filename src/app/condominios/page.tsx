@@ -106,6 +106,7 @@ export default function CondominiosPage() {
       setIsOpen(false);
       fetchCondominiums();
     } catch (error) {
+      console.error('Error saving condominio:', error);
       toast.error('Erro ao salvar condomínio');
     } finally {
       setIsLoading(false);
@@ -125,6 +126,7 @@ export default function CondominiosPage() {
       toast.success('Condomínio excluído com sucesso');
       fetchCondominiums();
     } catch (error) {
+      console.error('Error deleting condominio:', error);
       toast.error('Erro ao excluir condomínio');
     } finally {
       setIsDeleting(false);

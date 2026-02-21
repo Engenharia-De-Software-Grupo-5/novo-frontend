@@ -125,6 +125,7 @@ export function CondominiumSwitcher({ condId }: { condId?: string }) {
       setIsOpen(false);
       fetchCondominiums();
     } catch (error) {
+      console.error('Error saving condominio:', error);
       toast.error('Erro ao salvar condomínio');
     } finally {
       setIsLoading(false);
@@ -147,6 +148,7 @@ export function CondominiumSwitcher({ condId }: { condId?: string }) {
         router.push('/');
       }
     } catch (error) {
+      console.error('Error deleting condominio:', error);
       toast.error('Erro ao excluir condomínio');
     } finally {
       setIsDeleting(false);
