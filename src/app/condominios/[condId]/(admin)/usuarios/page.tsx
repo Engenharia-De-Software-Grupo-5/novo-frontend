@@ -12,19 +12,34 @@ export const revalidate = 0;
 
 export default async function UsersPage({ params, searchParams }: PageProps) {
 
-  const resolvedParams = await params;
+   const resolvedParams = await params;
   const sParams = await searchParams;
   const condId = resolvedParams.condId;
 
-  const filterMap = parseTableFilters(sParams);
+  const page = Number(sParams.page) || 1;
+  const limit = Number(sParams.limit) || 10;
+  const sort = sParams.sort as string | undefined;
 
+  const rawColumns = sParams.columns;
+  const rawContent = sParams.content;
+  const columnsArr = rawColumns
+    ? Array.isArray(rawColumns) ? rawColumns : [rawColumns]
+    : [];
+  const contentArr = rawContent
+    ? Array.isArray(rawContent) ? rawContent : [rawContent]
+    : [];
+
+    console.log('sParams:', sParams);
   const data = await getUsers(condId, {
-    page: Number(sParams.page) || 1,
-    limit: Number(sParams.limit) || 10,
-    search: sParams.q as string,
-    roles: filterMap.get('role') ?? [],
-    statuses: filterMap.get('status') ?? [],
+    page,
+    limit,
+    sort,
+    columns: columnsArr.length > 0 ? columnsArr : undefined,
+    content: contentArr.length > 0 ? contentArr : undefined,
   });
+
+
+
   
   return (
     <div className="flex h-full flex-1 flex-col space-y-8 p-4 md:p-8">    

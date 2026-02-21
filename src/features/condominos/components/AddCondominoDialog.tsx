@@ -16,7 +16,6 @@ export function AddCondominoDialog() {
   const params = useParams()
   const condominiumId = params?.condId as string
 
-  // Usamos o window.location.origin para o link ser dinâmico (localhost ou produção)
   const baseUrl = typeof window !== "undefined" ? window.location.origin : ""
   const preCadastroLink = `${baseUrl}/condominios/${condominiumId}/pre-cadastro`
 

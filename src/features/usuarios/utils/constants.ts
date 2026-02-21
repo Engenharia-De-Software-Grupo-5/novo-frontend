@@ -1,8 +1,8 @@
 import { ShieldCheck, UserCog, CheckCircle2, XCircle, Clock } from "lucide-react";
 
 export const USER_ROLES = [
-  { label: "Financeiro", value: "financeiro", icon: ShieldCheck },
-  { label: "RH", value: "rh", icon: UserCog },
+  { label: "Financeiro", value: "Financeiro", icon: ShieldCheck },
+  { label: "RH", value: "RH", icon: UserCog },
 ];
 
 export const USER_STATUSES = [

@@ -21,8 +21,10 @@ export interface UserSummary {
 
 export interface UsersResponse {
   items: UserSummary[];
-  totalItems: number;
-  totalPages: number;
-  page: number;
-  limit: number;
+   meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }

@@ -1,5 +1,6 @@
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 import {
+  CondominoCreateDTO,
   CondominoFull,
   CondominosResponse
 } from '@/types/condomino';
@@ -66,53 +67,50 @@ export async function getCondominoById(
 }
 
 
-// export async function createCondomino(
-//   condominioId: string,
-//   data: CondominoCreateDTO
-// ) {
+export async function createCondomino(
+  condominioId: string,
+  data: CondominoCreateDTO
+) {
  
-//   const formData = new FormData();
+  const formData = new FormData();
 
-//   const { documents, ...rest } = data;
+  const { documents, ...rest } = data;
+  formData.append('data', JSON.stringify(rest));
 
-//   // JSON principal
-//   formData.append('data', JSON.stringify(rest));
+  if (documents) {
+    if (documents.rg instanceof File) {
+      formData.append('files', documents.rg);
+    }
 
-//   // Arquivos separados
-//   if (documents) {
-//     if (documents.rg instanceof File) {
-//       formData.append('files', documents.rg);
-//     }
+    if (documents.cpf instanceof File) {
+      formData.append('files', documents.cpf);
+    }
 
-//     if (documents.cpf instanceof File) {
-//       formData.append('files', documents.cpf);
-//     }
-
-//     if (documents.incomeProof instanceof File) {
-//       formData.append('files', documents.incomeProof);
-//     }
-//   }
+    if (documents.incomeProof instanceof File) {
+      formData.append('files', documents.incomeProof);
+    }
+  }
 
 
-//   const url = `${baseUrl}/api/condominios/${condominioId}/condominos`;
-//   const response = await fetch(url, {
-//     method: 'POST',
-//     body: formData,
-//   });
+  const url = `${baseUrl}/api/condominios/${condominioId}/condominos`;
+  const response = await fetch(url, {
+    method: 'POST',
+    body: formData,
+  });
 
-//   console.log('STATUS:', response.status);
+  console.log('STATUS:', response.status);
 
-//   if (!response.ok) {
-//     const errorText = await response.text();
-//     console.error('API ERROR:', errorText);
-//     throw new Error('Erro ao criar condômino');
-//   }
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('API ERROR:', errorText);
+    throw new Error('Erro ao criar condômino');
+  }
 
-//   const result = await response.json();
-//   console.log('API SUCCESS:', result);
+  const result = await response.json();
+  console.log('API SUCCESS:', result);
 
-//   return result;
-// }
+  return result;
+}
 
 /**
  * ATUALIZAÇÃO GENÉRICA (Padrão igual ao de usuários)

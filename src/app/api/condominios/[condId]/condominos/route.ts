@@ -57,33 +57,98 @@ import { FileAttachment } from '@/types/file'
  *                     totalPages:
  *                       type: integer
  */
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
+export async function GET(  request: NextRequest,
+  { params }: { params: { condId: string }}
+) {
 
-  const condId = request.nextUrl.pathname.split('/')[3];
+  const { condId } =  await params;
+
+  if (!condId) {
+    return NextResponse.json({ error: 'ID não fornecido' }, { status: 400 });
+  }
+
+  const searchParams = request.nextUrl.searchParams;
 
   const page = Number(searchParams.get('page') ?? 1);
   const limit = Number(searchParams.get('limit') ?? 10);
-  const search = searchParams.get('q')?.toLowerCase();
 
-  // lê status direto, que é o que o service envia
-  const statusFilters = searchParams.getAll('status').map(s => s.toLowerCase());
+  const sortParam = searchParams.get('sort');
+  let sortField = sortParam;
+  let sortOrder = searchParams.get('order') || 'asc';
 
-  let filtered = condominos.filter(c => c.condominiumId === condId);
-
-  if (search) {
-    filtered = filtered.filter(
-      c => c.name.toLowerCase().includes(search) || c.cpf.includes(search)
-    );
+  if (sortParam && sortParam.includes('.')) {
+    const [field, order] = sortParam.split('.');
+    sortField = field;
+    sortOrder = order;
   }
 
-  if (statusFilters.length > 0) {
-    filtered = filtered.filter(c =>
-      statusFilters.includes(c.status.toLowerCase())
-    );
+
+  const columnsArr = searchParams.getAll('columns');
+  const contentArr = searchParams.getAll('content');
+
+  const filterMap = new Map<string, string[]>();
+
+  for (let i = 0; i < columnsArr.length; i++) {
+    const col = columnsArr[i];
+    const val = contentArr[i];
+
+    if (col && val !== undefined) {
+      if (!filterMap.has(col)) {
+        filterMap.set(col, []);
+      }
+      filterMap.get(col)!.push(val);
+    }
   }
 
-  const mapped: CondominoSummary[] = filtered.map(m => ({
+  // primeiro filtra pelo condomínio
+  let filtered = condominos.filter(
+    c => c.condominiumId === condId
+  );
+
+  // aplica filtros dinamicamente
+  for (const [col, values] of filterMap.entries()) {
+    if (col === 'name') {
+      const searchLower = values[0].toLowerCase();
+      filtered = filtered.filter(c =>
+        c.name.toLowerCase().includes(searchLower)
+      );
+    } else if (col === 'cpf') {
+      const searchLower = values[0].toLowerCase();
+      filtered = filtered.filter(c =>
+        c.cpf.toLowerCase().includes(searchLower)
+      );
+    } else {
+      filtered = filtered.filter(c => {
+        const fieldValue = c[col as keyof typeof c];
+        if (fieldValue === undefined) return false;
+
+        return values.some(
+          v => String(fieldValue).toLowerCase() === v.toLowerCase()
+        );
+      });
+    }
+  }
+
+  // 🔹 ordenação
+  const sorted = [...filtered];
+
+  if (sortField) {
+    sorted.sort((a, b) => {
+      const fieldA = a[sortField as keyof typeof a];
+      const fieldB = b[sortField as keyof typeof b];
+
+      if (fieldA === undefined && fieldB === undefined) return 0;
+      if (fieldA === undefined) return 1;
+      if (fieldB === undefined) return -1;
+
+      if (fieldA < fieldB) return sortOrder === 'asc' ? -1 : 1;
+      if (fieldA > fieldB) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  // map para summary
+  const mapped: CondominoSummary[] = sorted.map(m => ({
     id: m.id,
     name: m.name,
     email: m.email,

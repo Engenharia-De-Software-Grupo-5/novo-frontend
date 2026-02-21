@@ -59,6 +59,8 @@ export function AddUserDialog() {
       setMessage('')
       setOpen(false)
 
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
       router.refresh()
       
     } catch (error) {

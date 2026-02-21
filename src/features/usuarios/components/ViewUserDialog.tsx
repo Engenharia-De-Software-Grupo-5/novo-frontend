@@ -13,11 +13,14 @@ import { Label } from '@radix-ui/react-dropdown-menu';
 import { toast } from 'sonner';
 
 import { User } from '@/types/user';
+import { useParams, useRouter } from 'next/navigation';
+import { inviteUser } from '../services/users.service';
+import { useState } from 'react';
 
 interface ViewUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user: User | null;
+  user: User;
 }
 
 export function ViewUserDialog({
@@ -25,15 +28,35 @@ export function ViewUserDialog({
   onOpenChange,
   user,
 }: ViewUserDialogProps) {
-  if (!user) return null;
+  const router = useRouter();
+  const params = useParams();
+  const condId = params?.condId as string;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success('Convite enviado com sucesso!');
-    onOpenChange(false);
-  };
-
+  const [isPending, setIsPending] = useState(false);
   const isPendente = user.status === 'pendente';
+
+  const handleResendInvite = async () => {
+    if (!condId) return;
+
+    try {
+      setIsPending(true);
+
+      await inviteUser(condId, {
+        email: user.email,
+        role: user.role.toLowerCase(),
+      });
+      
+      onOpenChange(false);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      
+      toast.success('Convite reenviado com sucesso!');
+      router.refresh();
+    } catch (error) {
+      toast.error('Erro ao reenviar convite. Tente novamente.');
+    } finally {
+      setIsPending(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -47,65 +70,62 @@ export function ViewUserDialog({
         </DialogHeader>
 
         <div className="grid gap-4 py-4 text-sm">
-          {/* Nome */}
           <div>
             <Label>Nome</Label>
-            <div className="text-muted-foreground border-input bg-background h-10 rounded-md border px-3 py-2 text-sm">
+            <div className="text-muted-foreground border-input bg-background h-10 rounded-md border px-3 py-2">
               {user.name}
             </div>
           </div>
 
-          {/* Email */}
           <div>
             <Label>E-mail</Label>
-            <div className="text-muted-foreground border-input bg-background h-10 rounded-md border px-3 py-2 text-sm">
+            <div className="text-muted-foreground border-input bg-background h-10 rounded-md border px-3 py-2">
               {user.email}
             </div>
           </div>
 
-          {/* Cargo e Status */}
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-1">
               <Label>Cargo</Label>
-              <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2 text-sm">
+              <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2">
                 {user.role}
               </div>
             </div>
 
             <div className="grid gap-1">
               <Label>Status</Label>
-              <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2 text-sm capitalize">
+              <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2 capitalize">
                 {user.status}
               </div>
             </div>
           </div>
 
-          
           {isPendente && (
-            <>
-              <div className="grid grid-cols-1 gap-4">
-                <div className="grid gap-1">
-                  <Label>Convite enviado em</Label>
-                  <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2 text-sm">
-                    {user.inviteDate}
-                  </div>
-                </div>
+            <div className="grid gap-1">
+              <Label>Convite enviado em</Label>
+              <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2">
+                {user.inviteDate ?? '-'}
               </div>
-            </>
+            </div>
           )}
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
             Fechar
           </Button>
 
           {isPendente && (
             <Button
               className="bg-brand-blue hover:bg-blue-900"
-              onClick={handleSubmit}
+              onClick={handleResendInvite}
+              disabled={isPending}
             >
-              Reenviar convite
+              {isPending ? 'Reenviando...' : 'Reenviar convite'}
             </Button>
           )}
         </DialogFooter>

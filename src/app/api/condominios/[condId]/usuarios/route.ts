@@ -69,11 +69,12 @@ export const fetchCache = 'force-no-store';
  *                     totalPages:
  *                       type: integer
  */
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ condId: string }> }
+  { params }: { params: { condId: string } }
 ) {
-  const { condId } = await params;
+  const { condId } =  await params;
 
   if (!condId) {
     return NextResponse.json({ error: 'ID não fornecido' }, { status: 400 });
@@ -85,23 +86,65 @@ export async function GET(
   const limit = parseInt(searchParams.get('limit') || '20');
 
   const sortParam = searchParams.get('sort');
-  const [sortField, sortOrder] = sortParam?.split('.') ?? [];
+  let sortField = sortParam;
+  let sortOrder = searchParams.get('order') || 'asc';
 
-  const roleFilters = searchParams.getAll('roles').map(r => r.toLowerCase());
-  const statusFilters = searchParams.getAll('status').map(s => s.toLowerCase());
-
-  let filteredUsers = users;
-
-  if (roleFilters.length > 0) {
-    filteredUsers = filteredUsers.filter(u =>
-      roleFilters.includes(u.role.toLowerCase())
-    );
+  if (sortParam && sortParam.includes('.')) {
+    const [field, order] = sortParam.split('.');
+    sortField = field;
+    sortOrder = order;
   }
 
-  if (statusFilters.length > 0) {
-    filteredUsers = filteredUsers.filter(u =>
-      statusFilters.includes(u.status.toLowerCase())
-    );
+  // columns[] + content[] (contrato da DataTable)
+  const columnsArr = searchParams.getAll('columns');
+  const contentArr = searchParams.getAll('content');
+
+
+
+  const filterMap = new Map<string, string[]>();
+
+
+  
+  console.log('=== DEBUG ===');
+console.log('columnsArr:', columnsArr);
+console.log('contentArr:', contentArr);
+console.log('filterMap:', Object.fromEntries(filterMap));
+console.log('users total:', users.length);
+console.log('primeiro user:', users[0]);
+
+  for (let i = 0; i < columnsArr.length; i++) {
+    const col = columnsArr[i];
+    const val = contentArr[i];
+
+    if (col && val !== undefined) {
+      if (!filterMap.has(col)) {
+        filterMap.set(col, []);
+      }
+      filterMap.get(col)!.push(val);
+    }
+  }
+
+  let filteredUsers = [...users];
+
+  console.log('filteredUsers:', filteredUsers.length);
+
+  // Aplicar filtros dinamicamente
+  for (const [col, values] of filterMap.entries()) {
+    if (col === 'name') {
+      const searchLower = values[0].toLowerCase();
+      filteredUsers = filteredUsers.filter((u) =>
+        u.name.toLowerCase().includes(searchLower)
+      );
+    } else {
+      filteredUsers = filteredUsers.filter((u) => {
+        const fieldValue = u[col as keyof typeof u];
+        if (fieldValue === undefined) return false;
+
+        return values.some(
+          (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
+        );
+      });
+    }
   }
 
   const sortedUsers = [...filteredUsers];
@@ -110,26 +153,36 @@ export async function GET(
     sortedUsers.sort((a, b) => {
       const fieldA = a[sortField as keyof typeof a];
       const fieldB = b[sortField as keyof typeof b];
-      if (fieldA < fieldB) return sortOrder === 'desc' ? 1 : -1;
-      if (fieldA > fieldB) return sortOrder === 'desc' ? -1 : 1;
+
+      if (fieldA === undefined && fieldB === undefined) return 0;
+      if (fieldA === undefined) return 1;
+      if (fieldB === undefined) return -1;
+
+      if (fieldA < fieldB) return sortOrder === 'asc' ? -1 : 1;
+      if (fieldA > fieldB) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
   }
 
-  const startIndex = (page - 1) * limit;
-  const paginatedUsers = sortedUsers.slice(startIndex, startIndex + limit);
+  const totalItems = filteredUsers.length;
+  const totalPages = Math.ceil(totalItems / limit);
+  const safePage = Math.max(1, Math.min(page, totalPages || 1));
+
+  const startIndex = (safePage - 1) * limit;
+  const endIndex = startIndex + limit;
+
+  const paginatedUsers = sortedUsers.slice(startIndex, endIndex);
 
   return NextResponse.json({
     data: paginatedUsers,
     meta: {
-      total: filteredUsers.length,
-      page,
+      total: totalItems,
+      page: safePage,
       limit,
-      totalPages: Math.ceil(filteredUsers.length / limit),
+      totalPages,
     },
   });
 }
-
 /**
  * @swagger
  * /api/condominios/{condId}/users:
@@ -174,7 +227,14 @@ export async function GET(
  */
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as User;
-  console.log('Received user data:', body);
+
+  console.log('\n');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('CONVITE SERÁ ENVIADO PELO BACKEND');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('Payload recebido:');
+  console.log(body);
+ 
 
   return NextResponse.json(
     { message: 'User created successfully', data: body },

@@ -13,9 +13,9 @@ import { PersonalDataSection } from '@/features/form/components/PersonalDataSect
 import { ProfessionalInfoSection } from '@/features/form/components/ProfessionalInfoSection';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useParams, useRouter } from 'next/navigation';
 import * as z from 'zod';
 import { createCondomino } from '@/features/condominos/services/condominos.service';
-import { useParams, useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   // --- DADOS PESSOAIS ---
@@ -26,7 +26,8 @@ const formSchema = z.object({
   // RG: Aceita letras (alguns estados têm letras) mas remove pontos/traços
   rg: z
     .string()
-    .min(1, 'RG é obrigatório')
+    .min(7, 'RG deve ter no mínimo 7 dígitos')
+    .max(9, "RG deve ter no máximo 9 dígitos")
     .transform((val) => val.replace(/[^a-zA-Z0-9]/g, '')),
 
   issuingAuthority: z.string().min(1, 'Órgão expedidor é obrigatório'),
@@ -168,7 +169,6 @@ type PreCadastroFormData = z.infer<typeof formSchema>;
 export default function PreCadastroForm() {
   const params = useParams();
   const router = useRouter();
-  console.log('PARAMS:', params); // veja o que vem aqui
   const condominiumId = params.condId;
 
   const form = useForm<PreCadastroFormData>({

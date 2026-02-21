@@ -39,7 +39,7 @@ export function DeleteCondominoDialog({
   const handleConfirm = async () => {
     setIsPending(true)
     try {
-      // Usando o service que criamos
+    
       await deleteCondomino(condominioId, condomino.id)
       
       onOpenChange(false)
@@ -47,7 +47,6 @@ export function DeleteCondominoDialog({
       
       await new Promise((resolve) => setTimeout(resolve, 300));
       
-      // Revalida os dados da tabela no servidor
       router.refresh()
     } catch (error) {
       toast.error('Erro ao excluir condômino')
@@ -60,7 +59,6 @@ export function DeleteCondominoDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="items-center text-center">
-          {/* Ícone mantido */}
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
             <Trash2 className="h-6 w-6" />
           </div>

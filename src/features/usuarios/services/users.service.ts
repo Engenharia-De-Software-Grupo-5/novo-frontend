@@ -1,71 +1,68 @@
-import {UpdateUserPayload } from "./users";
-
-import { apiRequest, buildQueryString } from '@/lib/api-client';
 import { UsersResponse } from '@/types/user';
+import { apiRequest, buildQueryString } from '@/lib/api-client';
 
-interface GetUsersParams {
-  page: number;
-  limit: number;
-  search?: string;
-  roles?: string[];
-  statuses?: string[];
-}
+import { UpdateUserPayload } from './users';
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-export async function getUsers(
-  condominioId: string,
-  params: GetUsersParams
-): Promise<UsersResponse> {
-  if (!condominioId || condominioId === 'undefined') {
-    throw new Error('Condomínio ID é obrigatório');
+export const getUsers = async (
+  condId: string,
+  params?: {
+    page?: number;
+    limit?: number;
+    columns?: string[];
+    content?: string[];
+    sort?: string;
   }
+): Promise<UsersResponse> => {
+  try {
+    const queryParams: Record<string, string | number | string[] | undefined> = {
+      page: params?.page,
+      limit: params?.limit,
+      sort: params?.sort,
+    };
+
+    if (params?.columns && params?.content && params.columns.length > 0) {
+      queryParams.columns = params.columns;
+      queryParams.content = params.content;
+    }
+
+    console.log(queryParams);
+    const query = buildQueryString(queryParams);
 
   
-  const queryString = buildQueryString({
-    page: params.page,
-    limit: params.limit,
-    search: params.search,
-    roles: params.roles, 
-    status: params.statuses,
-  });
 
-  
-  const url = `${baseUrl}/api/condominios/${condominioId}/usuarios${queryString}`;
-  
-  const res = await fetch(url, { cache: 'no-store' });
-
-  if (!res.ok) {
-    throw new Error('Erro ao buscar usuários');
+    return await apiRequest<UsersResponse>(`/api/condominios/${condId}/usuarios${query}`, {
+      method: 'GET',
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return {
+      items: [],
+      meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
+    };
   }
+};
 
-  const json = await res.json();
-
-  return {
-    items: json.data,
-    totalItems: json.meta.total,
-    totalPages: json.meta.totalPages,
-    page: json.meta.page,
-    limit: json.meta.limit,
-  };
-}
 
 export async function inviteUser(
-  condominioId: string, 
-  data: { email: string; role: string;}
+  condominioId: string,
+  data: { email: string; role: string }
 ) {
- 
   return apiRequest(`/api/condominios/${condominioId}/usuarios`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
 
-
 /**
  * ATUALIZAÇÃO (PUT ou PATCH)
  */
-export async function updateUser(condominioId: string, userId: string, data: UpdateUserPayload) {
+export async function updateUser(
+  condominioId: string,
+  userId: string,
+  data: UpdateUserPayload
+) {
   return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
@@ -82,7 +79,6 @@ export async function changeUserStatus(
     body: JSON.stringify({ status }),
   });
 }
-
 
 /**
  * EXCLUSÃO

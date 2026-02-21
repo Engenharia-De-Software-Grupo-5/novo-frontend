@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation';
 import {
   MoreVertical,
   ScanEye,
-  PencilLine,
   Trash2,
   Flag,
   FlagOff,
@@ -37,7 +36,7 @@ export function CondominoTableRowActions({
 
   const params = useParams();
   const condId = params?.condId as string;
-  const isInactive = condomino.status === 'inativo';
+  const isInactive = condomino.status === 'inativo' || condomino.status == 'pendente';
 
   return (
     <>
