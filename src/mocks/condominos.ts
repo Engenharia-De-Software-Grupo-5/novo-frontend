@@ -16,18 +16,20 @@ export const condominos: CondominoFull[] = [
     primaryPhone: '11999999999',
     address: 'Rua das Flores, 123 - São Paulo',
 
-    emergencyContacts: [ {
-      name: 'Maria Silva',
-      relationship: 'Mãe',
-      phone: '11888888888',
-    }],
+    emergencyContacts: [
+      {
+        name: 'Maria Silva',
+        relationship: 'Mãe',
+        phone: '11888888888',
+      },
+    ],
 
     professionalInfo: {
       companyName: 'Tech Solutions',
       companyPhone: '1133334444',
       companyAddress: 'Av. Paulista, 1000',
       position: 'Desenvolvedor',
-      monthsWorking: '5',
+      monthsWorking: 5,
     },
 
     bankingInfo: {
@@ -45,7 +47,7 @@ export const condominos: CondominoFull[] = [
       },
     ],
 
-      documents: {
+    documents: {
       rg: {
         id: 'file-rg-1',
         name: 'joao-rg.pdf',
@@ -88,18 +90,20 @@ export const condominos: CondominoFull[] = [
     secondaryPhone: '21888888888',
     address: 'Rua Atlântica, 456 - Rio de Janeiro',
 
-    emergencyContacts:[ {
-      name: 'Carlos Costa',
-      relationship: 'Esposo',
-      phone: '21777777777',
-    }],
+    emergencyContacts: [
+      {
+        name: 'Carlos Costa',
+        relationship: 'Esposo',
+        phone: '21777777777',
+      },
+    ],
 
     professionalInfo: {
       companyName: 'Finance Corp',
       companyPhone: '2133332222',
       companyAddress: 'Centro - RJ',
       position: 'Gerente Financeira',
-      monthsWorking: '10',
+      monthsWorking: 10,
     },
 
     bankingInfo: {
@@ -119,7 +123,7 @@ export const condominos: CondominoFull[] = [
 
     additionalResidents: [],
 
-      documents: {
+    documents: {
       rg: {
         id: 'file-rg-1',
         name: 'joao-rg.pdf',
