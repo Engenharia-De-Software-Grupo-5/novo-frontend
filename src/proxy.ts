@@ -67,6 +67,13 @@ import { NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
 
+import { Role } from './types/user';
+
+interface routerMap {
+  match: (path: string) => boolean;
+  allowedRoles: Role[];
+}
+
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
@@ -85,7 +92,7 @@ export default auth((req) => {
   }
 
   // Autorização por role e status (Rotas Privadas)
-  const userRole = req.auth?.user.role as string;
+  const userRole = req.auth?.user.role as Role;
   const userStatus = req.auth?.user.status as string;
 
   if (!userRole || !userStatus) {
@@ -101,7 +108,7 @@ export default auth((req) => {
   }
 
   // Definição das regras de acesso baseadas na rota
-  const routeAccessMap = [
+  const routeAccessMap: routerMap[] = [
     {
       match: (path: string) =>
         path.includes('/pagamentos') || path.includes('/financeiro'),

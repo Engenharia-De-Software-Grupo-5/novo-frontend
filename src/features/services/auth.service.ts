@@ -1,5 +1,5 @@
 // src/services/auth.service.ts
-import { ADMIN_FAKE } from '@/mocks/auth';
+import { ADMIN_FAKE, FINANCEIRO_FAKE, RH_FAKE } from '@/mocks/auth';
 
 import { User } from '@/types/user';
 
@@ -7,6 +7,12 @@ export async function login(email: string, password: string): Promise<User> {
   // senha mock
   if (email === ADMIN_FAKE.email && password === '123456') {
     return ADMIN_FAKE;
+  }
+  if (email === FINANCEIRO_FAKE.email && password === '123456') {
+    return FINANCEIRO_FAKE;
+  }
+  if (email === RH_FAKE.email && password === '123456') {
+    return RH_FAKE;
   }
 
   throw new Error('Invalid credentials');
