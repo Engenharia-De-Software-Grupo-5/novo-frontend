@@ -8,7 +8,6 @@ export interface User {
   role: Role;
   status: Status;
   inviteDate: string;
-  inviteDuration: '1 day' | '3 days' | '7 days';
 }
 
 export interface UserSummary {
@@ -18,7 +17,6 @@ export interface UserSummary {
   role: Role;
   status: Status;
   createdAt: string;
-  lastAccess?: string;  // Perguntar se pode excluir isso
 }
 
 export interface UsersResponse {

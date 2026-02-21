@@ -35,7 +35,7 @@ export function UserTableRowActions({ user }: UserTableRowActionsProps) {
 
   const params = useParams();
   const condId = params?.condId as string;
-  const isInactive = user.status === 'inativo';
+  const isInactive = user.status === 'inativo' || user.status == 'pendente';
 
 
   return (

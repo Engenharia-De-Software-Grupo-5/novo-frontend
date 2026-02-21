@@ -80,48 +80,18 @@ export function ViewUserDialog({
             </div>
           </div>
 
-          {/* Se for pendente → mostra dados do convite */}
+          
           {isPendente && (
             <>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div className="grid gap-1">
                   <Label>Convite enviado em</Label>
                   <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2 text-sm">
                     {user.inviteDate}
                   </div>
                 </div>
-
-                <div className="grid gap-1">
-                  <Label>Convite expira em</Label>
-                  <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2 text-sm">
-                    {user.inviteDuration}
-                  </div>
-                </div>
               </div>
-
-              <p className="text-brand-red-vivid text-right text-xs">
-                * convite expirado
-              </p>
             </>
-          )}
-
-          {/* Se NÃO for pendente → mostra acessos */}
-          {!isPendente && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-1">
-                <Label>Primeiro acesso</Label>
-                <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2 text-sm">
-                  {user.firstAccess ?? '25-11-2025'}
-                </div>
-              </div>
-
-              <div className="grid gap-1">
-                <Label>Último acesso</Label>
-                <div className="text-muted-foreground border-input bg-muted h-10 rounded-md border px-3 py-2 text-sm">
-                  {user.lastAccess ?? '25-11-2025'}
-                </div>
-              </div>
-            </div>
           )}
         </div>
 

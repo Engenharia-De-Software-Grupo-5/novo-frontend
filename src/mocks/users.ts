@@ -8,7 +8,6 @@ export const users: User[] = [
     role: 'Financeiro',
     status: 'ativo',
     inviteDate: '01-10-2023',
-    inviteDuration: '1 day',
   },
   {
     id: '2',
@@ -17,7 +16,6 @@ export const users: User[] = [
     role: 'RH',
     status: 'pendente',
     inviteDate: '15-11-2023',
-    inviteDuration: '3 days',
   },
   {
     id: '3',
@@ -26,7 +24,6 @@ export const users: User[] = [
     role: 'Dono',
     status: 'inativo',
     inviteDate: '20-09-2023',
-    inviteDuration: '7 days',
   },
   {
     id: '4',
@@ -35,7 +32,6 @@ export const users: User[] = [
     role: 'Financeiro',
     status: 'ativo',
     inviteDate: '05-12-2023',
-    inviteDuration: '1 day',
   },
   {
     id: '5',
@@ -44,7 +40,6 @@ export const users: User[] = [
     role: 'RH',
     status: 'ativo',
     inviteDate: '10-10-2023',
-    inviteDuration: '3 days',
   },
   {
     id: '6',
@@ -53,7 +48,6 @@ export const users: User[] = [
     role: 'Dono',
     status: 'pendente',
     inviteDate: '25-11-2023',
-    inviteDuration: '7 days',
   },
   {
     id: '7',
@@ -62,7 +56,6 @@ export const users: User[] = [
     role: 'Financeiro',
     status: 'inativo',
     inviteDate: '30-08-2023',
-    inviteDuration: '1 day',
   },
   {
     id: '8',
@@ -71,7 +64,6 @@ export const users: User[] = [
     role: 'RH',
     status: 'ativo',
     inviteDate: '22-10-2023',
-    inviteDuration: '3 days',
   },
   {
     id: '9',
@@ -80,7 +72,6 @@ export const users: User[] = [
     role: 'Dono',
     status: 'pendente',
     inviteDate: '01-12-2023',
-    inviteDuration: '7 days',
   },
   {
     id: '10',
@@ -89,7 +80,6 @@ export const users: User[] = [
     role: 'Financeiro',
     status: 'ativo',
     inviteDate: '15-09-2023',
-    inviteDuration: '1 day',
   },
   {
     id: '11',
@@ -98,7 +88,6 @@ export const users: User[] = [
     role: 'RH',
     status: 'ativo',
     inviteDate: '10-11-2023',
-    inviteDuration: '3 days',
   },
   {
     id: '12',
@@ -107,7 +96,6 @@ export const users: User[] = [
     role: 'Dono',
     status: 'inativo',
     inviteDate: '20-07-2023',
-    inviteDuration: '7 days',
   },
   {
     id: '13',
@@ -116,7 +104,6 @@ export const users: User[] = [
     role: 'Financeiro',
     status: 'ativo',
     inviteDate: '05-10-2023',
-    inviteDuration: '1 day',
   },
   {
     id: '14',
@@ -125,7 +112,6 @@ export const users: User[] = [
     role: 'RH',
     status: 'pendente',
     inviteDate: '10-12-2023',
-    inviteDuration: '3 days',
   },
   {
     id: '15',
@@ -134,6 +120,5 @@ export const users: User[] = [
     role: 'Dono',
     status: 'ativo',
     inviteDate: '25-09-2023',
-    inviteDuration: '7 days',
   },
 ];

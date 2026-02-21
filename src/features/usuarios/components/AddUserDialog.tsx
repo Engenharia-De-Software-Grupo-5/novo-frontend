@@ -26,6 +26,7 @@ import { Role } from '@/types/user';
 import { inviteUser } from '../services/users.service';
 import { useParams, useRouter } from 'next/navigation';
 
+
 export function AddUserDialog() {
   const router = useRouter()
   const params = useParams()
@@ -38,7 +39,6 @@ export function AddUserDialog() {
 
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<Role>('Financeiro')
-  const [inviteDuration, setInviteDuration] = useState<number>(7)
   const [message, setMessage] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,23 +46,19 @@ export function AddUserDialog() {
     setIsPending(true)
 
     try {
-      // Chama o service diretamente (Lógica do Amigo)
       await inviteUser(condId, {
         email,
-        role: role.toLowerCase(), // Padroniza para bater com a API
-        inviteDuration: `${inviteDuration} days`,
+        role: role.toLowerCase(),
       })
 
       toast.success('Convite enviado com sucesso!')
-      
+
       // Limpa o formulário
       setEmail('')
       setRole('Financeiro')
-      setInviteDuration(7)
       setMessage('')
       setOpen(false)
 
-      // ATUALIZA A TABELA (Server Component)
       router.refresh()
       
     } catch (error) {
@@ -90,6 +86,7 @@ export function AddUserDialog() {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+          
           {/* E-mail */}
           <div className="grid gap-2">
             <Label htmlFor="email">E-mail</Label>
@@ -106,7 +103,10 @@ export function AddUserDialog() {
           {/* Cargo */}
           <div className="grid gap-2">
             <Label htmlFor="role">Cargo</Label>
-            <Select value={role.toLowerCase()} onValueChange={(v) => setRole(v as Role)}>
+            <Select
+              value={role.toLowerCase()}
+              onValueChange={(v) => setRole(v as Role)}
+            >
               <SelectTrigger id="role">
                 <SelectValue placeholder="Selecione um cargo" />
               </SelectTrigger>
@@ -116,24 +116,6 @@ export function AddUserDialog() {
                     {r}
                   </SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Validade */}
-          <div className="grid gap-2">
-            <Label htmlFor="expiry">Validade do convite</Label>
-            <Select
-              value={String(inviteDuration)}
-              onValueChange={(v) => setInviteDuration(Number(v))}
-            >
-              <SelectTrigger id="expiry">
-                <SelectValue placeholder="Selecione o prazo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7">7 dias</SelectItem>
-                <SelectItem value="14">14 dias</SelectItem>
-                <SelectItem value="21">21 dias</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -157,7 +139,11 @@ export function AddUserDialog() {
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isPending} className="bg-brand-blue">
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="bg-brand-blue"
+            >
               {isPending ? "Enviando..." : "Enviar Convite"}
             </Button>
           </DialogFooter>

@@ -52,21 +52,15 @@ export async function getUsers(
 
 export async function inviteUser(
   condominioId: string, 
-  data: { email: string; role: string; inviteDuration: string }
+  data: { email: string; role: string;}
 ) {
  
-  return apiRequest(`/api/condominios/${condominioId}/usuarios/invite`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
-}
-
-export async function createUser(condominioId: string, data: UpdateUserPayload) {
   return apiRequest(`/api/condominios/${condominioId}/usuarios`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
+
 
 /**
  * ATUALIZAÇÃO (PUT ou PATCH)

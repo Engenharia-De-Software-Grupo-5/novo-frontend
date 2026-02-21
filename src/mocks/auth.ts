@@ -7,5 +7,4 @@ export const DONO_FAKE: User = {
   role: 'Dono',
   status: 'ativo',
   inviteDate: '01-01-2024',
-  inviteDuration: '7 days',
 };

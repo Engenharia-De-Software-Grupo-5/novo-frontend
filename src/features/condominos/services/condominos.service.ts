@@ -13,6 +13,7 @@ interface GetCondominosParams {
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 export async function getCondominos(
   condominioId: string,
   params: GetCondominosParams

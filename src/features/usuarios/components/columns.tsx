@@ -22,11 +22,6 @@ export const columns: ColumnDef<UserSummary>[] = [
     cell: ({ row }) => <StatusBadge status={row.original.status} />,
   },
   {
-    accessorKey: "lastAccess",
-    header: "Último acesso",
-    cell: () => <span className="text-muted-foreground text-sm">Hoje</span>,
-  },
-  {
     id: "actions",
     cell: ({ row }) => <UserTableRowActions user={row.original} />,
   },

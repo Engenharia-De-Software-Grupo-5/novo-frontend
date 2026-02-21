@@ -8,11 +8,9 @@ export interface UsersResponse {
   limit: number;
 }
 
-
 export interface InviteUserPayload {
   email: string;
   role: string;
-  inviteDuration: string; // Ex: "7 days"
 }
 
 export interface UpdateUserPayload {

@@ -50,8 +50,8 @@ export function CondominoTableRowActions({
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             onSelect={(e) => {
-              e.preventDefault(); // IMPORTANTE
-              console.log('Abrindo Dialog para ID:', condomino.id); // Debug
+              e.preventDefault(); 
+              console.log('Abrindo Dialog para ID:', condomino.id); 
               setShowViewDialog(true);
             }}
           >
