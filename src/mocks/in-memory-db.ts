@@ -1,5 +1,6 @@
 import { mockCondominiums } from './condominiums';
 import { mockContractDetails } from './contratos';
+import { mockContractModelDetails } from './modelos-contrato';
 import { mockEmployeeDetails } from './employees';
 import { mockImoveis } from './imoveis';
 import { mockPaymentDetails } from './payments';
@@ -12,5 +13,6 @@ export const employeesDb = [...mockEmployeeDetails];
 export const condominiumsDb = [...mockCondominiums];
 export const paymentsDb = [...mockPaymentDetails];
 export const contractsDb = [...mockContractDetails];
+export const contractModelsDb = [...mockContractModelDetails];
 export const despesasDb  = [...mockDespesas];
 export const imoveisDb = [...mockImoveis];
