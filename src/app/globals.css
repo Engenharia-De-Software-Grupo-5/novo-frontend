@@ -5,16 +5,15 @@
 
 @theme {
   --color-brand-blue: #1447e6;
-    --color-brand-white: #ffffff;
-    --color-brand-background: #f7f7f8;
-    --color-brand-dark: #09090b;
-    --color-brand-gray: #71717b;
-    --color-brand-blue-text: #eff6ff;
-    --color-brand-yellow-bg: #fcebdc;
-    --color-brand-red-light: #fde6e7;
-    --color-brand-red-vivid: #e7000b;
+  --color-brand-white: #ffffff;
+  --color-brand-background: #f7f7f8;
+  --color-brand-dark: #09090b;
+  --color-brand-gray: #71717b;
+  --color-brand-blue-text: #eff6ff;
+  --color-brand-yellow-bg: #ffc796ff;
+  --color-brand-red-light: #fde6e7;
+  --color-brand-red-vivid: #e7000b;
 }
-
 
 @theme inline {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;

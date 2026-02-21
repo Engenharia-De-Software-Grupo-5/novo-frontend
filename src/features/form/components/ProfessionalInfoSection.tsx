@@ -118,7 +118,7 @@ export function ProfessionalInfoSection() {
                   min={0}
                   className="h-11 border-slate-200"
                   onChange={(e) => {
-                    const value = parseInt(e.target.value);
+                    const value = Number.parseInt(e.target.value);
 
                     if (value < 0) {
                       field.onChange(0);

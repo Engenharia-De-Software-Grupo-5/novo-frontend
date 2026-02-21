@@ -175,7 +175,9 @@ export function EditDespesaDialog({
                           step="0.01"
                           {...field}
                           onChange={(e) =>
-                            field.onChange(parseFloat(e.target.value) || 0)
+                            field.onChange(
+                              Number.parseFloat(e.target.value) || 0
+                            )
                           }
                         />
                       </FormControl>

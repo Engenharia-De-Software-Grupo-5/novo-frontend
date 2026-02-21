@@ -39,7 +39,7 @@ export const columns: ColumnDef<PaymentSummary>[] = [
       <DataTableColumnHeader column={column} title="Valor" />
     ),
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('value'));
+      const amount = Number.parseFloat(row.getValue('value'));
       const formatted = new Intl.NumberFormat('pt-BR', {
         style: 'currency',
         currency: 'BRL',

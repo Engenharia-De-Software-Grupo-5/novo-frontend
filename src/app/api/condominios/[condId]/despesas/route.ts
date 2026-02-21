@@ -6,8 +6,8 @@ import { FileAttachment } from '@/types/file';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '10');
+  const page = Number.parseInt(searchParams.get('page') || '1');
+  const limit = Number.parseInt(searchParams.get('limit') || '10');
   const columns =
     searchParams.getAll('columns').length > 0
       ? searchParams.getAll('columns')
