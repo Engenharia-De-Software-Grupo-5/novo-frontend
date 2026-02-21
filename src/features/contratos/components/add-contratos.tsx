@@ -3,6 +3,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import {
+  Calendar,
+  Check,
+  ChevronsUpDown,
+  FilePlus2,
+  FileText,
+  RefreshCcw,
+  Upload,
+} from 'lucide-react';
+import { toast } from 'sonner';
+
+import { CONTRACT_STATUSES } from '@/features/contratos/constants';
+import { postContrato } from '@/features/contratos/services/contratoService';
+import { getCondominoById } from '@/features/condominos/services/condominos.service';
 import { Button } from '@/features/components/ui/button';
 import {
   Card,
@@ -19,13 +33,17 @@ import {
   CommandItem,
   CommandList,
 } from '@/features/components/ui/command';
+import {
+  Field,
+  FieldDescription,
+  FieldLabel,
+} from '@/features/components/ui/field';
 import { Input } from '@/features/components/ui/input';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/features/components/ui/popover';
-import { Textarea } from '@/features/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -33,18 +51,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/features/components/ui/select';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/features/components/ui/tabs';
-import {
-  Field,
-  FieldDescription,
-  FieldLabel,
-} from '@/features/components/ui/field';
-import { Checkbox } from '@/features/components/ui/checkbox';
 import { Separator } from '@/features/components/ui/separator';
 import {
   Accordion,
@@ -52,15 +58,21 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/features/components/ui/accordion';
-import { Calendar, Check, ChevronsUpDown, FileText, RefreshCcw } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { CONTRACT_STATUSES } from '@/features/contratos/constants';
-import { postContrato } from '@/features/contratos/services/contratoService';
-import { getCondominoById } from '@/features/condominos/services/condominos.service';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/features/components/ui/tabs';
+import { Textarea } from '@/features/components/ui/textarea';
+import {
+  getModeloContratoById,
+  getModelosContrato,
+} from '@/features/modelos-contrato/services/modeloContratoService';
 import { CondominoFull, CondominoSummary } from '@/types/condomino';
 import { ContractStatus } from '@/types/contrato';
 import { ImovelSummary } from '@/types/imoveis';
+import { ModeloContratoInput, ModeloContratoSummary } from '@/types/modelo-contrato';
 import { cn } from '@/lib/utils';
 
 interface AddContratoProps {
@@ -103,9 +115,6 @@ interface TenantViewModel {
 
 const formatPropertyLabel = (property: ImovelSummary) =>
   `${property.idImovel} / ${property.name}`;
-
-const formatPropertyAddress = (property: ImovelSummary) =>
-  `${property.endereco} - ${property.bairro}, ${property.cidade}`;
 
 const formatBirthDate = (value: string) => {
   if (!value) return '-';
@@ -150,21 +159,52 @@ const mapCondominoToTenant = (condomino: CondominoFull): TenantViewModel => ({
   emergencyContacts: condomino.emergencyContacts || [],
 });
 
-export default function AddContratos({
-  condId,
-  properties,
-  tenants,
-}: AddContratoProps) {
+const normalizeGroup = (value?: string | null) => {
+  const normalized = (value || '').trim().toLowerCase();
+
+  if (normalized === 'second_proposer' || normalized === 'segundo-proponente') {
+    return 'segundo_proponente';
+  }
+
+  return normalized || 'geral';
+};
+
+const inputKeyMatches = (input: ModeloContratoInput, token: string) => {
+  const normalizedToken = token.toLowerCase();
+  return (
+    input.key.toLowerCase() === normalizedToken ||
+    `${normalizeGroup(input.group)}.${input.field}`.toLowerCase() === normalizedToken
+  );
+};
+
+const getTokenFromInput = (input: ModeloContratoInput) => {
+  if (input.key.includes('.')) return input.key;
+  const group = normalizeGroup(input.group);
+  return `${group}.${input.field || input.key}`;
+};
+
+export default function AddContratos({ condId, properties, tenants }: AddContratoProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSubmitAttempt, setHasSubmitAttempt] = useState(false);
 
   const [selectedPropertyId, setSelectedPropertyId] = useState('');
   const [selectedTenantId, setSelectedTenantId] = useState('');
-  const [hasSecondProposer, setHasSecondProposer] = useState(false);
-  const [selectedSecondProposerId, setSelectedSecondProposerId] = useState('');
   const [openProperty, setOpenProperty] = useState(false);
   const [openTenant, setOpenTenant] = useState(false);
+
+  const [creationMode, setCreationMode] = useState<'upload' | 'model' | ''>('');
+  const [contractPdf, setContractPdf] = useState<File | null>(null);
+
+  const [models, setModels] = useState<ModeloContratoSummary[]>([]);
+  const [openModel, setOpenModel] = useState(false);
+  const [modelId, setModelId] = useState('');
+  const [modelInputs, setModelInputs] = useState<ModeloContratoInput[]>([]);
+  const [modelInputValues, setModelInputValues] = useState<Record<string, string>>({});
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
+  const [isLoadingModelInputs, setIsLoadingModelInputs] = useState(false);
+
+  const [selectedSecondProposerId, setSelectedSecondProposerId] = useState('');
   const [openSecondProposer, setOpenSecondProposer] = useState(false);
 
   const [rentValue, setRentValue] = useState('');
@@ -201,10 +241,37 @@ export default function AddContratos({
     [selectedSecondProposerId, tenantDetailsById]
   );
 
+  const selectedModel = useMemo(
+    () => models.find((item) => item.id === modelId),
+    [models, modelId]
+  );
+
   const secondProposerOptions = useMemo(
     () => tenants.filter((item) => item.id !== selectedTenantId),
     [selectedTenantId, tenants]
   );
+
+  const modelInputsByGroup = useMemo(() => {
+    return modelInputs.reduce<Record<string, ModeloContratoInput[]>>((acc, input) => {
+      const group = normalizeGroup(input.group || input.key.split('.')[0]);
+      if (!acc[group]) acc[group] = [];
+      acc[group].push(input);
+      return acc;
+    }, {});
+  }, [modelInputs]);
+
+  const locadorInputs = modelInputsByGroup.locador || [];
+  const contractInputs = [
+    ...(modelInputsByGroup.contrato || []),
+    ...(modelInputsByGroup.financeiro || []),
+  ];
+  const secondProposerInputs = modelInputsByGroup.segundo_proponente || [];
+
+  const hasLocadorSection = creationMode === 'model' && locadorInputs.length > 0;
+  const hasSecondProposerSection =
+    creationMode === 'model' && secondProposerInputs.length > 0;
+
+  const listPath = `/condominios/${condId}/contratos`;
 
   const loadTenantDetails = useCallback(
     async (tenantId: string, kind: 'tenant' | 'secondProposer') => {
@@ -236,66 +303,297 @@ export default function AddContratos({
 
   useEffect(() => {
     if (!selectedTenantId) return;
-    loadTenantDetails(selectedTenantId, 'tenant');
+    void loadTenantDetails(selectedTenantId, 'tenant');
   }, [selectedTenantId, loadTenantDetails]);
 
   useEffect(() => {
     if (!selectedSecondProposerId) return;
-    loadTenantDetails(selectedSecondProposerId, 'secondProposer');
+    void loadTenantDetails(selectedSecondProposerId, 'secondProposer');
   }, [selectedSecondProposerId, loadTenantDetails]);
 
-  const listPath = `/condominios/${condId}/contratos`;
+  useEffect(() => {
+    if (creationMode !== 'model') {
+      setModelId('');
+      setModelInputs([]);
+      setModelInputValues({});
+      return;
+    }
 
-  const resetForm = () => {
-    setSelectedPropertyId('');
-    setSelectedTenantId('');
-    setHasSecondProposer(false);
-    setSelectedSecondProposerId('');
-    setStatus('agendado');
-    setStartDate('');
-    setEndDate('');
-    setRentValue('');
-    setCondoFee('');
-    setIptuValue('');
-    setTcrValue('');
-    setAdditionalInfo('');
-    setRenterName('');
-    setRenterCpf('');
-    setRenterPhone('');
-    setRenterEmail('');
-    setHasSubmitAttempt(false);
-  };
+    const loadModels = async () => {
+      setIsLoadingModels(true);
+      try {
+        const response = await getModelosContrato(condId, { page: 1, limit: 100 });
+        setModels(response.data);
+      } catch (error) {
+        console.error('Error fetching models:', error);
+        toast.error('Não foi possível carregar os modelos de contrato.');
+      } finally {
+        setIsLoadingModels(false);
+      }
+    };
+
+    void loadModels();
+  }, [condId, creationMode]);
+
+  useEffect(() => {
+    if (!modelId || creationMode !== 'model') {
+      setModelInputs([]);
+      setModelInputValues({});
+      return;
+    }
+
+    const loadModelInputs = async () => {
+      setIsLoadingModelInputs(true);
+      try {
+        const model = await getModeloContratoById(condId, modelId);
+        setModelInputs(model.inputs);
+        setModelInputValues((current) => {
+          const next: Record<string, string> = {};
+          model.inputs.forEach((input) => {
+            next[input.key] = current[input.key] || '';
+          });
+          return next;
+        });
+      } catch (error) {
+        console.error('Error loading model details:', error);
+        toast.error('Não foi possível carregar os campos do modelo.');
+      } finally {
+        setIsLoadingModelInputs(false);
+      }
+    };
+
+    void loadModelInputs();
+  }, [condId, creationMode, modelId]);
+
+  useEffect(() => {
+    if (!hasSecondProposerSection) {
+      setSelectedSecondProposerId('');
+      return;
+    }
+  }, [hasSecondProposerSection]);
+
+  useEffect(() => {
+    if (!startDate) setStartDate(new Date().toISOString().slice(0, 10));
+    if (!endDate) setEndDate(new Date().toISOString().slice(0, 10));
+  }, [startDate, endDate]);
+
+  const getModelValueForInput = useCallback(
+    (input: ModeloContratoInput) => {
+      const normalized = input.key.toLowerCase();
+
+      if (inputKeyMatches(input, 'locador.nome')) return renterName;
+      if (inputKeyMatches(input, 'locador.cpf')) return renterCpf;
+      if (inputKeyMatches(input, 'locador.telefone')) return renterPhone;
+      if (inputKeyMatches(input, 'locador.email')) return renterEmail;
+
+      if (inputKeyMatches(input, 'financeiro.valor_aluguel')) return rentValue;
+      if (inputKeyMatches(input, 'financeiro.valor_condominio')) return condoFee;
+      if (inputKeyMatches(input, 'financeiro.valor_iptu')) return iptuValue;
+      if (inputKeyMatches(input, 'financeiro.valor_tcr')) return tcrValue;
+      if (inputKeyMatches(input, 'contrato.informacoes_adicionais')) return additionalInfo;
+      if (inputKeyMatches(input, 'contrato.status')) return status;
+      if (inputKeyMatches(input, 'contrato.data_inicio')) return startDate;
+      if (inputKeyMatches(input, 'contrato.data_fim')) return endDate;
+
+      if (inputKeyMatches(input, 'imovel.endereco') && selectedProperty) {
+        return `${selectedProperty.endereco} - ${selectedProperty.bairro}, ${selectedProperty.cidade}`;
+      }
+
+      if (inputKeyMatches(input, 'locatario.nome')) return selectedTenant?.personalData.fullName || '';
+      if (inputKeyMatches(input, 'locatario.data_nascimento')) return selectedTenant?.personalData.birthDate || '';
+      if (inputKeyMatches(input, 'locatario.rg')) return selectedTenant?.personalData.rg || '';
+      if (inputKeyMatches(input, 'locatario.cpf')) return selectedTenant?.personalData.cpf || '';
+      if (inputKeyMatches(input, 'locatario.profissao')) return selectedTenant?.personalData.profession || '';
+      if (inputKeyMatches(input, 'locatario.estado_civil')) return selectedTenant?.personalData.maritalStatus || '';
+      if (inputKeyMatches(input, 'locatario.orgao_expedidor')) return selectedTenant?.personalData.rgIssuer || '';
+      if (inputKeyMatches(input, 'locatario.renda_mensal')) return selectedTenant?.personalData.monthlyIncome || '';
+      if (inputKeyMatches(input, 'locatario.email')) return selectedTenant?.contact.email || '';
+      if (inputKeyMatches(input, 'locatario.telefone_principal')) return selectedTenant?.contact.mainPhone || '';
+      if (inputKeyMatches(input, 'locatario.telefone_secundario')) return selectedTenant?.contact.secondaryPhone || '';
+      if (inputKeyMatches(input, 'locatario.nome') && normalized.endsWith('.nome')) {
+        return selectedTenant?.bankData.bank || '';
+      }
+      if (inputKeyMatches(input, 'locatario.agencia')) return selectedTenant?.bankData.agency || '';
+      if (inputKeyMatches(input, 'locatario.conta')) return selectedTenant?.bankData.accountNumber || '';
+      if (inputKeyMatches(input, 'locatario.tipo')) return selectedTenant?.bankData.accountType || '';
+
+      if (inputKeyMatches(input, 'segundo_proponente.nome')) {
+        return selectedSecondProposer?.personalData.fullName || '';
+      }
+      if (inputKeyMatches(input, 'segundo_proponente.data_nascimento')) {
+        return selectedSecondProposer?.personalData.birthDate || '';
+      }
+      if (inputKeyMatches(input, 'segundo_proponente.rg')) {
+        return selectedSecondProposer?.personalData.rg || '';
+      }
+      if (inputKeyMatches(input, 'segundo_proponente.cpf')) {
+        return selectedSecondProposer?.personalData.cpf || '';
+      }
+      if (inputKeyMatches(input, 'segundo_proponente.profissao')) {
+        return selectedSecondProposer?.personalData.profession || '';
+      }
+      if (inputKeyMatches(input, 'segundo_proponente.estado_civil')) {
+        return selectedSecondProposer?.personalData.maritalStatus || '';
+      }
+      if (inputKeyMatches(input, 'segundo_proponente.orgao_expedidor')) {
+        return selectedSecondProposer?.personalData.rgIssuer || '';
+      }
+      if (inputKeyMatches(input, 'segundo_proponente.renda_mensal')) {
+        return selectedSecondProposer?.personalData.monthlyIncome || '';
+      }
+      if (inputKeyMatches(input, 'segundo_proponente.email')) {
+        return selectedSecondProposer?.contact.email || '';
+      }
+      if (inputKeyMatches(input, 'segundo_proponente.telefone_principal')) {
+        return selectedSecondProposer?.contact.mainPhone || '';
+      }
+      if (inputKeyMatches(input, 'segundo_proponente.telefone_secundario')) {
+        return selectedSecondProposer?.contact.secondaryPhone || '';
+      }
+      if (inputKeyMatches(input, 'segundo_proponente.agencia')) {
+        return selectedSecondProposer?.bankData.agency || '';
+      }
+      if (inputKeyMatches(input, 'segundo_proponente.conta')) {
+        return selectedSecondProposer?.bankData.accountNumber || '';
+      }
+      if (inputKeyMatches(input, 'segundo_proponente.tipo')) {
+        return selectedSecondProposer?.bankData.accountType || '';
+      }
+
+      return modelInputValues[input.key] || '';
+    },
+    [
+      additionalInfo,
+      condoFee,
+      endDate,
+      iptuValue,
+      modelInputValues,
+      rentValue,
+      renterCpf,
+      renterEmail,
+      renterName,
+      renterPhone,
+      selectedProperty,
+      selectedSecondProposer,
+      selectedTenant,
+      startDate,
+      status,
+      tcrValue,
+    ]
+  );
+
+  const missingModelInputs = useMemo(() => {
+    if (creationMode !== 'model') return [];
+    return modelInputs.filter((input) => !getModelValueForInput(input).trim());
+  }, [creationMode, getModelValueForInput, modelInputs]);
+
+  const knownLocadorTokens = new Set([
+    'locador.nome',
+    'locador.cpf',
+    'locador.telefone',
+    'locador.email',
+  ]);
+
+  const knownContractTokens = new Set([
+    'financeiro.valor_aluguel',
+    'financeiro.valor_condominio',
+    'financeiro.valor_iptu',
+    'financeiro.valor_tcr',
+    'contrato.informacoes_adicionais',
+    'contrato.status',
+    'contrato.data_inicio',
+    'contrato.data_fim',
+  ]);
+
+  const knownSecondProposerTokens = new Set([
+    'segundo_proponente.nome',
+    'segundo_proponente.data_nascimento',
+    'segundo_proponente.rg',
+    'segundo_proponente.cpf',
+    'segundo_proponente.profissao',
+    'segundo_proponente.estado_civil',
+    'segundo_proponente.orgao_expedidor',
+    'segundo_proponente.renda_mensal',
+    'segundo_proponente.email',
+    'segundo_proponente.telefone_principal',
+    'segundo_proponente.telefone_secundario',
+    'segundo_proponente.agencia',
+    'segundo_proponente.conta',
+    'segundo_proponente.tipo',
+  ]);
+
+  const customLocadorInputs = locadorInputs.filter(
+    (input) => !knownLocadorTokens.has(getTokenFromInput(input).toLowerCase())
+  );
+
+  const customContractInputs = contractInputs.filter(
+    (input) => !knownContractTokens.has(getTokenFromInput(input).toLowerCase())
+  );
+
+  const customSecondProposerInputs = secondProposerInputs.filter(
+    (input) => !knownSecondProposerTokens.has(getTokenFromInput(input).toLowerCase())
+  );
+
+  const showRentField = contractInputs.some((input) =>
+    inputKeyMatches(input, 'financeiro.valor_aluguel')
+  );
+  const showCondoField = contractInputs.some((input) =>
+    inputKeyMatches(input, 'financeiro.valor_condominio')
+  );
+  const showIptuField = contractInputs.some((input) =>
+    inputKeyMatches(input, 'financeiro.valor_iptu')
+  );
+  const showTcrField = contractInputs.some((input) =>
+    inputKeyMatches(input, 'financeiro.valor_tcr')
+  );
+  const showAdditionalInfoField = contractInputs.some((input) =>
+    inputKeyMatches(input, 'contrato.informacoes_adicionais')
+  );
+  const showStatusField = contractInputs.some((input) =>
+    inputKeyMatches(input, 'contrato.status')
+  );
+
+  const isPropertyInvalid = hasSubmitAttempt && !selectedPropertyId;
+  const isTenantInvalid = hasSubmitAttempt && !selectedTenantId;
+  const isRenterNameInvalid =
+    hasSubmitAttempt && hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.nome')) && !renterName.trim();
+  const isRenterCpfInvalid =
+    hasSubmitAttempt && hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.cpf')) && !renterCpf.trim();
+  const isRenterPhoneInvalid =
+    hasSubmitAttempt && hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.telefone')) && !renterPhone.trim();
+  const isRenterEmailInvalid =
+    hasSubmitAttempt && hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.email')) && !renterEmail.trim();
+  const isRentValueInvalid = hasSubmitAttempt && showRentField && !rentValue.trim();
+  const isStartDateInvalid = hasSubmitAttempt && !startDate;
+  const isEndDateInvalid = hasSubmitAttempt && !endDate;
+  const isStatusInvalid = hasSubmitAttempt && showStatusField && !status;
+  const isSecondProposerInvalid =
+    hasSubmitAttempt && hasSecondProposerSection && !selectedSecondProposerId;
+  const isUploadInvalid = hasSubmitAttempt && creationMode === 'upload' && !contractPdf;
+  const isModeInvalid = hasSubmitAttempt && !creationMode;
+  const isModelInvalid = hasSubmitAttempt && creationMode === 'model' && !modelId;
+
+  const hasRequiredFieldsMissing =
+    !selectedPropertyId ||
+    !selectedTenantId ||
+    !startDate ||
+    !endDate ||
+    !creationMode ||
+    (creationMode === 'upload' && !contractPdf) ||
+    (creationMode === 'model' &&
+      (!modelId ||
+        (hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.nome')) && !renterName.trim()) ||
+        (hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.cpf')) && !renterCpf.trim()) ||
+        (hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.telefone')) && !renterPhone.trim()) ||
+        (hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.email')) && !renterEmail.trim()) ||
+        (showRentField && !rentValue.trim()) ||
+        (hasSecondProposerSection && !selectedSecondProposerId) ||
+        missingModelInputs.length > 0));
 
   const validateDates = () => {
     if (!startDate || !endDate) return true;
     return new Date(endDate) >= new Date(startDate);
   };
-
-  const isPropertyInvalid = hasSubmitAttempt && !selectedPropertyId;
-  const isTenantInvalid = hasSubmitAttempt && !selectedTenantId;
-  const isRenterNameInvalid = hasSubmitAttempt && !renterName.trim();
-  const isRenterCpfInvalid = hasSubmitAttempt && !renterCpf.trim();
-  const isRenterPhoneInvalid = hasSubmitAttempt && !renterPhone.trim();
-  const isRenterEmailInvalid = hasSubmitAttempt && !renterEmail.trim();
-  const isRentValueInvalid = hasSubmitAttempt && !rentValue.trim();
-  const isStartDateInvalid = hasSubmitAttempt && !startDate;
-  const isEndDateInvalid = hasSubmitAttempt && !endDate;
-  const isStatusInvalid = hasSubmitAttempt && !status;
-  const isSecondProposerInvalid =
-    hasSubmitAttempt && hasSecondProposer && !selectedSecondProposerId;
-
-  const hasRequiredFieldsMissing =
-    !selectedPropertyId ||
-    !selectedTenantId ||
-    !renterName.trim() ||
-    !renterCpf.trim() ||
-    !renterPhone.trim() ||
-    !renterEmail.trim() ||
-    !rentValue.trim() ||
-    !startDate ||
-    !endDate ||
-    !status ||
-    (hasSecondProposer && !selectedSecondProposerId);
 
   const handleSubmit = async () => {
     setHasSubmitAttempt(true);
@@ -310,11 +608,6 @@ export default function AddContratos({
       return;
     }
 
-    if (!startDate || !endDate) {
-      toast.error('Informe as datas de início e vencimento.');
-      return;
-    }
-
     if (!validateDates()) {
       toast.error('A data de vencimento deve ser maior ou igual à data de início.');
       return;
@@ -323,19 +616,40 @@ export default function AddContratos({
     try {
       setIsSubmitting(true);
 
-      await postContrato(condId, {
-        tenantName: selectedTenant.name,
-        property: formatPropertyLabel(selectedProperty),
-        propertyAddress: formatPropertyAddress(selectedProperty),
-        status,
-        startDate,
-        endDate,
-      });
+      if (creationMode === 'upload' && contractPdf) {
+        const formData = new FormData();
+        formData.append('sourceType', 'upload');
+        formData.append('propertyId', selectedProperty.idImovel);
+        formData.append('property', formatPropertyLabel(selectedProperty));
+        formData.append('tenantId', selectedTenant.id);
+        formData.append('tenantName', selectedTenant.name);
+        formData.append('createdAt', startDate);
+        formData.append('dueDate', endDate);
+        formData.append('contractPdf', contractPdf);
+
+        await postContrato(condId, formData);
+      } else {
+        const normalizedModelValues = Object.fromEntries(
+          modelInputs.map((input) => [input.key, getModelValueForInput(input)])
+        );
+
+        await postContrato(condId, {
+          sourceType: 'model',
+          tenantName: selectedTenant.name,
+          tenantId: selectedTenant.id,
+          property: formatPropertyLabel(selectedProperty),
+          propertyId: selectedProperty.idImovel,
+          createdAt: startDate,
+          dueDate: endDate,
+          modelId,
+          modelName: selectedModel?.name,
+          modelInputValues: normalizedModelValues,
+        });
+      }
 
       toast.success('Contrato criado com sucesso.');
       router.push(listPath);
       router.refresh();
-      resetForm();
     } catch (error) {
       console.error('Error creating contract:', error);
       toast.error('Erro ao criar contrato. Tente novamente.');
@@ -381,7 +695,7 @@ export default function AddContratos({
         <div className="space-y-6">
           <Accordion
             type="multiple"
-            defaultValue={['property', 'tenant', 'renter', 'contract']}
+            defaultValue={['property', 'tenant', 'contract']}
             className="space-y-6"
           >
             <AccordionItem value="property" className="border-none">
@@ -710,71 +1024,6 @@ export default function AddContratos({
               </Card>
             </AccordionItem>
 
-            <AccordionItem value="renter" className="border-none">
-              <Card>
-                <CardHeader className="pb-3">
-                  <AccordionTrigger className="py-0 hover:no-underline">
-                    <div>
-                      <CardTitle className="text-left">Dados do Locador</CardTitle>
-                      <CardDescription className="text-left">
-                        Informações do locador.
-                      </CardDescription>
-                    </div>
-                  </AccordionTrigger>
-                </CardHeader>
-                <AccordionContent>
-                  <CardContent className="space-y-4">
-                    <Field>
-                      <FieldLabel htmlFor="renter-name">Nome Completo *</FieldLabel>
-                      <Input
-                        id="renter-name"
-                        placeholder="Ex.: João da Silva"
-                        value={renterName}
-                        onChange={(event) => setRenterName(event.target.value)}
-                        className={cn(isRenterNameInvalid && 'border-destructive')}
-                      />
-                    </Field>
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <Field>
-                        <FieldLabel htmlFor="renter-cpf">CPF *</FieldLabel>
-                        <Input
-                          id="renter-cpf"
-                          placeholder="000.000.000-00"
-                          value={renterCpf}
-                          onChange={(event) => setRenterCpf(event.target.value)}
-                          className={cn(isRenterCpfInvalid && 'border-destructive')}
-                        />
-                      </Field>
-
-                      <Field>
-                        <FieldLabel htmlFor="renter-phone">Telefone Principal *</FieldLabel>
-                        <Input
-                          id="renter-phone"
-                          placeholder="(00) 90000-0000"
-                          value={renterPhone}
-                          onChange={(event) => setRenterPhone(event.target.value)}
-                          className={cn(isRenterPhoneInvalid && 'border-destructive')}
-                        />
-                      </Field>
-                    </div>
-
-                    <Field>
-                      <FieldLabel htmlFor="renter-email">Email *</FieldLabel>
-                      <Input
-                        id="renter-email"
-                        type="email"
-                        placeholder="nome@email.com"
-                        value={renterEmail}
-                        onChange={(event) => setRenterEmail(event.target.value)}
-                        className={cn(isRenterEmailInvalid && 'border-destructive')}
-                      />
-                    </Field>
-                  </CardContent>
-                </AccordionContent>
-              </Card>
-            </AccordionItem>
-
             <AccordionItem value="contract" className="border-none">
               <Card>
                 <CardHeader className="pb-3">
@@ -789,49 +1038,6 @@ export default function AddContratos({
                 </CardHeader>
                 <AccordionContent>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <Field>
-                        <FieldLabel htmlFor="rent-value">Valor do Aluguel *</FieldLabel>
-                        <Input
-                          id="rent-value"
-                          placeholder="R$ 0,00"
-                          value={rentValue}
-                          onChange={(event) => setRentValue(event.target.value)}
-                          className={cn(isRentValueInvalid && 'border-destructive')}
-                        />
-                      </Field>
-
-                      <Field>
-                        <FieldLabel htmlFor="condo-fee">Taxa de Condomínio</FieldLabel>
-                        <Input
-                          id="condo-fee"
-                          placeholder="R$ 0,00"
-                          value={condoFee}
-                          onChange={(event) => setCondoFee(event.target.value)}
-                        />
-                      </Field>
-
-                      <Field>
-                        <FieldLabel htmlFor="iptu-value">Valor IPTU</FieldLabel>
-                        <Input
-                          id="iptu-value"
-                          placeholder="R$ 0,00"
-                          value={iptuValue}
-                          onChange={(event) => setIptuValue(event.target.value)}
-                        />
-                      </Field>
-
-                      <Field>
-                        <FieldLabel htmlFor="tcr-value">Valor TCR</FieldLabel>
-                        <Input
-                          id="tcr-value"
-                          placeholder="R$ 0,00"
-                          value={tcrValue}
-                          onChange={(event) => setTcrValue(event.target.value)}
-                        />
-                      </Field>
-                    </div>
-
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <Field>
                         <FieldLabel htmlFor="start-date">Data Início *</FieldLabel>
@@ -863,319 +1069,549 @@ export default function AddContratos({
                     </div>
 
                     <Field>
-                      <FieldLabel htmlFor="contract-status">Status *</FieldLabel>
+                      <FieldLabel htmlFor="creation-mode">Modo de criação *</FieldLabel>
                       <Select
-                        value={status}
-                        onValueChange={(value) => setStatus(value as ContractStatus)}
+                        value={creationMode}
+                        onValueChange={(value) => {
+                          const mode = value as 'upload' | 'model';
+                          setCreationMode(mode);
+                          setContractPdf(null);
+                          setModelId('');
+                          setModelInputs([]);
+                          setModelInputValues({});
+                          setHasSubmitAttempt(false);
+                        }}
                       >
                         <SelectTrigger
-                          id="contract-status"
-                          className={cn(isStatusInvalid && 'border-destructive')}
+                          id="creation-mode"
+                          className={cn(isModeInvalid && 'border-destructive')}
                         >
-                          <SelectValue placeholder="Selecionar status" />
+                          <SelectValue placeholder="Selecionar modo" />
                         </SelectTrigger>
                         <SelectContent>
-                          {CONTRACT_STATUSES.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
+                          <SelectItem value="upload">
+                            <span className="flex items-center gap-2">
+                              <Upload className="h-4 w-4" />
+                              Upload de PDF
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="model">
+                            <span className="flex items-center gap-2">
+                              <FilePlus2 className="h-4 w-4" />
+                              Criar por modelo
+                            </span>
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </Field>
 
-                    <Field>
-                      <FieldLabel htmlFor="additional-info">Informações Adicionais</FieldLabel>
-                      <Textarea
-                        id="additional-info"
-                        placeholder="Digite observações ou cláusulas especiais do contrato..."
-                        className="min-h-24"
-                        value={additionalInfo}
-                        onChange={(event) => setAdditionalInfo(event.target.value)}
-                      />
-                      <FieldDescription>
-                        Inclua quaisquer observações ou cláusulas especiais do contrato.
-                      </FieldDescription>
-                    </Field>
-                  </CardContent>
-                </AccordionContent>
-              </Card>
-            </AccordionItem>
+                    {creationMode === 'model' && (
+                      <Field>
+                        <FieldLabel htmlFor="model-select">Modelo *</FieldLabel>
+                        <Popover open={openModel} onOpenChange={setOpenModel}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={openModel}
+                              className={cn(
+                                'w-full justify-between',
+                                !modelId && 'text-muted-foreground',
+                                isModelInvalid && 'border-destructive text-destructive'
+                              )}
+                              disabled={isLoadingModels}
+                            >
+                              {selectedModel?.name || 'Selecionar modelo'}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                            <Command>
+                              <CommandInput placeholder="Procurar modelo..." />
+                              <CommandList>
+                                <CommandEmpty>Nenhum modelo encontrado.</CommandEmpty>
+                                <CommandGroup>
+                                  {models.map((model) => (
+                                    <CommandItem
+                                      key={model.id}
+                                      value={`${model.name} ${model.purpose}`}
+                                      onSelect={() => {
+                                        setModelId(model.id);
+                                        setOpenModel(false);
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          'mr-2 h-4 w-4',
+                                          model.id === modelId ? 'opacity-100' : 'opacity-0'
+                                        )}
+                                      />
+                                      {model.name}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </Field>
+                    )}
 
-            <AccordionItem value="second-proposer" className="border-none">
-              <Card>
-                <CardHeader className="pb-3">
-                  <AccordionTrigger className="py-0 hover:no-underline">
-                    <div>
-                      <CardTitle className="text-left">Segundo Proponente</CardTitle>
-                      <CardDescription className="text-left">
-                        Informações caso o contrato precise de outro proponente.
-                      </CardDescription>
-                    </div>
-                  </AccordionTrigger>
-                </CardHeader>
-                <AccordionContent>
-                  <CardContent>
-                    <Field orientation="horizontal">
-                      <FieldLabel
-                        htmlFor="second-proposer"
-                        className="cursor-pointer items-center gap-2"
-                      >
-                        <Checkbox
-                          id="second-proposer"
-                          checked={hasSecondProposer}
-                          onCheckedChange={(checked) => {
-                            setHasSecondProposer(Boolean(checked));
-                            if (!checked) {
-                              setSelectedSecondProposerId('');
-                            }
-                          }}
+                    {creationMode === 'upload' && (
+                      <Field>
+                        <FieldLabel htmlFor="contractPdf">Arquivo PDF *</FieldLabel>
+                        <Input
+                          id="contractPdf"
+                          type="file"
+                          accept="application/pdf"
+                          onChange={(event) => setContractPdf(event.target.files?.[0] || null)}
+                          className={cn(isUploadInvalid && 'border-destructive')}
                         />
-                        <span>Contrato necessita de 2º proponente</span>
-                      </FieldLabel>
-                    </Field>
+                        <FieldDescription>Somente arquivos PDF são aceitos.</FieldDescription>
+                      </Field>
+                    )}
 
-                    {hasSecondProposer && (
-                      <div className="mt-6 space-y-4">
-                        <Field>
-                          <FieldLabel htmlFor="second-proposer-select">
-                            Selecionar Condomínio *
-                          </FieldLabel>
-                          <Popover
-                            open={openSecondProposer}
-                            onOpenChange={setOpenSecondProposer}
-                          >
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                aria-expanded={openSecondProposer}
-                                className={cn(
-                                  'w-full justify-between',
-                                  !selectedSecondProposerId && 'text-muted-foreground',
-                                  isSecondProposerInvalid &&
-                                    'border-destructive text-destructive'
-                                )}
-                              >
-                                {selectedSecondProposerId
-                                  ? secondProposerOptions.find(
-                                      (tenant) => tenant.id === selectedSecondProposerId
-                                    )?.name || 'Selecionar condômino'
-                                  : 'Selecionar condômino'}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                              <Command>
-                                <CommandInput placeholder="Procurar condômino..." />
-                                <CommandList>
-                                  <CommandEmpty>Nenhum condômino encontrado.</CommandEmpty>
-                                  <CommandGroup>
-                                    {secondProposerOptions.map((tenant) => (
-                                      <CommandItem
-                                        key={tenant.id}
-                                        value={`${tenant.name} ${tenant.cpf}`}
-                                        onSelect={() => {
-                                          setSelectedSecondProposerId(tenant.id);
-                                          setOpenSecondProposer(false);
-                                        }}
-                                      >
-                                        <Check
-                                          className={cn(
-                                            'mr-2 h-4 w-4',
-                                            tenant.id === selectedSecondProposerId
-                                              ? 'opacity-100'
-                                              : 'opacity-0'
-                                          )}
-                                        />
-                                        {tenant.name}
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
-                          <FieldDescription>
-                            É preciso que o segundo proponente tenha preenchido o formulário de pré-cadastro devidamente.
-                          </FieldDescription>
-                        </Field>
+                    {creationMode === 'model' && isLoadingModelInputs && (
+                      <p className="text-muted-foreground text-sm">Carregando campos do modelo...</p>
+                    )}
 
-                        {selectedSecondProposerId &&
-                          !selectedSecondProposer &&
-                          isLoadingSecondProposer && (
-                            <div className="rounded-lg border p-4">
-                              <p className="text-muted-foreground text-sm">
-                                Carregando dados completos do segundo proponente...
-                              </p>
-                            </div>
-                          )}
+                    {creationMode === 'model' && !isLoadingModelInputs && (
+                      <>
+                        {(showRentField || showCondoField || showIptuField || showTcrField) && (
+                          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            {showRentField && (
+                              <Field>
+                                <FieldLabel htmlFor="rent-value">Valor do Aluguel *</FieldLabel>
+                                <Input
+                                  id="rent-value"
+                                  placeholder="R$ 0,00"
+                                  value={rentValue}
+                                  onChange={(event) => setRentValue(event.target.value)}
+                                  className={cn(isRentValueInvalid && 'border-destructive')}
+                                />
+                              </Field>
+                            )}
 
-                        {selectedSecondProposer && (
-                          <Tabs defaultValue="pessoais" className="mt-6">
-                            <TabsList className="grid w-full grid-cols-3">
-                              <TabsTrigger value="pessoais">Dados Pessoais</TabsTrigger>
-                              <TabsTrigger value="contato">Contato</TabsTrigger>
-                              <TabsTrigger value="bancarios">Dados Bancários</TabsTrigger>
-                            </TabsList>
+                            {showCondoField && (
+                              <Field>
+                                <FieldLabel htmlFor="condo-fee">Taxa de Condomínio</FieldLabel>
+                                <Input
+                                  id="condo-fee"
+                                  placeholder="R$ 0,00"
+                                  value={condoFee}
+                                  onChange={(event) => setCondoFee(event.target.value)}
+                                />
+                              </Field>
+                            )}
 
-                            <TabsContent value="pessoais" className="mt-6">
-                              <div className="space-y-4 rounded-lg border p-6">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div className="col-span-2">
-                                    <p className="text-muted-foreground mb-1 text-sm">Nome Completo</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.personalData.fullName}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground mb-1 text-sm">Data de Nascimento</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.personalData.birthDate}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground mb-1 text-sm">Estado Civil</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.personalData.maritalStatus}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground mb-1 text-sm">RG</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.personalData.rg}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground mb-1 text-sm">Órgão Expedidor</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.personalData.rgIssuer}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground mb-1 text-sm">CPF</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.personalData.cpf}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground mb-1 text-sm">Renda Mensal</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.personalData.monthlyIncome}
-                                    </p>
-                                  </div>
-                                  <div className="col-span-2">
-                                    <p className="text-muted-foreground mb-1 text-sm">Profissão</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.personalData.profession}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </TabsContent>
+                            {showIptuField && (
+                              <Field>
+                                <FieldLabel htmlFor="iptu-value">Valor IPTU</FieldLabel>
+                                <Input
+                                  id="iptu-value"
+                                  placeholder="R$ 0,00"
+                                  value={iptuValue}
+                                  onChange={(event) => setIptuValue(event.target.value)}
+                                />
+                              </Field>
+                            )}
 
-                            <TabsContent value="contato" className="mt-6">
-                              <div className="space-y-4 rounded-lg border p-6">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div className="col-span-2">
-                                    <p className="text-muted-foreground mb-1 text-sm">Email</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.contact.email}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground mb-1 text-sm">Telefone Principal</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.contact.mainPhone}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground mb-1 text-sm">Telefone Secundário</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.contact.secondaryPhone}
-                                    </p>
-                                  </div>
-                                  <div className="col-span-2">
-                                    <p className="text-muted-foreground mb-1 text-sm">Endereço</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.contact.address}
-                                    </p>
-                                  </div>
-
-                                  {selectedSecondProposer.emergencyContacts.length > 0 && (
-                                    <>
-                                      <div className="col-span-2 mt-2">
-                                        <Separator />
-                                      </div>
-                                      <div className="col-span-2">
-                                        <p className="mb-3 text-sm font-semibold">
-                                          Contatos de Emergência
-                                        </p>
-                                      </div>
-                                      {selectedSecondProposer.emergencyContacts.map(
-                                        (contact, index) => (
-                                          <div key={index} className="col-span-2 grid grid-cols-3 gap-4">
-                                            <div>
-                                              <p className="text-muted-foreground mb-1 text-sm">Nome</p>
-                                              <p className="text-sm font-medium">{contact.name}</p>
-                                            </div>
-                                            <div>
-                                              <p className="text-muted-foreground mb-1 text-sm">Parentesco</p>
-                                              <p className="text-sm font-medium">
-                                                {contact.relationship}
-                                              </p>
-                                            </div>
-                                            <div>
-                                              <p className="text-muted-foreground mb-1 text-sm">Telefone</p>
-                                              <p className="text-sm font-medium">{contact.phone}</p>
-                                            </div>
-                                          </div>
-                                        )
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </TabsContent>
-
-                            <TabsContent value="bancarios" className="mt-6">
-                              <div className="space-y-4 rounded-lg border p-6">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div className="col-span-2">
-                                    <p className="text-muted-foreground mb-1 text-sm">Banco</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.bankData.bank}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground mb-1 text-sm">Tipo de Conta</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.bankData.accountType}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground mb-1 text-sm">Agência</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.bankData.agency}
-                                    </p>
-                                  </div>
-                                  <div className="col-span-2">
-                                    <p className="text-muted-foreground mb-1 text-sm">Número da Conta</p>
-                                    <p className="text-sm font-medium">
-                                      {selectedSecondProposer.bankData.accountNumber}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </TabsContent>
-                          </Tabs>
+                            {showTcrField && (
+                              <Field>
+                                <FieldLabel htmlFor="tcr-value">Valor TCR</FieldLabel>
+                                <Input
+                                  id="tcr-value"
+                                  placeholder="R$ 0,00"
+                                  value={tcrValue}
+                                  onChange={(event) => setTcrValue(event.target.value)}
+                                />
+                              </Field>
+                            )}
+                          </div>
                         )}
-                      </div>
+
+                        {showStatusField && (
+                          <Field>
+                            <FieldLabel htmlFor="contract-status">Status *</FieldLabel>
+                            <Select
+                              value={status}
+                              onValueChange={(value) => setStatus(value as ContractStatus)}
+                            >
+                              <SelectTrigger
+                                id="contract-status"
+                                className={cn(isStatusInvalid && 'border-destructive')}
+                              >
+                                <SelectValue placeholder="Selecionar status" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {CONTRACT_STATUSES.map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </Field>
+                        )}
+
+                        {showAdditionalInfoField && (
+                          <Field>
+                            <FieldLabel htmlFor="additional-info">Informações Adicionais</FieldLabel>
+                            <Textarea
+                              id="additional-info"
+                              placeholder="Digite observações ou cláusulas especiais do contrato..."
+                              className="min-h-24"
+                              value={additionalInfo}
+                              onChange={(event) => setAdditionalInfo(event.target.value)}
+                            />
+                            <FieldDescription>
+                              Inclua quaisquer observações ou cláusulas especiais do contrato.
+                            </FieldDescription>
+                          </Field>
+                        )}
+
+                        {customContractInputs.map((input) => (
+                          <Field key={input.key}>
+                            <FieldLabel htmlFor={`model-${input.key}`}>{input.label} *</FieldLabel>
+                            <Input
+                              id={`model-${input.key}`}
+                              value={modelInputValues[input.key] || ''}
+                              onChange={(event) =>
+                                setModelInputValues((current) => ({
+                                  ...current,
+                                  [input.key]: event.target.value,
+                                }))
+                              }
+                            />
+                            <FieldDescription>
+                              Placeholder: {'{{'}{getTokenFromInput(input)}{'}}'}
+                            </FieldDescription>
+                          </Field>
+                        ))}
+                      </>
                     )}
                   </CardContent>
                 </AccordionContent>
               </Card>
             </AccordionItem>
+
+            {hasLocadorSection && (
+              <AccordionItem value="renter" className="border-none">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <AccordionTrigger className="py-0 hover:no-underline">
+                      <div>
+                        <CardTitle className="text-left">Dados do Locador</CardTitle>
+                        <CardDescription className="text-left">
+                          Informações do locador conforme exigência do modelo.
+                        </CardDescription>
+                      </div>
+                    </AccordionTrigger>
+                  </CardHeader>
+                  <AccordionContent>
+                    <CardContent className="space-y-4">
+                      {locadorInputs.some((i) => inputKeyMatches(i, 'locador.nome')) && (
+                        <Field>
+                          <FieldLabel htmlFor="renter-name">Nome Completo *</FieldLabel>
+                          <Input
+                            id="renter-name"
+                            placeholder="Ex.: João da Silva"
+                            value={renterName}
+                            onChange={(event) => setRenterName(event.target.value)}
+                            className={cn(isRenterNameInvalid && 'border-destructive')}
+                          />
+                        </Field>
+                      )}
+
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        {locadorInputs.some((i) => inputKeyMatches(i, 'locador.cpf')) && (
+                          <Field>
+                            <FieldLabel htmlFor="renter-cpf">CPF *</FieldLabel>
+                            <Input
+                              id="renter-cpf"
+                              placeholder="000.000.000-00"
+                              value={renterCpf}
+                              onChange={(event) => setRenterCpf(event.target.value)}
+                              className={cn(isRenterCpfInvalid && 'border-destructive')}
+                            />
+                          </Field>
+                        )}
+
+                        {locadorInputs.some((i) => inputKeyMatches(i, 'locador.telefone')) && (
+                          <Field>
+                            <FieldLabel htmlFor="renter-phone">Telefone Principal *</FieldLabel>
+                            <Input
+                              id="renter-phone"
+                              placeholder="(00) 90000-0000"
+                              value={renterPhone}
+                              onChange={(event) => setRenterPhone(event.target.value)}
+                              className={cn(isRenterPhoneInvalid && 'border-destructive')}
+                            />
+                          </Field>
+                        )}
+                      </div>
+
+                      {locadorInputs.some((i) => inputKeyMatches(i, 'locador.email')) && (
+                        <Field>
+                          <FieldLabel htmlFor="renter-email">Email *</FieldLabel>
+                          <Input
+                            id="renter-email"
+                            type="email"
+                            placeholder="nome@email.com"
+                            value={renterEmail}
+                            onChange={(event) => setRenterEmail(event.target.value)}
+                            className={cn(isRenterEmailInvalid && 'border-destructive')}
+                          />
+                        </Field>
+                      )}
+
+                      {customLocadorInputs.map((input) => (
+                        <Field key={input.key}>
+                          <FieldLabel htmlFor={`model-${input.key}`}>{input.label} *</FieldLabel>
+                          <Input
+                            id={`model-${input.key}`}
+                            value={modelInputValues[input.key] || ''}
+                            onChange={(event) =>
+                              setModelInputValues((current) => ({
+                                ...current,
+                                [input.key]: event.target.value,
+                              }))
+                            }
+                          />
+                          <FieldDescription>
+                            Placeholder: {'{{'}{getTokenFromInput(input)}{'}}'}
+                          </FieldDescription>
+                        </Field>
+                      ))}
+                    </CardContent>
+                  </AccordionContent>
+                </Card>
+              </AccordionItem>
+            )}
+
+            {hasSecondProposerSection && (
+              <AccordionItem value="second-proposer" className="border-none">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <AccordionTrigger className="py-0 hover:no-underline">
+                      <div>
+                        <CardTitle className="text-left">Segundo Proponente</CardTitle>
+                        <CardDescription className="text-left">
+                          Informações caso o modelo exija outro proponente.
+                        </CardDescription>
+                      </div>
+                    </AccordionTrigger>
+                  </CardHeader>
+                  <AccordionContent>
+                    <CardContent>
+                      <Field>
+                        <FieldLabel htmlFor="second-proposer-select">Selecionar Condomínio *</FieldLabel>
+                        <Popover open={openSecondProposer} onOpenChange={setOpenSecondProposer}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={openSecondProposer}
+                              className={cn(
+                                'w-full justify-between',
+                                !selectedSecondProposerId && 'text-muted-foreground',
+                                isSecondProposerInvalid && 'border-destructive text-destructive'
+                              )}
+                            >
+                              {selectedSecondProposerId
+                                ? secondProposerOptions.find(
+                                    (tenant) => tenant.id === selectedSecondProposerId
+                                  )?.name || 'Selecionar condômino'
+                                : 'Selecionar condômino'}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                            <Command>
+                              <CommandInput placeholder="Procurar condômino..." />
+                              <CommandList>
+                                <CommandEmpty>Nenhum condômino encontrado.</CommandEmpty>
+                                <CommandGroup>
+                                  {secondProposerOptions.map((tenant) => (
+                                    <CommandItem
+                                      key={tenant.id}
+                                      value={`${tenant.name} ${tenant.cpf}`}
+                                      onSelect={() => {
+                                        setSelectedSecondProposerId(tenant.id);
+                                        setOpenSecondProposer(false);
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          'mr-2 h-4 w-4',
+                                          tenant.id === selectedSecondProposerId
+                                            ? 'opacity-100'
+                                            : 'opacity-0'
+                                        )}
+                                      />
+                                      {tenant.name}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        <FieldDescription>
+                          É preciso que o segundo proponente tenha preenchido o formulário de pré-cadastro devidamente.
+                        </FieldDescription>
+                      </Field>
+
+                      {selectedSecondProposerId && !selectedSecondProposer && isLoadingSecondProposer && (
+                        <div className="mt-6 rounded-lg border p-4">
+                          <p className="text-muted-foreground text-sm">
+                            Carregando dados completos do segundo proponente...
+                          </p>
+                        </div>
+                      )}
+
+                      {selectedSecondProposer && (
+                        <Tabs defaultValue="pessoais" className="mt-6">
+                          <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger value="pessoais">Dados Pessoais</TabsTrigger>
+                            <TabsTrigger value="contato">Contato</TabsTrigger>
+                            <TabsTrigger value="bancarios">Dados Bancários</TabsTrigger>
+                          </TabsList>
+
+                          <TabsContent value="pessoais" className="mt-6">
+                            <div className="space-y-4 rounded-lg border p-6">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="col-span-2">
+                                  <p className="text-muted-foreground mb-1 text-sm">Nome Completo</p>
+                                  <p className="text-sm font-medium">
+                                    {selectedSecondProposer.personalData.fullName}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground mb-1 text-sm">Data de Nascimento</p>
+                                  <p className="text-sm font-medium">
+                                    {selectedSecondProposer.personalData.birthDate}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground mb-1 text-sm">Estado Civil</p>
+                                  <p className="text-sm font-medium">
+                                    {selectedSecondProposer.personalData.maritalStatus}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground mb-1 text-sm">RG</p>
+                                  <p className="text-sm font-medium">{selectedSecondProposer.personalData.rg}</p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground mb-1 text-sm">Órgão Expedidor</p>
+                                  <p className="text-sm font-medium">
+                                    {selectedSecondProposer.personalData.rgIssuer}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground mb-1 text-sm">CPF</p>
+                                  <p className="text-sm font-medium">{selectedSecondProposer.personalData.cpf}</p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground mb-1 text-sm">Renda Mensal</p>
+                                  <p className="text-sm font-medium">
+                                    {selectedSecondProposer.personalData.monthlyIncome}
+                                  </p>
+                                </div>
+                                <div className="col-span-2">
+                                  <p className="text-muted-foreground mb-1 text-sm">Profissão</p>
+                                  <p className="text-sm font-medium">
+                                    {selectedSecondProposer.personalData.profession}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="contato" className="mt-6">
+                            <div className="space-y-4 rounded-lg border p-6">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="col-span-2">
+                                  <p className="text-muted-foreground mb-1 text-sm">Email</p>
+                                  <p className="text-sm font-medium">{selectedSecondProposer.contact.email}</p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground mb-1 text-sm">Telefone Principal</p>
+                                  <p className="text-sm font-medium">
+                                    {selectedSecondProposer.contact.mainPhone}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground mb-1 text-sm">Telefone Secundário</p>
+                                  <p className="text-sm font-medium">
+                                    {selectedSecondProposer.contact.secondaryPhone}
+                                  </p>
+                                </div>
+                                <div className="col-span-2">
+                                  <p className="text-muted-foreground mb-1 text-sm">Endereço</p>
+                                  <p className="text-sm font-medium">{selectedSecondProposer.contact.address}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="bancarios" className="mt-6">
+                            <div className="space-y-4 rounded-lg border p-6">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="col-span-2">
+                                  <p className="text-muted-foreground mb-1 text-sm">Banco</p>
+                                  <p className="text-sm font-medium">{selectedSecondProposer.bankData.bank}</p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground mb-1 text-sm">Tipo de Conta</p>
+                                  <p className="text-sm font-medium">
+                                    {selectedSecondProposer.bankData.accountType}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground mb-1 text-sm">Agência</p>
+                                  <p className="text-sm font-medium">{selectedSecondProposer.bankData.agency}</p>
+                                </div>
+                                <div className="col-span-2">
+                                  <p className="text-muted-foreground mb-1 text-sm">Número da Conta</p>
+                                  <p className="text-sm font-medium">
+                                    {selectedSecondProposer.bankData.accountNumber}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </TabsContent>
+                        </Tabs>
+                      )}
+
+                      {customSecondProposerInputs.length > 0 && (
+                        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                          {customSecondProposerInputs.map((input) => (
+                            <Field key={input.key}>
+                              <FieldLabel htmlFor={`model-${input.key}`}>{input.label} *</FieldLabel>
+                              <Input
+                                id={`model-${input.key}`}
+                                value={modelInputValues[input.key] || ''}
+                                onChange={(event) =>
+                                  setModelInputValues((current) => ({
+                                    ...current,
+                                    [input.key]: event.target.value,
+                                  }))
+                                }
+                              />
+                              <FieldDescription>
+                                Placeholder: {'{{'}{getTokenFromInput(input)}{'}}'}
+                              </FieldDescription>
+                            </Field>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </AccordionContent>
+                </Card>
+              </AccordionItem>
+            )}
           </Accordion>
 
           <div className="flex flex-col gap-3 pb-6 sm:flex-row sm:justify-end">

@@ -1,28 +1,21 @@
-export type ContractStatus = 'ativo' | 'vencido' | 'agendado';
-
 export interface ContratoSummary {
   id: string;
+  condId: string;
+  propertyId?: string;
   tenantName: string;
-  propertyAddress: string;
+  tenantId?: string;
   property: string;
-  status: ContractStatus;
-  startDate: string;
-  endDate: string;
+  createdAt: string;
+  dueDate: string;
+  pdfFileName: string;
+  pdfFileUrl: string;
+  sourceType: 'upload' | 'model';
+  modelId?: string;
+  modelName?: string;
 }
 
 export interface ContratoDetail extends ContratoSummary {
-  condId: string;
-  renterName?: string;
-  renterCpf?: string;
-  renterPhone?: string;
-  renterEmail?: string;
-  secondProposerName?: string;
-  secondProposerCpf?: string;
-  rentValue?: number;
-  condoFee?: number;
-  iptuValue?: number;
-  tcrValue?: number;
-  additionalInfo?: string;
+  modelInputValues?: Record<string, string>;
 }
 
 export interface ContratoResponse {

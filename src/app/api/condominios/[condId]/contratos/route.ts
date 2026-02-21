@@ -1,25 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { contractsDb } from '@/mocks/in-memory-db';
 
+import { contractsDb, contractModelsDb } from '@/mocks/in-memory-db';
 import { ContratoDetail } from '@/types/contrato';
 
 const buildSearchIndex = (contract: ContratoDetail) => {
   return [
     contract.tenantName,
     contract.property,
-    contract.propertyAddress,
-    contract.startDate,
-    contract.endDate,
+    contract.createdAt,
+    contract.dueDate,
+    contract.pdfFileName,
   ]
     .join(' ')
     .toLowerCase();
 };
 
-export async function GET(request: NextRequest) {
+const normalizeValue = (value: FormDataEntryValue | null) =>
+  typeof value === 'string' ? value : '';
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ condId: string }> }
+) {
+  const { condId } = await params;
   const searchParams = request.nextUrl.searchParams;
 
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '20');
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = parseInt(searchParams.get('limit') || '20', 10);
   const sortParam = searchParams.get('sort');
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';
@@ -37,16 +44,13 @@ export async function GET(request: NextRequest) {
   for (let i = 0; i < columnsArr.length; i++) {
     const col = columnsArr[i];
     const val = contentArr[i];
-
     if (col && val !== undefined) {
-      if (!filterMap.has(col)) {
-        filterMap.set(col, []);
-      }
+      if (!filterMap.has(col)) filterMap.set(col, []);
       filterMap.get(col)!.push(val);
     }
   }
 
-  let contracts = contractsDb;
+  let contracts = contractsDb.filter((contract) => contract.condId === condId);
 
   for (const [col, values] of filterMap.entries()) {
     if (col === 'tenantName') {
@@ -58,10 +62,7 @@ export async function GET(request: NextRequest) {
     contracts = contracts.filter((c) => {
       const fieldValue = c[col as keyof typeof c];
       if (fieldValue === undefined) return false;
-
-      return values.some(
-        (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
-      );
+      return values.some((v) => String(fieldValue).toLowerCase() === v.toLowerCase());
     });
   }
 
@@ -75,7 +76,6 @@ export async function GET(request: NextRequest) {
       if (fieldA === undefined && fieldB === undefined) return 0;
       if (fieldA === undefined) return 1;
       if (fieldB === undefined) return -1;
-
       if (fieldA < fieldB) return sortOrder === 'asc' ? -1 : 1;
       if (fieldA > fieldB) return sortOrder === 'asc' ? 1 : -1;
       return 0;
@@ -85,7 +85,6 @@ export async function GET(request: NextRequest) {
   const totalItems = contracts.length;
   const totalPages = Math.ceil(totalItems / limit);
   const safePage = Math.max(1, Math.min(page, totalPages > 0 ? totalPages : 1));
-
   const startIndex = (safePage - 1) * limit;
   const endIndex = startIndex + limit;
   const paginatedContracts = sortedContracts.slice(startIndex, endIndex);
@@ -106,17 +105,74 @@ export async function POST(
   { params }: { params: Promise<{ condId: string }> }
 ) {
   const { condId } = await params;
-  const body = (await request.json()) as Partial<ContratoDetail>;
+  const contentType = request.headers.get('content-type') || '';
+
+  let payload: Omit<ContratoDetail, 'id' | 'condId'> | null = null;
+
+  if (contentType.includes('multipart/form-data')) {
+    const formData = await request.formData();
+    const contractFile = formData.get('contractPdf');
+
+    if (!(contractFile instanceof File)) {
+      return NextResponse.json(
+        { error: 'Arquivo PDF do contrato é obrigatório.' },
+        { status: 400 }
+      );
+    }
+
+    payload = {
+      tenantName: normalizeValue(formData.get('tenantName')) || 'Sem locatário',
+      tenantId: normalizeValue(formData.get('tenantId')) || undefined,
+      property: normalizeValue(formData.get('property')) || 'Sem imóvel',
+      propertyId: normalizeValue(formData.get('propertyId')) || undefined,
+      createdAt:
+        normalizeValue(formData.get('createdAt')) || new Date().toISOString().split('T')[0],
+      dueDate:
+        normalizeValue(formData.get('dueDate')) || new Date().toISOString().split('T')[0],
+      pdfFileName: contractFile.name || 'contrato.pdf',
+      pdfFileUrl: `/mock-files/contracts/${Date.now()}-${contractFile.name}`,
+      sourceType: 'upload',
+    };
+  } else {
+    const body = (await request.json()) as Partial<ContratoDetail> & {
+      modelInputValues?: Record<string, string>;
+    };
+
+    if (!body.modelId) {
+      return NextResponse.json(
+        { error: 'Modelo de contrato é obrigatório para este fluxo.' },
+        { status: 400 }
+      );
+    }
+
+    const selectedModel = contractModelsDb.find(
+      (model) => model.id === body.modelId && model.condId === condId
+    );
+
+    if (!selectedModel) {
+      return NextResponse.json({ error: 'Modelo não encontrado.' }, { status: 404 });
+    }
+
+    payload = {
+      tenantName: body.tenantName || 'Sem locatário',
+      tenantId: body.tenantId,
+      property: body.property || 'Sem imóvel',
+      propertyId: body.propertyId,
+      createdAt: body.createdAt || new Date().toISOString().split('T')[0],
+      dueDate: body.dueDate || new Date().toISOString().split('T')[0],
+      pdfFileName: `contrato-${selectedModel.name.toLowerCase().replaceAll(' ', '-')}.pdf`,
+      pdfFileUrl: `/mock-files/contracts/gerado-${Date.now()}.pdf`,
+      sourceType: 'model',
+      modelId: selectedModel.id,
+      modelName: selectedModel.name,
+      modelInputValues: body.modelInputValues || {},
+    };
+  }
 
   const newContract: ContratoDetail = {
-    id: Math.random().toString(36).substr(2, 9),
+    id: Math.random().toString(36).slice(2, 11),
     condId,
-    tenantName: body.tenantName || 'Sem nome',
-    propertyAddress: body.propertyAddress || 'Sem endereço',
-    property: body.property || 'Sem imóvel',
-    status: body.status || 'agendado',
-    startDate: body.startDate || new Date().toISOString().split('T')[0],
-    endDate: body.endDate || new Date().toISOString().split('T')[0],
+    ...payload,
   };
 
   contractsDb.unshift(newContract);

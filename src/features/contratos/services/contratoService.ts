@@ -51,32 +51,10 @@ export const getContratoById = async (
 
 export const postContrato = async (
   condId: string,
-  data: Partial<ContratoDetail>
+  data: FormData | Partial<ContratoDetail>
 ): Promise<void> => {
   await apiRequest(basePath(condId), {
     method: 'POST',
-    body: data,
-  });
-};
-
-export const putContrato = async (
-  condId: string,
-  contractId: string,
-  data: Partial<ContratoDetail>
-): Promise<void> => {
-  await apiRequest(`${basePath(condId)}/${contractId}`, {
-    method: 'PUT',
-    body: data,
-  });
-};
-
-export const patchContrato = async (
-  condId: string,
-  contractId: string,
-  data: Record<string, unknown>
-): Promise<void> => {
-  await apiRequest(`${basePath(condId)}/${contractId}`, {
-    method: 'PATCH',
     body: data,
   });
 };

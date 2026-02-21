@@ -7,9 +7,9 @@ export const CONTRACT_STATUSES = [
 ] as const;
 
 export const CONTRACT_COLUMN_LABELS: Record<string, string> = {
-  tenantName: 'Locatário',
   property: 'Imóvel',
-  status: 'Status',
-  startDate: 'Data Início',
-  endDate: 'Data Vencimento',
+  tenantName: 'Locatário',
+  createdAt: 'Data de Criação',
+  dueDate: 'Data de Vencimento',
+  pdfFileName: 'PDF do Contrato',
 };
