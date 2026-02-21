@@ -20,8 +20,8 @@ export interface UserSummary {
 }
 
 export interface UsersResponse {
-  items: UserSummary[];
-   meta: {
+  data: UserSummary[];
+  meta: {
     total: number;
     page: number;
     limit: number;

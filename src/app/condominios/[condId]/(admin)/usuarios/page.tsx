@@ -56,8 +56,8 @@ export default async function UsersPage({ params, searchParams }: PageProps) {
         </div>
       
       <UsersDataTable 
-        data={data.items} 
-        pageCount={data.totalPages} 
+        data={data.data} 
+        pageCount={data.meta.totalPages} 
       />
     </div>
   );
