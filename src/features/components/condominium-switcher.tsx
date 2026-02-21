@@ -2,6 +2,16 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/features/components/ui/alert-dialog';
 import { Button } from '@/features/components/ui/button';
 import {
   Dialog,
@@ -27,6 +37,12 @@ import {
   useSidebar,
 } from '@/features/components/ui/sidebar';
 import {
+  deleteCondominio,
+  getCondominios,
+  postCondominio,
+  putCondominio,
+} from '@/features/condominios/services/condominioService';
+import {
   Building2,
   ChevronsUpDown,
   PencilLine,
@@ -36,6 +52,8 @@ import {
 import { toast } from 'sonner';
 
 import { Condominium } from '@/types/condominium';
+
+import { RoleGuard } from './auth/RoleGuard';
 
 export function CondominiumSwitcher({ condId }: { condId?: string }) {
   const { isMobile } = useSidebar();
@@ -47,11 +65,14 @@ export function CondominiumSwitcher({ condId }: { condId?: string }) {
     null
   );
   const [condoName, setCondoName] = React.useState('');
+  const [deletingCondo, setDeletingCondo] = React.useState<Condominium | null>(
+    null
+  );
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const fetchCondominiums = React.useCallback(async () => {
     try {
-      const response = await fetch('/api/condominios');
-      const data = await response.json();
+      const data = await getCondominios();
       setCondominiums(data);
     } catch (error) {
       console.error('Failed to fetch condominiums', error);
@@ -91,45 +112,47 @@ export function CondominiumSwitcher({ condId }: { condId?: string }) {
     try {
       if (editingCondo) {
         // Edit
-        await fetch(`/api/condominios/${editingCondo.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: condoName, id: editingCondo.id }),
+        await putCondominio(editingCondo.id, {
+          name: condoName,
+          id: editingCondo.id,
         });
         toast.success('Condomínio atualizado com sucesso');
       } else {
         // Create
-        await fetch('/api/condominios', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: condoName }),
-        });
+        await postCondominio({ name: condoName });
         toast.success('Condomínio criado com sucesso');
       }
       setIsOpen(false);
       fetchCondominiums();
     } catch (error) {
+      console.error('Error saving condominio:', error);
       toast.error('Erro ao salvar condomínio');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, condo: Condominium) => {
     e.stopPropagation();
-    if (!confirm('Tem certeza que deseja excluir este condomínio?')) return;
+    setDeletingCondo(condo);
+  };
 
+  const handleDelete = async () => {
+    if (!deletingCondo) return;
+    setIsDeleting(true);
     try {
-      await fetch(`/api/condominios/${id}`, {
-        method: 'DELETE',
-      });
+      await deleteCondominio(deletingCondo.id);
       toast.success('Condomínio excluído com sucesso');
       fetchCondominiums();
-      if (condId === id) {
-        router.push('/'); // Or somewhere safe
+      if (condId === deletingCondo.id) {
+        router.push('/');
       }
     } catch (error) {
+      console.error('Error deleting condominio:', error);
       toast.error('Erro ao excluir condomínio');
+    } finally {
+      setIsDeleting(false);
+      setDeletingCondo(null);
     }
   };
 
@@ -187,23 +210,25 @@ export function CondominiumSwitcher({ condId }: { condId?: string }) {
                   </div>
                   <span className="flex-1 truncate">{condo.name}</span>
 
-                  <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenDialog(condo);
-                      }}
-                      className="hover:bg-muted cursor-pointer rounded p-1"
-                    >
-                      <PencilLine className="text-muted-foreground hover:text-foreground size-4" />
+                  <RoleGuard roles={['Admin']}>
+                    <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenDialog(condo);
+                        }}
+                        className="hover:bg-muted cursor-pointer rounded p-1"
+                      >
+                        <PencilLine className="text-muted-foreground hover:text-foreground size-4" />
+                      </div>
+                      <div
+                        onClick={(e) => handleDeleteClick(e, condo)}
+                        className="hover:bg-destructive/10 cursor-pointer rounded p-1"
+                      >
+                        <Trash2 className="text-destructive hover:text-destructive size-4" />
+                      </div>
                     </div>
-                    <div
-                      onClick={(e) => handleDelete(e, condo.id)}
-                      className="hover:bg-destructive/10 cursor-pointer rounded p-1"
-                    >
-                      <Trash2 className="text-destructive hover:text-destructive size-4" />
-                    </div>
-                  </div>
+                  </RoleGuard>
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
@@ -256,6 +281,39 @@ export function CondominiumSwitcher({ condId }: { condId?: string }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* AlertDialog de confirmação de exclusão */}
+      <AlertDialog
+        open={!!deletingCondo}
+        onOpenChange={(open) => {
+          if (!open) setDeletingCondo(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir condomínio</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o condomínio{' '}
+              <span className="text-foreground font-semibold">
+                {deletingCondo?.name}
+              </span>
+              ? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-destructive hover:bg-destructive/90 text-white"
+            >
+              {isDeleting ? 'Excluindo...' : 'Excluir'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

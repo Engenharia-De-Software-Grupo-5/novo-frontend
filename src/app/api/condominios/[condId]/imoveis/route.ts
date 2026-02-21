@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 import { imoveisDb } from '@/mocks/in-memory-db';
+
 import { ImovelDetail, ImovelSummary } from '@/types/imoveis';
 
 function toSummary(imovel: ImovelDetail): ImovelSummary {
@@ -27,7 +27,7 @@ export async function GET(
   const sortParam = searchParams.get('sort');
 
   let sortField = sortParam;
-  let sortOrder = 'asc';
+  let sortOrder = searchParams.get('order') || 'asc';
 
   if (sortParam && sortParam.includes('.')) {
     const [field, order] = sortParam.split('.');
@@ -98,6 +98,8 @@ export async function GET(
   const endIndex = startIndex + limit;
   const paginatedImoveis = summaries.slice(startIndex, endIndex);
 
+  console.log(paginatedImoveis);
+
   return NextResponse.json({
     data: paginatedImoveis,
     meta: {
@@ -124,7 +126,9 @@ export async function POST(
   const nowId = `IMV-${String(nextSequence).padStart(3, '0')}`;
 
   const hasLocatario =
-    !!body.locatario?.nome || !!body.locatario?.cpf || !!body.locatario?.telefone;
+    !!body.locatario?.nome ||
+    !!body.locatario?.cpf ||
+    !!body.locatario?.telefone;
 
   const newImovel: ImovelDetail = {
     idCondominio: condId,

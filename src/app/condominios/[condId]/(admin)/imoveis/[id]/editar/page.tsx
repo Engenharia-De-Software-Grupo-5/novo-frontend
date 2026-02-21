@@ -1,14 +1,20 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import {
+  ImovelForm,
+  ImovelFormData,
+} from '@/features/components/imoveis/imovel-form';
+import { Button } from '@/features/components/ui/button';
+import {
+  getImovelById,
+  putImovel,
+} from '@/features/imoveis/services/imovelService';
 import { ArrowLeft, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { ImovelForm } from '@/features/components/imoveis/imovel-form';
-import { Button } from '@/features/components/ui/button';
-import { getImovelById, putImovel } from '@/features/imoveis/services/imovelService';
 import { ImovelSituacao } from '@/types/imoveis';
 
 interface ImovelFormState {
@@ -109,26 +115,26 @@ export default function EditarImovelAdminPage({
       setIsSubmitting(true);
 
       const hasLocatario =
-        !!formData.locatario.nome ||
-        !!formData.locatario.cpf ||
-        !!formData.locatario.telefone;
+        !!formData.locatario?.nome ||
+        !!formData.locatario?.cpf ||
+        !!formData.locatario?.telefone;
 
       await putImovel(condId, id, {
         situacao: mapStatusToSituacao(formData.status),
         endereco: {
-          rua: formData.endereco.logradouro,
-          numero: formData.endereco.numero,
-          bairro: formData.endereco.bairro,
-          cidade: formData.endereco.cidade,
+          rua: formData.endereco?.logradouro || '',
+          numero: formData.endereco?.numero || '',
+          bairro: formData.endereco?.bairro || '',
+          cidade: formData.endereco?.cidade || '',
           estado: 'SP',
           bloco: formData.endereco.complemento || undefined,
         },
         nome: formData.nome,
         locatario: hasLocatario
           ? {
-              nome: formData.locatario.nome,
-              cpf: formData.locatario.cpf,
-              telefone: formData.locatario.telefone,
+              nome: formData.locatario?.nome || '',
+              cpf: formData.locatario?.cpf || '',
+              telefone: formData.locatario?.telefone || '',
             }
           : null,
       });
@@ -169,8 +175,12 @@ export default function EditarImovelAdminPage({
       <div className="space-y-6">
         <ImovelForm formData={formData} setFormData={setFormData} />
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-border">
-          <Button variant="outline" className="border-border hover:bg-accent" asChild>
+        <div className="border-border flex justify-end gap-3 border-t pt-4">
+          <Button
+            variant="outline"
+            className="border-border hover:bg-accent"
+            asChild
+          >
             <Link href={`/condominios/${condId}/imoveis/${id}`}>Cancelar</Link>
           </Button>
           <Button
@@ -178,7 +188,7 @@ export default function EditarImovelAdminPage({
             onClick={handleSave}
             disabled={isSubmitting}
           >
-            <Save className="w-4 h-4 mr-2" />
+            <Save className="mr-2 h-4 w-4" />
             {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
           </Button>
         </div>

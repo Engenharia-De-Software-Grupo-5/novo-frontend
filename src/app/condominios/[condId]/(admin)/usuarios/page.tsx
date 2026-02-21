@@ -1,69 +1,64 @@
-'use client';
+import { getUsers } from "@/features/usuarios/services/users.service";
+import { UsersDataTable } from "@/features/usuarios/components/UsersTable";
+import { parseTableFilters } from "@/features/components/data-table/parse-table-filters";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
+interface PageProps {
+  params: Promise<{ condId: string }>; 
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default function UsersPage() {
-  const router = useRouter();
-  const { user } = useAuth();
-  const [mounted, setMounted] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
+export default async function UsersPage({ params, searchParams }: PageProps) {
 
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
+   const resolvedParams = await params;
+  const sParams = await searchParams;
+  const condId = resolvedParams.condId;
 
-    async function loadUsers() {
-      const res = await fetch('/api/users');
-      const json = await res.json();
-      setUsers(json.data);
-      setLoading(false);
-    }
+  const page = Number(sParams.page) || 1;
+  const limit = Number(sParams.limit) || 10;
+  const sort = sParams.sort as string | undefined;
 
-    loadUsers();
-  }, [user, router]);
+  const rawColumns = sParams.columns;
+  const rawContent = sParams.content;
+  const columnsArr = rawColumns
+    ? Array.isArray(rawColumns) ? rawColumns : [rawColumns]
+    : [];
+  const contentArr = rawContent
+    ? Array.isArray(rawContent) ? rawContent : [rawContent]
+    : [];
+
+    console.log('sParams:', sParams);
+  const data = await getUsers(condId, {
+    page,
+    limit,
+    sort,
+    columns: columnsArr.length > 0 ? columnsArr : undefined,
+    content: contentArr.length > 0 ? contentArr : undefined,
+  });
+
 
 
   
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
-
-  // evita hydration mismatch
-  if (!mounted) {
-    return null; // ou um loader
-  }
-
-  if (!user) return null;
-
-  if (loading) return <p>Loading users...</p>;
-
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">
-        Users from your condominium
-      </h1>
+    <div className="flex h-full flex-1 flex-col space-y-8 p-4 md:p-8">    
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-brand-dark text-xl font-semibold">
+            Gerencie os usuários do sistema
+          </h1>
 
-      <ul className="space-y-2">
-        {users.map(u => (
-          <li key={u.id} className="border p-3 rounded">
-            <p className="font-medium">{u.name}</p>
-            <p className="text-sm text-gray-500">{u.email}</p>
-          </li>
-        ))}
-      </ul>
+          <p className="text-brand-gray mt-1 text-sm">
+            Aprove acessos pendentes, atribua cargos e visualize informações
+            essenciais dos usuários do sistema.
+          </p>
+        </div>
+      
+      <UsersDataTable 
+        data={data.data} 
+        pageCount={data.meta.totalPages} 
+      />
     </div>
   );
 }
