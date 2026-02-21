@@ -4,6 +4,8 @@ import { Toaster } from '@/features/components/ui/sonner';
 
 import './globals.css';
 
+import { SessionProvider } from 'next-auth/react';
+
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
@@ -19,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={inter.variable}>
       <body className="font-sans" suppressHydrationWarning>
-        {children}
+        <SessionProvider>{children}</SessionProvider>
         <Toaster position="top-center" />
       </body>
     </html>
