@@ -1,5 +1,11 @@
-import { useState } from 'react';
-import { Button } from '@/features/components/ui/button';
+"use client"
+
+import { useState } from 'react'
+import { useRouter, useParams } from 'next/navigation'
+import { Plus } from 'lucide-react'
+import { toast } from 'sonner'
+
+import { Button } from '@/features/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -8,24 +14,21 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/features/components/ui/dialog';
-import { Input } from '@/features/components/ui/input';
-import { Label } from '@/features/components/ui/label';
+} from '@/features/components/ui/dialog'
+import { Input } from '@/features/components/ui/input'
+import { Label } from '@/features/components/ui/label'
+import { Textarea } from '@/features/components/ui/textarea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/features/components/ui/select';
-import { Textarea } from '@/features/components/ui/textarea';
-import { Plus } from 'lucide-react';
-import { toast } from 'sonner';
+} from '@/features/components/ui/select'
 
-import { Role } from '@/types/user';
-import { inviteUser } from '../services/users.service';
-import { useParams, useRouter } from 'next/navigation';
 
+import { Role } from '@/types/user'
+import { inviteUser } from '../services/users.service'
 
 export function AddUserDialog() {
   const router = useRouter()
@@ -37,6 +40,7 @@ export function AddUserDialog() {
   const [open, setOpen] = useState(false)
   const [isPending, setIsPending] = useState(false)
 
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<Role>('Financeiro')
   const [message, setMessage] = useState('')
@@ -47,22 +51,23 @@ export function AddUserDialog() {
 
     try {
       await inviteUser(condId, {
+        name,
         email,
         role: role.toLowerCase(),
+        message
       })
 
       toast.success('Convite enviado com sucesso!')
 
-      // Limpa o formulário
+      setName('')
       setEmail('')
       setRole('Financeiro')
       setMessage('')
       setOpen(false)
 
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
+      await new Promise((resolve) => setTimeout(resolve, 300))
       router.refresh()
-      
+
     } catch (error) {
       toast.error('Erro ao enviar convite. Tente novamente.')
     } finally {
@@ -78,7 +83,7 @@ export function AddUserDialog() {
           Adicionar Usuário
         </Button>
       </DialogTrigger>
-      
+
       <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
           <DialogTitle>Adicionar Novo Usuário</DialogTitle>
@@ -88,7 +93,20 @@ export function AddUserDialog() {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          
+
+          {/* Nome */}
+          <div className="grid gap-2">
+            <Label htmlFor="name">Nome</Label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="João Silva"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+
           {/* E-mail */}
           <div className="grid gap-2">
             <Label htmlFor="email">E-mail</Label>
@@ -125,9 +143,9 @@ export function AddUserDialog() {
           {/* Mensagem Opcional */}
           <div className="grid gap-2">
             <Label htmlFor="message">Mensagem (opcional)</Label>
-            <Textarea 
-              id="message" 
-              placeholder="Olá! Junte-se à nossa equipe..." 
+            <Textarea
+              id="message"
+              placeholder="Olá! Junte-se à nossa equipe..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
             />
@@ -146,7 +164,7 @@ export function AddUserDialog() {
               disabled={isPending}
               className="bg-brand-blue"
             >
-              {isPending ? "Enviando..." : "Enviar Convite"}
+              {isPending ? 'Enviando...' : 'Enviar Convite'}
             </Button>
           </DialogFooter>
         </form>

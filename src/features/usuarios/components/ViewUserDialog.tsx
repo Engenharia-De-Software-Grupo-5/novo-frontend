@@ -43,6 +43,7 @@ export function ViewUserDialog({
       setIsPending(true);
 
       await inviteUser(condId, {
+        name: user.name,
         email: user.email,
         role: user.role.toLowerCase(),
       });
