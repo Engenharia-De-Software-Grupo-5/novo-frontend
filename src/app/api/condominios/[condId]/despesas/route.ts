@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { despesasDb } from '@/mocks/in-memory-db';
 import { FileAttachment } from '@/types/file';
 
-export async function GET(request: Request, { params }: { params: { condId: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ condId: string }> }) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '10');
@@ -46,7 +46,7 @@ export async function GET(request: Request, { params }: { params: { condId: stri
   });
 }
 
-export async function POST(request: Request, { params }: { params: { condId: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ condId: string }> }) {
   const contentType = request.headers.get('content-type') || '';
   let data: any;
   let anexos: FileAttachment[] = [];
