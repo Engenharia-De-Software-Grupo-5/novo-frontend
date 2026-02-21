@@ -2,53 +2,48 @@ import { apiRequest, buildQueryString } from '@/lib/api-client';
 import {
   CondominoCreateDTO,
   CondominoFull,
-  CondominosResponse
+  CondominosResponse,
 } from '@/types/condomino';
 
 
-interface GetCondominosParams {
-  page: number;
-  limit: number;
-  search?: string;
-  statuses?: string[];
-}
-
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-export async function getCondominos(
-  condominioId: string,
-  params: GetCondominosParams
-): Promise<CondominosResponse> {
-  if (!condominioId || condominioId === 'undefined') {
-    throw new Error('Condomínio ID é obrigatório');
+export const getCondominos = async (
+  condId: string,
+  params?: {
+    page?: number;
+    limit?: number;
+    columns?: string[];
+    content?: string[];
+    sort?: string;
   }
+): Promise<CondominosResponse> => {
+  try {
+    const queryParams: Record<string, string | number | string[] | undefined> = {
+      page: params?.page,
+      limit: params?.limit,
+      sort: params?.sort,
+    };
 
-  const queryString = buildQueryString({
-    page: params.page,
-    limit: params.limit,
-    search: params.search,
-    status: params.statuses,
-  });
+    if (params?.columns && params?.content && params.columns.length > 0) {
+      queryParams.columns = params.columns;
+      queryParams.content = params.content;
+    }
 
-  const url = `${baseUrl}/api/condominios/${condominioId}/condominos${queryString}`;
+    const query = buildQueryString(queryParams);
 
-  const res = await fetch(url, { cache: 'no-store' });
+    return await apiRequest<CondominosResponse>(`/api/condominios/${condId}/condominos${query}`, {
+          method: 'GET',
+        });
 
-  if (!res.ok) {
-    throw new Error('Erro ao buscar condôminos');
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return {
+      data: [],
+      meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
+    };
   }
-
-  const json = await res.json();
-
-  return {
-    items: json.data,
-    totalItems: json.meta.total,
-    totalPages: json.meta.totalPages,
-    page: json.meta.page,
-    limit: json.meta.limit,
-  };
-}
-
+};
 /**
  * BUSCA ÚNICA (Para detalhes)
  */

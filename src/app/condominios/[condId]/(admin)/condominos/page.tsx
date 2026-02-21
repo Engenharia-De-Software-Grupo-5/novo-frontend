@@ -6,22 +6,30 @@ interface PageProps {
   params: Promise<{ condId: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
-
-export default async function CondominosPage({
-  params,
-  searchParams,
-}: PageProps) {
+export default async function CondominosPage({ params, searchParams }: PageProps) {
   const resolvedParams = await params;
   const sParams = await searchParams;
   const condId = resolvedParams.condId;
 
-  const filterMap = parseTableFilters(sParams);
+  const page = Number(sParams.page) || 1;
+  const limit = Number(sParams.limit) || 10;
+  const sort = sParams.sort as string | undefined;
+
+  const rawColumns = sParams.columns;
+  const rawContent = sParams.content;
+  const columnsArr = rawColumns
+    ? Array.isArray(rawColumns) ? rawColumns : [rawColumns]
+    : [];
+  const contentArr = rawContent
+    ? Array.isArray(rawContent) ? rawContent : [rawContent]
+    : [];
 
   const data = await getCondominos(condId, {
-    page: Number(sParams.page) || 1,
-    limit: Number(sParams.limit) || 10,
-    search: sParams.q as string,
-    statuses: filterMap.get('status') ?? [],
+    page,
+    limit,
+    sort,
+    columns: columnsArr.length > 0 ? columnsArr : undefined,
+    content: contentArr.length > 0 ? contentArr : undefined,
   });
 
   return (
@@ -35,8 +43,7 @@ export default async function CondominosPage({
           aprove ou rejeite um pré cadastro
         </p>
       </div>
-
-      <CondominosDataTable data={data.items} pageCount={data.totalPages} />
+      <CondominosDataTable data={data.data} pageCount={data.meta.totalPages} />
     </div>
   );
 }
