@@ -14,4 +14,5 @@ export const paymentsDb = [...mockPaymentDetails];
 export const cobrancasDb = [...mockCobrancaDetails];
 export const cobrancaTenantsDb = [...mockCobrancaTenants];
 export const despesasDb  = [...mockDespesas];
+
 export const imoveisDb = [...mockImoveis];
