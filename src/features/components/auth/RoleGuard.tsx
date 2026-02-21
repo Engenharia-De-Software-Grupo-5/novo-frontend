@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 
 import { Role } from '@/types/user';
@@ -17,10 +17,15 @@ export function RoleGuard({
   fallback = null,
 }: RoleGuardProps) {
   const { data: session, status } = useSession();
+  const [mounted, setMounted] = useState(false);
 
-  // Enquanto carrega a sessão, não queremos mostrar a página restrita erroniamente
-  if (status === 'loading') {
-    return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Garante árvore estável entre SSR e hidratação inicial no cliente.
+  if (!mounted || status === 'loading') {
+    return <>{fallback}</>;
   }
 
   const userRole = session?.user?.role as Role | undefined;
