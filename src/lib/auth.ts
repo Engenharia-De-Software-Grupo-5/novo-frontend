@@ -46,6 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             email: userMocado.email,
             role: userMocado.role,
             status: userMocado.status,
+            name: userMocado.name,
             accessToken: 'fake-jwt-token-12345',
           };
         } catch (error) {
@@ -59,7 +60,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.role = user.role;
         token.accessToken = user.accessToken;
-        token.status = user.status
+        token.status = user.status;
+        token.name = user.name;
 
         // Decodifica o JWT do backend para pegar a data de expiração
         try {
@@ -75,6 +77,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       // Repassa os dados do token para a sessão pública do frontend
       if (session.user) {
+        session.user.name = token.name as string;
         session.user.role = token.role as string;
         session.user.accessToken = token.accessToken as string;
         session.user.status = token.status as string;

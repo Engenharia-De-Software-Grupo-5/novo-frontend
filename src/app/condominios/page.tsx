@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { RoleGuard } from '@/features/components/auth/RoleGuard';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -162,27 +163,29 @@ export default function CondominiosPage() {
                   <span className="text-sm font-medium">{condo.name}</span>
                 </div>
 
-                <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpenDialog(condo);
-                    }}
-                  >
-                    <PencilLine className="text-muted-foreground size-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="hover:text-destructive size-8"
-                    onClick={(e) => handleDeleteClick(e, condo)}
-                  >
-                    <Trash2 className="text-destructive size-4" />
-                  </Button>
-                </div>
+                <RoleGuard roles={['Admin']}>
+                  <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenDialog(condo);
+                      }}
+                    >
+                      <PencilLine className="text-muted-foreground size-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="hover:text-destructive size-8"
+                      onClick={(e) => handleDeleteClick(e, condo)}
+                    >
+                      <Trash2 className="text-destructive size-4" />
+                    </Button>
+                  </div>
+                </RoleGuard>
               </div>
             ))}
 

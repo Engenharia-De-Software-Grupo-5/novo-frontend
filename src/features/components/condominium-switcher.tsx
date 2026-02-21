@@ -53,6 +53,8 @@ import { toast } from 'sonner';
 
 import { Condominium } from '@/types/condominium';
 
+import { RoleGuard } from './auth/RoleGuard';
+
 export function CondominiumSwitcher({ condId }: { condId?: string }) {
   const { isMobile } = useSidebar();
   const router = useRouter();
@@ -206,23 +208,25 @@ export function CondominiumSwitcher({ condId }: { condId?: string }) {
                   </div>
                   <span className="flex-1 truncate">{condo.name}</span>
 
-                  <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenDialog(condo);
-                      }}
-                      className="hover:bg-muted cursor-pointer rounded p-1"
-                    >
-                      <PencilLine className="text-muted-foreground hover:text-foreground size-4" />
+                  <RoleGuard roles={['Admin']}>
+                    <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenDialog(condo);
+                        }}
+                        className="hover:bg-muted cursor-pointer rounded p-1"
+                      >
+                        <PencilLine className="text-muted-foreground hover:text-foreground size-4" />
+                      </div>
+                      <div
+                        onClick={(e) => handleDeleteClick(e, condo)}
+                        className="hover:bg-destructive/10 cursor-pointer rounded p-1"
+                      >
+                        <Trash2 className="text-destructive hover:text-destructive size-4" />
+                      </div>
                     </div>
-                    <div
-                      onClick={(e) => handleDeleteClick(e, condo)}
-                      className="hover:bg-destructive/10 cursor-pointer rounded p-1"
-                    >
-                      <Trash2 className="text-destructive hover:text-destructive size-4" />
-                    </div>
-                  </div>
+                  </RoleGuard>
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />

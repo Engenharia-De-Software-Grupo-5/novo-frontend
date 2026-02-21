@@ -1,5 +1,6 @@
 'use client';
 
+import { RoleGuard } from '@/features/components/auth/RoleGuard';
 import { DataTable } from '@/features/components/data-table';
 
 import { EmployeeSummary } from '@/types/employee';
@@ -52,7 +53,11 @@ export function FuncionariosDataTable({
         { columnId: 'role', isArray: true },
         { columnId: 'status', isArray: true },
       ]}
-      actions={<AddEmployeeDialog />}
+      actions={
+        <RoleGuard roles={['Admin']}>
+          <AddEmployeeDialog />
+        </RoleGuard>
+      }
     />
   );
 }
