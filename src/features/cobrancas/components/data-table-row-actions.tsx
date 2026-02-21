@@ -102,7 +102,7 @@ export function DataTableRowActions({ cobranca }: DataTableRowActionsProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
-            className="flex items-center gap-1.5"
+            className="flex items-center justify-between gap-2"
             onSelect={() => fetchDetail('view')}
           >
             Visualizar
