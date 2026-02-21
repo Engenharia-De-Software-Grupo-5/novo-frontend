@@ -77,8 +77,9 @@ export function CalculatorDialog() {
     );
 
     const penaltyValue = overdueDays > 0 ? penaltyFixed : 0;
+    const dailyInterestRate = (interestPercent / 100) / 30;
     const interestValue =
-      overdueDays > 0 ? penaltyValue * (interestPercent / 100) * (overdueDays / 30) : 0;
+      overdueDays > 0 ? penaltyValue * dailyInterestRate * overdueDays : 0;
 
     return {
       overdueDays,
@@ -100,7 +101,8 @@ export function CalculatorDialog() {
         <DialogHeader className="space-y-2 pb-1">
           <DialogTitle>Calculadora de multas e juros</DialogTitle>
           <DialogDescription>
-            Calcule o valor final com multa fixa e juros aplicados sobre a multa.
+            Juros por mês (%) são aplicados proporcionalmente por dia (taxa mensal/30),
+            a partir do primeiro dia após o vencimento.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -167,7 +169,7 @@ export function CalculatorDialog() {
                 name="interest"
                 render={({ field }) => (
                   <FormItem className="space-y-3">
-                    <FormLabel>Juros (%) *</FormLabel>
+                    <FormLabel>Juros por Mês (%) *</FormLabel>
                     <FormControl>
                       <Input type="number" step="0.01" min="0" placeholder="0,00" {...field} />
                     </FormControl>

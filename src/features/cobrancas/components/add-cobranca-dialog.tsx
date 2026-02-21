@@ -397,7 +397,7 @@ export function CobrancaDialog({
               name="interest"
               render={({ field }) => (
                 <FormItem className="space-y-3">
-                  <FormLabel>Juros (%) *</FormLabel>
+                  <FormLabel>Juros por Mês (%) *</FormLabel>
                   <FormControl>
                     <Input type="number" min="0" step="0.01" placeholder="0,00" {...field} />
                   </FormControl>

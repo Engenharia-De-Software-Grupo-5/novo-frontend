@@ -1,8 +1,11 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { Providers } from '@/app/providers';
 import { Toaster } from '@/features/components/ui/sonner';
 
 import './globals.css';
+
+import { SessionProvider } from 'next-auth/react';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -19,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={inter.variable}>
       <body className="font-sans" suppressHydrationWarning>
-        {children}
+        <Providers>{children}</Providers>
         <Toaster position="top-center" />
       </body>
     </html>

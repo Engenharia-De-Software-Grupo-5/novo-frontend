@@ -1,8 +1,30 @@
+export type Role = 'Financeiro' | 'RH' | 'Admin';
+export type Status = 'ativo' | 'inativo' | 'pendente';
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  status: 'ativo' | 'inativo' | 'pendente';
+  role: Role;
+  status: Status;
   inviteDate: string;
-  inviteDuration: '1 day' | '3 days' | '7 days';
+}
+
+export interface UserSummary {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  status: Status;
+  createdAt: string;
+}
+
+export interface UsersResponse {
+  data: User[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { RoleGuard } from '@/features/components/auth/RoleGuard';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -134,13 +135,15 @@ export function DataTableRowActions({ employee }: DataTableRowActionsProps) {
             Visualizar
             <ScanEye className="h-4 w-4" />
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="flex items-center justify-between gap-2"
-            onSelect={handleEdit}
-          >
-            Editar
-            <PencilLine className="h-4 w-4" />
-          </DropdownMenuItem>
+          <RoleGuard roles={['Admin']}>
+            <DropdownMenuItem
+              className="flex items-center justify-between gap-2"
+              onSelect={handleEdit}
+            >
+              Editar
+              <PencilLine className="h-4 w-4" />
+            </DropdownMenuItem>
+          </RoleGuard>
           <DropdownMenuItem
             className="flex items-center justify-between gap-2"
             onSelect={() => setShowToggleStatusDialog(true)}
@@ -152,14 +155,16 @@ export function DataTableRowActions({ employee }: DataTableRowActionsProps) {
               <FlagOff className="h-4 w-4" />
             )}
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="text-destructive focus:text-destructive flex items-center justify-between gap-2"
-            onSelect={() => setShowDeleteDialog(true)}
-          >
-            Excluir
-            <Trash2 className="h-4 w-4" />
-          </DropdownMenuItem>
+          <RoleGuard roles={['Admin']}>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="text-destructive focus:text-destructive flex items-center justify-between gap-2"
+              onSelect={() => setShowDeleteDialog(true)}
+            >
+              Excluir
+              <Trash2 className="h-4 w-4" />
+            </DropdownMenuItem>
+          </RoleGuard>
         </DropdownMenuContent>
       </DropdownMenu>
 
