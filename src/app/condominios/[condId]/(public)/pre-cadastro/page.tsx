@@ -174,7 +174,7 @@ export default function PreCadastroForm() {
   const form = useForm<PreCadastroFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: 'beatriz',
+      name: '',
       birthDate: '',
       maritalStatus: '',
       rg: '',
@@ -214,10 +214,7 @@ export default function PreCadastroForm() {
     },
   });
 
-  // async function onSubmit(values: z.infer<typeof formSchema>) {
-  //   console.log(values);
-  //   // Aqui você chamaria seu service de cadastro
-  // }
+
 
   const onSubmit: SubmitHandler<PreCadastroFormData> = async (values) => {
     console.log('FORM VALUES:', values);
@@ -231,7 +228,7 @@ export default function PreCadastroForm() {
 
       await createCondomino(condominiumId, payload);
 
-      router.push(`/condominio/${condominiumId}/condominos?page=1&limit=10`);
+      router.push(`/condominios/${condominiumId}/pre-cadastro-sucesso?submitted=true`);
     } catch (error) {
       console.error(error);
     }

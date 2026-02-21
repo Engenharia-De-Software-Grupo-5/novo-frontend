@@ -124,8 +124,7 @@ export async function PUT(
     ...users[index], 
     ...body,
    
-    id: users[index].id,
-    condominioId: users[index].condominioId 
+    id: users[index].id
   };
 
   console.log(`PUT: Usuário ${id} editado com sucesso:`, body);

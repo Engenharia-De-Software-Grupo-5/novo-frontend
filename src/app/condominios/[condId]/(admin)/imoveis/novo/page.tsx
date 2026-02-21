@@ -3,32 +3,16 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import {
+  ImovelForm,
+  ImovelFormData,
+} from '@/features/components/imoveis/imovel-form';
+import { Button } from '@/features/components/ui/button';
+import { postImovel } from '@/features/imoveis/services/imovelService';
 import { ArrowLeft, Building2, MapPin, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { ImovelForm } from '@/features/components/imoveis/imovel-form';
-import { Button } from '@/features/components/ui/button';
-import { postImovel } from '@/features/imoveis/services/imovelService';
 import { ImovelSituacao, ImovelTipo } from '@/types/imoveis';
-
-interface ImovelFormState {
-  identificacao: string;
-  status: string;
-  tipo?: ImovelTipo;
-  endereco: {
-    logradouro: string;
-    numero: string;
-    complemento: string;
-    bairro: string;
-    cidade: string;
-    cep: string;
-  };
-  locatario: {
-    nome: string;
-    cpf: string;
-    telefone: string;
-  };
-}
 
 function mapStatusToSituacao(status: string): ImovelSituacao {
   if (status === 'manutencao') return 'manutenção';
@@ -43,7 +27,7 @@ export default function NovoImovelAdminPage() {
   const condId = params?.condId as string;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<ImovelFormState>({
+  const [formData, setFormData] = useState<ImovelFormData>({
     identificacao: '',
     status: '',
     tipo: 'apartamento',
@@ -70,9 +54,9 @@ export default function NovoImovelAdminPage() {
       setIsSubmitting(true);
 
       const hasLocatario =
-        !!formData.locatario.nome ||
-        !!formData.locatario.cpf ||
-        !!formData.locatario.telefone;
+        !!formData.locatario?.nome ||
+        !!formData.locatario?.cpf ||
+        !!formData.locatario?.telefone;
 
       const created = await postImovel(condId, {
         idCondominio: condId,
@@ -80,19 +64,19 @@ export default function NovoImovelAdminPage() {
         tipo: formData.tipo || 'apartamento',
         situacao: mapStatusToSituacao(formData.status),
         endereco: {
-          rua: formData.endereco.logradouro,
-          numero: formData.endereco.numero,
-          bairro: formData.endereco.bairro,
-          cidade: formData.endereco.cidade,
+          rua: formData.endereco?.logradouro || '',
+          numero: formData.endereco?.numero || '',
+          bairro: formData.endereco?.bairro || '',
+          cidade: formData.endereco?.cidade || '',
           estado: 'SP',
           nomePredio: formData.identificacao || undefined,
-          bloco: formData.endereco.complemento || undefined,
+          bloco: formData.endereco?.complemento || undefined,
         },
         locatario: hasLocatario
           ? {
-              nome: formData.locatario.nome,
-              cpf: formData.locatario.cpf,
-              telefone: formData.locatario.telefone,
+              nome: formData.locatario?.nome || '',
+              cpf: formData.locatario?.cpf || '',
+              telefone: formData.locatario?.telefone || '',
             }
           : null,
       });
@@ -117,45 +101,51 @@ export default function NovoImovelAdminPage() {
           </Link>
         </Button>
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Adicionar Imóvel</h2>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Adicionar Imóvel
+          </h2>
           <p className="text-muted-foreground">
             Preencha os dados para cadastrar uma nova unidade.
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
-        <div className="xl:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 items-start gap-8 xl:grid-cols-3">
+        <div className="space-y-6 xl:col-span-2">
           <ImovelForm formData={formData} setFormData={setFormData} />
 
           <div className="flex gap-3 pt-2">
             <Button variant="outline" className="flex-1" asChild>
               <Link href={listPath}>Cancelar</Link>
             </Button>
-            <Button className="flex-1" onClick={handleSubmit} disabled={isSubmitting}>
-              <Save className="w-4 h-4 mr-2" />
+            <Button
+              className="flex-1"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+            >
+              <Save className="mr-2 h-4 w-4" />
               {isSubmitting ? 'Salvando...' : 'Salvar Imóvel'}
             </Button>
           </div>
         </div>
 
-        <div className="xl:col-span-1 sticky top-6 space-y-4 rounded-xl border bg-card p-4">
-          <h3 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
+        <div className="bg-card sticky top-6 space-y-4 rounded-xl border p-4 xl:col-span-1">
+          <h3 className="text-foreground text-2xl leading-none font-semibold tracking-tight">
             Pré-visualização
           </h3>
 
-          <div className="rounded-xl border bg-background shadow-sm overflow-hidden">
-            <div className="h-40 bg-muted flex items-center justify-center">
-              <Building2 className="h-14 w-14 text-muted-foreground/60" />
+          <div className="bg-background overflow-hidden rounded-xl border shadow-sm">
+            <div className="bg-muted flex h-40 items-center justify-center">
+              <Building2 className="text-muted-foreground/60 h-14 w-14" />
             </div>
-            <div className="p-4 space-y-3">
-              <h4 className="font-semibold text-2xl leading-tight text-foreground">
+            <div className="space-y-3 p-4">
+              <h4 className="text-foreground text-2xl leading-tight font-semibold">
                 {formData.identificacao || 'Identificação do Imóvel'}
               </h4>
-              <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+              <p className="text-muted-foreground flex items-center gap-1.5 text-sm">
                 <MapPin className="h-3.5 w-3.5" />
-                {formData.endereco.logradouro
-                  ? `${formData.endereco.logradouro}, ${formData.endereco.numero}`
+                {formData.endereco?.logradouro
+                  ? `${formData.endereco.logradouro}, ${formData.endereco.numero || ''}`
                   : 'Endereço não informado'}
               </p>
               <Button variant="outline" className="w-full" asChild>
@@ -166,7 +156,8 @@ export default function NovoImovelAdminPage() {
 
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700">
             <p>
-              Dica: Preencha todos os campos obrigatórios (*) para salvar o imóvel.
+              Dica: Preencha todos os campos obrigatórios (*) para salvar o
+              imóvel.
             </p>
           </div>
         </div>

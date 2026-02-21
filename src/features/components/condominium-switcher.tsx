@@ -27,6 +27,12 @@ import {
   useSidebar,
 } from '@/features/components/ui/sidebar';
 import {
+  deleteCondominio,
+  getCondominios,
+  postCondominio,
+  putCondominio,
+} from '@/features/condominios/services/condominioService';
+import {
   Building2,
   ChevronsUpDown,
   PencilLine,
@@ -50,8 +56,7 @@ export function CondominiumSwitcher({ condId }: { condId?: string }) {
 
   const fetchCondominiums = React.useCallback(async () => {
     try {
-      const response = await fetch('/api/condominios');
-      const data = await response.json();
+      const data = await getCondominios();
       setCondominiums(data);
     } catch (error) {
       console.error('Failed to fetch condominiums', error);
@@ -91,19 +96,14 @@ export function CondominiumSwitcher({ condId }: { condId?: string }) {
     try {
       if (editingCondo) {
         // Edit
-        await fetch(`/api/condominios/${editingCondo.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: condoName, id: editingCondo.id }),
+        await putCondominio(editingCondo.id, {
+          name: condoName,
+          id: editingCondo.id,
         });
         toast.success('Condomínio atualizado com sucesso');
       } else {
         // Create
-        await fetch('/api/condominios', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: condoName }),
-        });
+        await postCondominio({ name: condoName });
         toast.success('Condomínio criado com sucesso');
       }
       setIsOpen(false);
@@ -120,9 +120,7 @@ export function CondominiumSwitcher({ condId }: { condId?: string }) {
     if (!confirm('Tem certeza que deseja excluir este condomínio?')) return;
 
     try {
-      await fetch(`/api/condominios/${id}`, {
-        method: 'DELETE',
-      });
+      await deleteCondominio(id);
       toast.success('Condomínio excluído com sucesso');
       fetchCondominiums();
       if (condId === id) {

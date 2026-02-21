@@ -1,6 +1,5 @@
-export type Role = "Financeiro" | "RH" | "Dono"
+export type Role = 'Financeiro' | 'RH' | 'Dono';
 export type Status = 'ativo' | 'inativo' | 'pendente';
-
 
 export interface User {
   id: string;
@@ -10,7 +9,6 @@ export interface User {
   status: Status;
   inviteDate: string;
   inviteDuration: '1 day' | '3 days' | '7 days';
-  condominioId: string; 
 }
 
 export interface UserSummary {
@@ -20,7 +18,7 @@ export interface UserSummary {
   role: Role;
   status: Status;
   createdAt: string;
-  lastAccess?: string;
+  lastAccess?: string;  // Perguntar se pode excluir isso
 }
 
 export interface UsersResponse {

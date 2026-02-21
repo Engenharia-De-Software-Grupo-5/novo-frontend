@@ -156,7 +156,7 @@ export async function GET(
   const roleFilters = searchParams.getAll('roles').map(r => r.toLowerCase());
   const statusFilters = searchParams.getAll('status').map(s => s.toLowerCase());
 
-  let filteredUsers = users.filter(u => u.condominioId === condId);
+  let filteredUsers = users;
 
   if (roleFilters.length > 0) {
     filteredUsers = filteredUsers.filter(u =>
