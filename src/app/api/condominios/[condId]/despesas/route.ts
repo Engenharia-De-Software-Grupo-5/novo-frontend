@@ -4,14 +4,10 @@ import { despesasDb } from '@/mocks/in-memory-db';
 import { DespesaDetail } from '@/types/despesa';
 import { FileAttachment } from '@/types/file';
 
-<<<<<<< HEAD
-export async function GET(request: Request, { params }: { params: Promise<{ condId: string }> }) {
-=======
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ condId: string }> }
 ) {
->>>>>>> origin/develop
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '10');
