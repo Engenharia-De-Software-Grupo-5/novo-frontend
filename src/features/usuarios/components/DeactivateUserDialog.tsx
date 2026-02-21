@@ -12,7 +12,7 @@ import {
 import { FlagOff } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Status, User } from '@/types/user';
+import { Status, User, UserSummary } from '@/types/user';
 
 import { changeUserStatus } from '../services/users.service';
 
@@ -34,7 +34,7 @@ export function DeactivateUserDialog({
 
   if (!user) return null;
 
-  const currentStatus = user.status as Status
+  const currentStatus = user.status as Status;
 
   const willActivate = currentStatus !== 'ativo';
   const newStatus = willActivate ? 'ativo' : 'inativo';
@@ -42,11 +42,7 @@ export function DeactivateUserDialog({
   const handleConfirm = async () => {
     setIsPending(true);
     try {
-      await changeUserStatus(
-        condominioId,
-        user.id,
-        newStatus
-      );
+      await changeUserStatus(condominioId, user.id, newStatus);
 
       onOpenChange(false);
 
@@ -81,21 +77,19 @@ export function DeactivateUserDialog({
           </div>
 
           <DialogTitle>
-            {willActivate
-              ? 'Ativar usuário?'
-              : 'Desativar usuário?'}
+            {willActivate ? 'Ativar usuário?' : 'Desativar usuário?'}
           </DialogTitle>
 
           <DialogDescription className="text-sm">
             {willActivate ? (
               <>
-                Essa ação permitirá que o usuário{' '}
-                <strong>{user.name}</strong> acesse o sistema.
+                Essa ação permitirá que o usuário <strong>{user.name}</strong>{' '}
+                acesse o sistema.
               </>
             ) : (
               <>
-                Essa ação impede que o usuário{' '}
-                <strong>{user.name}</strong> acesse o sistema.
+                Essa ação impede que o usuário <strong>{user.name}</strong>{' '}
+                acesse o sistema.
               </>
             )}
           </DialogDescription>
@@ -122,8 +116,8 @@ export function DeactivateUserDialog({
             {isPending
               ? 'Processando...'
               : willActivate
-              ? 'Tornar ativo'
-              : 'Tornar inativo'}
+                ? 'Tornar ativo'
+                : 'Tornar inativo'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,18 +1,29 @@
 import { NextResponse } from 'next/server';
 import { despesasDb } from '@/mocks/in-memory-db';
+
+import { DespesaDetail } from '@/types/despesa';
 import { FileAttachment } from '@/types/file';
 
+<<<<<<< HEAD
 export async function GET(request: Request, { params }: { params: Promise<{ condId: string }> }) {
+=======
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ condId: string }> }
+) {
+>>>>>>> origin/develop
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '10');
-  const columns = searchParams.getAll('columns').length > 0 
-  ? searchParams.getAll('columns') 
-  : searchParams.getAll('columns[]');
+  const columns =
+    searchParams.getAll('columns').length > 0
+      ? searchParams.getAll('columns')
+      : searchParams.getAll('columns[]');
 
-  const content = searchParams.getAll('content').length > 0 
-  ? searchParams.getAll('content') 
-  : searchParams.getAll('content[]');
+  const content =
+    searchParams.getAll('content').length > 0
+      ? searchParams.getAll('content')
+      : searchParams.getAll('content[]');
 
   let data = [...despesasDb];
 
@@ -23,11 +34,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ cond
       filters.get(col)!.push(content[index]);
     });
 
-    data = data.filter((item: any) => {
+    data = data.filter((item: DespesaDetail) => {
       for (const [col, values] of Array.from(filters.entries())) {
-        const itemValue = String(item[col] || '');
+        const itemValue = String(item[col as keyof DespesaDetail] || '');
         if (col === 'nome') {
-          if (!values.some(v => itemValue.toLowerCase().includes(v.toLowerCase()))) return false;
+          if (
+            !values.some((v) =>
+              itemValue.toLowerCase().includes(v.toLowerCase())
+            )
+          )
+            return false;
         } else {
           if (!values.includes(itemValue)) return false;
         }
@@ -42,20 +58,24 @@ export async function GET(request: Request, { params }: { params: Promise<{ cond
 
   return NextResponse.json({
     data: paginatedData,
-    meta: { pageIndex: page, pageCount, total }
+    meta: { pageIndex: page, pageCount, total },
   });
 }
 
-export async function POST(request: Request, { params }: { params: Promise<{ condId: string }> }) {
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ condId: string }> }
+) {
   const contentType = request.headers.get('content-type') || '';
-  let data: any;
+  let data: DespesaDetail;
   let anexos: FileAttachment[] = [];
 
   if (contentType.includes('multipart/form-data')) {
     const formData = await request.formData();
     data = JSON.parse((formData.get('data') as string) || '{}');
-    
-    anexos = formData.getAll('anexos')
+
+    anexos = formData
+      .getAll('anexos')
       .filter((f): f is File => f instanceof File)
       .map((file) => ({
         id: `file-${Math.random().toString(36).substr(2, 9)}`,
@@ -74,6 +94,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ con
     anexos,
   };
 
-  despesasDb.unshift(novaDespesa); 
+  despesasDb.unshift(novaDespesa);
   return NextResponse.json(novaDespesa, { status: 201 });
 }

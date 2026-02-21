@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/features/components/ui/button';
 import {
   Dialog,
@@ -12,10 +14,9 @@ import {
 import { Label } from '@radix-ui/react-dropdown-menu';
 import { toast } from 'sonner';
 
-import { User } from '@/types/user';
-import { useParams, useRouter } from 'next/navigation';
+import { User, UserSummary } from '@/types/user';
+
 import { inviteUser } from '../services/users.service';
-import { useState } from 'react';
 
 interface ViewUserDialogProps {
   open: boolean;
@@ -46,10 +47,10 @@ export function ViewUserDialog({
         email: user.email,
         role: user.role.toLowerCase(),
       });
-      
+
       onOpenChange(false);
       await new Promise((resolve) => setTimeout(resolve, 300));
-      
+
       toast.success('Convite reenviado com sucesso!');
       router.refresh();
     } catch (error) {

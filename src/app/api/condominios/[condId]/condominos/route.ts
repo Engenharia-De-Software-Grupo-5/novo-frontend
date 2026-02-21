@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { condominos } from '@/mocks/condominos';
-import {
-  CondominoFull,
-  CondominoSummary,
-} from '@/types/condomino';
-import { FileAttachment } from '@/types/file'
 
-
+import { CondominoFull, CondominoSummary } from '@/types/condomino';
+import { FileAttachment } from '@/types/file';
 
 /**
  * @swagger
@@ -57,11 +53,11 @@ import { FileAttachment } from '@/types/file'
  *                     totalPages:
  *                       type: integer
  */
-export async function GET(  request: NextRequest,
+export async function GET(
+  request: NextRequest,
   { params }: { params: Promise<{ condId: string }> }
 ) {
-
-  const { condId } =  await params;
+  const { condId } = await params;
 
   if (!condId) {
     return NextResponse.json({ error: 'ID não fornecido' }, { status: 400 });
@@ -82,7 +78,6 @@ export async function GET(  request: NextRequest,
     sortOrder = order;
   }
 
-
   const columnsArr = searchParams.getAll('columns');
   const contentArr = searchParams.getAll('content');
 
@@ -101,29 +96,27 @@ export async function GET(  request: NextRequest,
   }
 
   // primeiro filtra pelo condomínio
-  let filtered = condominos.filter(
-    c => c.condominiumId === condId
-  );
+  let filtered = condominos.filter((c) => c.condominiumId === condId);
 
   // aplica filtros dinamicamente
   for (const [col, values] of filterMap.entries()) {
     if (col === 'name') {
       const searchLower = values[0].toLowerCase();
-      filtered = filtered.filter(c =>
+      filtered = filtered.filter((c) =>
         c.name.toLowerCase().includes(searchLower)
       );
     } else if (col === 'cpf') {
       const searchLower = values[0].toLowerCase();
-      filtered = filtered.filter(c =>
+      filtered = filtered.filter((c) =>
         c.cpf.toLowerCase().includes(searchLower)
       );
     } else {
-      filtered = filtered.filter(c => {
+      filtered = filtered.filter((c) => {
         const fieldValue = c[col as keyof typeof c];
         if (fieldValue === undefined) return false;
 
         return values.some(
-          v => String(fieldValue).toLowerCase() === v.toLowerCase()
+          (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
         );
       });
     }
@@ -148,7 +141,7 @@ export async function GET(  request: NextRequest,
   }
 
   // map para summary
-  const mapped: CondominoSummary[] = sorted.map(m => ({
+  const mapped: CondominoSummary[] = sorted.map((m) => ({
     id: m.id,
     name: m.name,
     email: m.email,
@@ -259,7 +252,6 @@ export async function POST(request: NextRequest) {
   const contentType = request.headers.get('content-type') || '';
   let uploadedFiles: FileAttachment[] = [];
 
- 
   if (contentType.includes('multipart/form-data')) {
     const formData = await request.formData();
 
@@ -299,7 +291,7 @@ export async function POST(request: NextRequest) {
 
   condominos.push(newCondomino);
 
-  console.log("CONDOMINOS NOVO", condominos)
+  console.log('CONDOMINOS NOVO', condominos);
 
   return NextResponse.json(
     { message: 'Condomino created successfully', data: newCondomino },
