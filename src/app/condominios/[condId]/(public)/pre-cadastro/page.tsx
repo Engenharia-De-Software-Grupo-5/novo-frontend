@@ -1,9 +1,11 @@
 'use client';
 
 import Image from 'next/image';
+import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/features/components/ui/button';
 import { Form } from '@/features/components/ui/form';
 import { Separator } from '@/features/components/ui/separator';
+import { createCondomino } from '@/features/condominos/services/condominos.service';
 import { AdditionalResidentsSection } from '@/features/form/components/AdditionalResidentsSecton';
 import { BankingInfoSection } from '@/features/form/components/BankingInfoSection';
 import { ContactSection } from '@/features/form/components/ContactSection';
@@ -13,9 +15,7 @@ import { PersonalDataSection } from '@/features/form/components/PersonalDataSect
 import { ProfessionalInfoSection } from '@/features/form/components/ProfessionalInfoSection';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useParams, useRouter } from 'next/navigation';
 import * as z from 'zod';
-import { createCondomino } from '@/features/condominos/services/condominos.service';
 
 const formSchema = z.object({
   // --- DADOS PESSOAIS ---
@@ -27,7 +27,7 @@ const formSchema = z.object({
   rg: z
     .string()
     .min(7, 'RG deve ter no mínimo 7 dígitos')
-    .max(9, "RG deve ter no máximo 9 dígitos")
+    .max(9, 'RG deve ter no máximo 9 dígitos')
     .transform((val) => val.replace(/[^a-zA-Z0-9]/g, '')),
 
   issuingAuthority: z.string().min(1, 'Órgão expedidor é obrigatório'),
@@ -82,7 +82,7 @@ const formSchema = z.object({
         .min(10, 'Telefone inválido')
         .max(11, 'Telefone inválido')
         .optional()
-        .or(z.literal('')) 
+        .or(z.literal(''))
     ),
 
   address: z.string().min(1, 'Endereço é obrigatório'),
@@ -130,16 +130,25 @@ const formSchema = z.object({
   // --- CÔNJUGE ---
   spouse: z
     .object({
-      name: z.string().optional(),
+      name: z.string().min(1, 'Tem que informar o nome do cônjuge'),
       rg: z
         .string()
-        .optional()
-        .transform((v) => v?.replace(/[^a-zA-Z0-9]/g, '')),
+        .min(7, 'RG deve ter no mínimo 7 dígitos')
+        .max(9, 'RG deve ter no máximo 9 dígitos')
+        .transform((val) => val.replace(/[^a-zA-Z0-9]/g, '')),
       cpf: z
         .string()
-        .optional()
-        .transform((v) => v?.replace(/\D/g, '')),
-      monthlyIncome: z.coerce.number().optional(),
+        .min(11, 'CPF deve ter no mínimo 11 dígitos')
+        .max(14, 'CPF deve ter no máximo 14 dígitos')
+        .transform((v) => v?.replace(/\D/g, '') ?? ''),
+      profession: z
+        .string()
+        .min(1, 'Tem que informar a profissão do cônjuge')
+        .default(''),
+      monthlyIncome: z.coerce
+        .number()
+        .min(1, 'Tem que informar a renda do cônjuge')
+        .default(0),
     })
     .optional(),
 
@@ -165,13 +174,16 @@ const formSchema = z.object({
 });
 
 type PreCadastroFormData = z.infer<typeof formSchema>;
+type PreCadastroFormInput = z.input<typeof formSchema>;
 
 export default function PreCadastroForm() {
   const params = useParams();
   const router = useRouter();
-  const condominiumId = params.condId;
+  const condominiumId = Array.isArray(params.condId)
+    ? params.condId[0]
+    : params.condId;
 
-  const form = useForm<PreCadastroFormData>({
+  const form = useForm<PreCadastroFormInput, unknown, PreCadastroFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
@@ -189,6 +201,7 @@ export default function PreCadastroForm() {
         name: '',
         rg: '',
         cpf: '',
+        profession: '',
         monthlyIncome: 0,
       },
       emergencyContacts: [{ name: '', relationship: '', phone: '' }],
@@ -214,10 +227,11 @@ export default function PreCadastroForm() {
     },
   });
 
-
   // PR PRPRP PR
 
-  const onSubmit: SubmitHandler<PreCadastroFormData> = async (values) => {
+  const onSubmit: SubmitHandler<PreCadastroFormData> = async (
+    values: PreCadastroFormData
+  ) => {
     console.log('FORM VALUES:', values);
     if (!condominiumId) {
       console.error('condominioId não definido!');
@@ -229,7 +243,9 @@ export default function PreCadastroForm() {
 
       await createCondomino(condominiumId, payload);
 
-      router.push(`/condominios/${condominiumId}/pre-cadastro-sucesso?submitted=true`);
+      router.push(
+        `/condominios/${condominiumId}/pre-cadastro-sucesso?submitted=true`
+      );
     } catch (error) {
       console.error(error);
     }
@@ -238,12 +254,7 @@ export default function PreCadastroForm() {
   return (
     <div className="container mx-auto max-w-4xl space-y-8 py-10">
       <div className="flex flex-col items-center space-y-2 text-center">
-        <Image
-          src="/logo-icon.png"
-          width={40}
-          height={40}
-          alt="Logo Moratta"
-        />
+        <Image src="/logo-icon.png" width={40} height={40} alt="Logo Moratta" />
 
         <h1 className="text-brand-dark text-3xl font-bold">
           Pré-cadastro de Condômino

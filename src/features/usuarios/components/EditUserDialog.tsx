@@ -21,7 +21,7 @@ import {
 } from '@/features/components/ui/select';
 import { toast } from 'sonner';
 
-import { Role, User } from '@/types/user';
+import { Role, User, UserSummary } from '@/types/user';
 
 import { updateUser } from '../services/users.service';
 
@@ -33,7 +33,6 @@ interface EditUserDialogProps {
   user: User | null;
   condominioId: string;
 }
-
 
 export function EditUserDialog({
   open,
