@@ -1,161 +1,137 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockImoveis } from '@/mocks/imoveis';
 
-import { Imovel } from '@/types/imoveis';
+import { imoveisDb } from '@/mocks/in-memory-db';
+import { ImovelDetail } from '@/types/imoveis';
 
-/**
- * @swagger
- * /api/condominios/{condId}/imoveis/{id}:
- *   get:
- *     summary: Get a property (imovel) by ID
- *     tags:
- *       - Imoveis
- *     parameters:
- *       - in: path
- *         name: condId
- *         required: true
- *         schema:
- *           type: string
- *         description: Condominium ID
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Property ID
- *     responses:
- *       200:
- *         description: Property details
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *       404:
- *         description: Property not found
- */
+function getImovelIndex(condId: string, id: string) {
+  return imoveisDb.findIndex(
+    (imovel) => imovel.idCondominio === condId && imovel.idImovel === id
+  );
+}
+
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  {
+    params,
+  }: {
+    params: Promise<{ condId: string; id: string }>;
+  }
 ) {
-  const { id } = await params;
-  const imovel = mockImoveis.find((i) => i.idImovel === id);
+  const { condId, id } = await params;
+  const imovel = imoveisDb.find(
+    (item) => item.idCondominio === condId && item.idImovel === id
+  );
 
   if (!imovel) {
-    return NextResponse.json({ error: 'Imovel not found' }, { status: 404 });
+    return NextResponse.json({ error: 'Imóvel não encontrado' }, { status: 404 });
   }
 
   return NextResponse.json(imovel);
 }
 
-/**
- * @swagger
- * /api/condominios/{condId}/imoveis/{id}:
- *   put:
- *     summary: Update a property
- *     tags:
- *       - Imoveis
- *     parameters:
- *       - in: path
- *         name: condId
- *         required: true
- *         schema:
- *           type: string
- *         description: Condominium ID
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Property ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *     responses:
- *       200:
- *         description: Property updated successfully
- */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  {
+    params,
+  }: {
+    params: Promise<{ condId: string; id: string }>;
+  }
 ) {
-  const { id } = await params;
-  const body = (await request.json()) as Partial<Imovel>;
-  console.log(`Updated information for imovel ${id}:`, body);
-  return NextResponse.json(body);
+  const { condId, id } = await params;
+  const body = (await request.json()) as Partial<ImovelDetail>;
+  const index = getImovelIndex(condId, id);
+
+  if (index === -1) {
+    return NextResponse.json({ error: 'Imóvel não encontrado' }, { status: 404 });
+  }
+
+  const current = imoveisDb[index];
+  const hasLocatario =
+    !!body.locatario?.nome || !!body.locatario?.cpf || !!body.locatario?.telefone;
+
+  const updated: ImovelDetail = {
+    ...current,
+    ...body,
+    idCondominio: current.idCondominio,
+    idImovel: current.idImovel,
+    endereco: {
+      ...current.endereco,
+      ...body.endereco,
+    },
+    locatario:
+      body.locatario === undefined
+        ? current.locatario
+        : hasLocatario
+          ? {
+              nome: body.locatario?.nome || '',
+              cpf: body.locatario?.cpf || '',
+              telefone: body.locatario?.telefone || '',
+            }
+          : null,
+  };
+
+  imoveisDb[index] = updated;
+
+  return NextResponse.json(updated);
 }
 
-/**
- * @swagger
- * /api/condominios/{condId}/imoveis/{id}:
- *   patch:
- *     summary: Partially update a property
- *     tags:
- *       - Imoveis
- *     parameters:
- *       - in: path
- *         name: condId
- *         required: true
- *         schema:
- *           type: string
- *         description: Condominium ID
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Property ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *     responses:
- *       200:
- *         description: Property updated successfully
- */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  {
+    params,
+  }: {
+    params: Promise<{ condId: string; id: string }>;
+  }
 ) {
-  const { id } = await params;
-  const body = (await request.json()) as Partial<Imovel>;
-  console.log(`Patched information for imovel ${id}:`, body);
-  return NextResponse.json(body);
+  const { condId, id } = await params;
+  const body = (await request.json()) as Partial<ImovelDetail>;
+  const index = getImovelIndex(condId, id);
+
+  if (index === -1) {
+    return NextResponse.json({ error: 'Imóvel não encontrado' }, { status: 404 });
+  }
+
+  const current = imoveisDb[index];
+  const patched: ImovelDetail = {
+    ...current,
+    ...body,
+    endereco: {
+      ...current.endereco,
+      ...body.endereco,
+    },
+    locatario:
+      body.locatario === undefined
+        ? current.locatario
+        : body.locatario?.nome || body.locatario?.cpf || body.locatario?.telefone
+          ? {
+              nome: body.locatario?.nome || '',
+              cpf: body.locatario?.cpf || '',
+              telefone: body.locatario?.telefone || '',
+            }
+          : null,
+  };
+
+  imoveisDb[index] = patched;
+
+  return NextResponse.json(patched);
 }
 
-/**
- * @swagger
- * /api/condominios/{condId}/imoveis/{id}:
- *   delete:
- *     summary: Delete a property
- *     tags:
- *       - Imoveis
- *     parameters:
- *       - in: path
- *         name: condId
- *         required: true
- *         schema:
- *           type: string
- *         description: Condominium ID
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Property ID
- *     responses:
- *       200:
- *         description: Property deleted successfully
- */
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  {
+    params,
+  }: {
+    params: Promise<{ condId: string; id: string }>;
+  }
 ) {
-  const { id } = await params;
-  console.log(`imovel com id ${id} foi apagado`);
-  return NextResponse.json({ message: `Imovel com id ${id} foi apagado` });
+  const { condId, id } = await params;
+  const index = getImovelIndex(condId, id);
+
+  if (index === -1) {
+    return NextResponse.json({ error: 'Imóvel não encontrado' }, { status: 404 });
+  }
+
+  imoveisDb.splice(index, 1);
+
+  return NextResponse.json({ message: `Imóvel ${id} foi removido.` });
 }

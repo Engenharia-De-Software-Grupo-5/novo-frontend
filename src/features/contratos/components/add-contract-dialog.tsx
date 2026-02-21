@@ -41,9 +41,7 @@ import { ContratoFormData, contratoSchema } from '../schemas/contratoSchema';
 import { postContrato } from '../services/contratoService';
 
 const formatPropertyName = (imovel: Imovel) => {
-  const namePart = imovel.endereco.nomePredio ??
-    `${imovel.tipo.charAt(0).toUpperCase()}${imovel.tipo.slice(1)}`;
-  return `${imovel.idImovel} / ${namePart}`;
+  return `${imovel.idImovel} / ${imovel.nome}`;
 };
 
 const formatPropertyAddress = (imovel: Imovel) => {

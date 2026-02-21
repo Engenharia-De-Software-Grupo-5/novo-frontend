@@ -1,3 +1,11 @@
+export type ImovelTipo = 'casa' | 'apartamento';
+
+export type ImovelSituacao =
+  | 'ativo'
+  | 'inativo'
+  | 'manutenção'
+  | 'na planta';
+
 export interface Endereco {
   rua: string;
   numero: string;
@@ -9,19 +17,41 @@ export interface Endereco {
   torre?: string;
 }
 
-export interface Estrutura {
-  area: number; // em metros quadrados
-  numSuites: number;
-  numQuartos: number;
-  numBanheiros: number;
+export interface Locatario {
+  nome: string;
+  cpf: string;
+  telefone: string;
 }
 
-export interface Imovel {
+export interface ImovelDetail {
   idCondominio: string;
   idImovel: string;
-  tipo: 'casa' | 'apartamento';
-  situacao: 'ativo' | 'inativo' | 'manutenção' | 'na planta';
+  nome: string;
+  tipo: ImovelTipo;
+  situacao: ImovelSituacao;
   endereco: Endereco;
-  estrutura: Estrutura;
-  outros: string[];
+  locatario: Locatario | null;
 }
+
+export interface ImovelSummary {
+  idImovel: string;
+  name: string;
+  tipo: ImovelTipo;
+  situacao: ImovelSituacao;
+  endereco: string;
+  bairro: string;
+  cidade: string;
+}
+
+export interface ImovelResponse {
+  data: ImovelSummary[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+// Compatibilidade com o código legado
+export type Imovel = ImovelDetail;

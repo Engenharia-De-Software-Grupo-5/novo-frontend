@@ -38,6 +38,15 @@ export function DynamicBreadcrumb() {
 
             name = ROUTE_CONFIG[relativePath];
           }
+          if (!name && /^IMV-[A-Z0-9]+$/i.test(segment)) {
+            name = 'Detalhes do Imóvel';
+          }
+          if (!name && segment === 'editar') {
+            name = 'Editar';
+          }
+          if (!name && segment === 'novo') {
+            name = 'Adicionar Imóvel';
+          }
           if (!name) return null;
 
           return (

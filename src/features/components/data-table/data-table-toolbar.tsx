@@ -65,13 +65,13 @@ export function DataTableToolbar<TData>({
   }, [searchValue, table, searchColumnId]);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2">
-      <div className="flex flex-1 items-center space-x-2">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex w-full flex-wrap items-center gap-2">
         <Input
           placeholder={searchPlaceholder}
           value={searchValue}
           onChange={(event) => setSearchValue(event.target.value)}
-          className="h-8 w-[150px] lg:w-[250px]"
+          className="h-9 w-full sm:w-[220px] lg:w-[250px]"
         />
         {facetedFilters.map((filter) =>
           table.getColumn(filter.columnId) ? (
@@ -87,14 +87,14 @@ export function DataTableToolbar<TData>({
           <Button
             variant="ghost"
             onClick={() => table.resetColumnFilters()}
-            className="h-8 px-2 lg:px-3"
+            className="h-9 px-2 lg:px-3"
           >
             Limpar
             <X className="ml-2 h-4 w-4" />
           </Button>
         )}
       </div>
-      <div className="flex shrink-0 items-center space-x-2">
+      <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:shrink-0 sm:justify-start">
         <DataTableViewOptions table={table} columnLabels={columnLabels} />
         {actions}
       </div>
