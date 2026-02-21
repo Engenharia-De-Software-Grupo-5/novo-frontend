@@ -27,16 +27,16 @@
 //     {
 //       match: (path: string) =>
 //         path.includes('/pagamentos') || path.includes('/financeiro'),
-//       allowedRoles: ['Financeiro', 'Dono'],
+//       allowedRoles: ['Financeiro', 'admin'],
 //     },
 //     {
 //       match: (path: string) =>
 //         path.includes('/funcionarios') || path.includes('/rh'),
-//       allowedRoles: ['RH', 'Dono'],
+//       allowedRoles: ['RH', 'admin'],
 //     },
 //     {
 //       match: (path: string) => path.startsWith('/admin'),
-//       allowedRoles: ['Dono'],
+//       allowedRoles: ['admin'],
 //     },
 //   ];
 
@@ -62,7 +62,6 @@
 //   // Define quais rotas o middleware intercepta
 //   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 // };
-
 
 import { NextResponse } from 'next/server';
 
@@ -90,9 +89,9 @@ export default auth((req) => {
   const userStatus = req.auth?.user.status as string;
 
   if (!userRole || !userStatus) {
-  // Se não tem role ou status, redireciona ou nega o acesso
-  return Response.redirect(new URL('/auth/login', req.url));
-}
+    // Se não tem role ou status, redireciona ou nega o acesso
+    return Response.redirect(new URL('/auth/login', req.url));
+  }
 
   // Bloqueia usuários com status diferente de ativo
   if (userStatus && userStatus.toLowerCase() !== 'ativo') {
@@ -106,16 +105,16 @@ export default auth((req) => {
     {
       match: (path: string) =>
         path.includes('/pagamentos') || path.includes('/financeiro'),
-      allowedRoles: ['Financeiro', 'Dono'],
+      allowedRoles: ['Financeiro', 'Admin'],
     },
     {
       match: (path: string) =>
         path.includes('/funcionarios') || path.includes('/rh'),
-      allowedRoles: ['RH', 'Dono'],
+      allowedRoles: ['RH', 'Admin'],
     },
     {
       match: (path: string) => path.startsWith('/admin'),
-      allowedRoles: ['Dono'],
+      allowedRoles: ['Admin'],
     },
   ];
 

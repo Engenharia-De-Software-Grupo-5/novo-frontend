@@ -1,11 +1,10 @@
 import { User } from '@/types/user';
 
-export const DONO_FAKE: User = {
-  id: 'DONO-001',
-  name: 'Dono',
+export const ADMIN_FAKE: User = {
+  id: 'ADMIN-001',
+  name: 'admin',
   email: 'owner@condx.com',
-  role: 'Dono',
+  role: 'Admin',
   status: 'ativo',
   inviteDate: '01-01-2024',
-  inviteDuration: '7 days',
 };

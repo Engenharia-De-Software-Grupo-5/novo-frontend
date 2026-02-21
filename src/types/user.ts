@@ -1,4 +1,4 @@
-export type Role = 'Financeiro' | 'RH' | 'Dono';
+export type Role = 'Financeiro' | 'RH' | 'Admin';
 export type Status = 'ativo' | 'inativo' | 'pendente';
 
 export interface User {
@@ -8,5 +8,4 @@ export interface User {
   role: Role;
   status: Status;
   inviteDate: string;
-  inviteDuration: '1 day' | '3 days' | '7 days';
 }
