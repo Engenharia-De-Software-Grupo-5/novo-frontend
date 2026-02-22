@@ -1,5 +1,4 @@
 'use client';
-'use no memo';
 
 import * as React from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -41,15 +40,15 @@ export interface FilterMapping {
 }
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  pageCount: number;
-  searchColumnId?: string;
-  searchPlaceholder?: string;
-  facetedFilters?: FacetedFilterConfig[];
-  columnLabels?: Record<string, string>;
-  filterMappings?: FilterMapping[];
-  actions?: React.ReactNode;
+  readonly columns: ColumnDef<TData, TValue>[];
+  readonly data: TData[];
+  readonly pageCount: number;
+  readonly searchColumnId?: string;
+  readonly searchPlaceholder?: string;
+  readonly facetedFilters?: FacetedFilterConfig[];
+  readonly columnLabels?: Record<string, string>;
+  readonly filterMappings?: FilterMapping[];
+  readonly actions?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -63,6 +62,7 @@ export function DataTable<TData, TValue>({
   filterMappings = [],
   actions,
 }: DataTableProps<TData, TValue>) {
+  'use no memo';
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

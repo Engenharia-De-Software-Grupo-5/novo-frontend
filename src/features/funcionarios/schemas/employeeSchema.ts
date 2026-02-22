@@ -15,7 +15,7 @@ export const employeeFormSchema = z.object({
     .string()
     .min(11, { message: 'CPF deve ter 11 dígitos.' })
     .max(14, { message: 'CPF muito longo.' }),
-  birthDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+  birthDate: z.string().refine((date) => !Number.isNaN(Date.parse(date)), {
     message: 'Data de nascimento inválida.',
   }),
   admissionDate: z.string().optional(),

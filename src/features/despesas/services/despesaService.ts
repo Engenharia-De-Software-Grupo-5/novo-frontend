@@ -1,6 +1,6 @@
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 import { buildFormDataBody, FileUploadOptions } from '@/lib/form-data';
-import { DespesaSummary, DespesaDetail, DespesaResponse } from '@/types/despesa';
+import { DespesaDetail, DespesaResponse } from '@/types/despesa';
 
 const getBaseUrl = (condId: string) => `/api/condominios/${condId}/despesas`;
 

@@ -2,7 +2,7 @@ import { AdditionalResident } from "@/types/condomino";
 import { SectionTitle } from "./Section";
 import { Users } from "lucide-react";
 
-export function AdditionalResidentsSection({ residents }: { residents: AdditionalResident[] }) {
+export function AdditionalResidentsSection({ residents }: { readonly residents: AdditionalResident[] }) {
   if (!residents || residents.length === 0) return null;
 
   return (

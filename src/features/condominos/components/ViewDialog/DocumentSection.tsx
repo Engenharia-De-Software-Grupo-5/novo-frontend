@@ -3,7 +3,7 @@ import { Download, FileCheck, FileText } from "lucide-react";
 import { SectionTitle } from "./Section";
 import { CondominoFull } from "@/types/condomino";
 
-export function DocumentSection({ data }: { data: CondominoFull }) {
+export function DocumentSection({ data }: { readonly data: CondominoFull }) {
   const docs = [
     { label: "RG (Frente e Verso)", key: "rg" },
     { label: "CPF", key: "cpf" },

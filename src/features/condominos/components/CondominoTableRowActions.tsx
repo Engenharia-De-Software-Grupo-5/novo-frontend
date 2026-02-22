@@ -24,7 +24,7 @@ import { DeactivateCondominoDialog } from './DeactivateCondominoDialog';
 import { ViewCondominoDialog } from './ViewDialog/ViewCondominoDialog';
 
 interface CondominoTableRowActionsProps {
-  condomino: CondominoSummary;
+  readonly condomino: CondominoSummary;
 }
 
 export function CondominoTableRowActions({

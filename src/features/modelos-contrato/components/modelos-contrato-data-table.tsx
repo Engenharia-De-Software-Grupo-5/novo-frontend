@@ -7,8 +7,8 @@ import { AddModeloContratoButton } from './add-modelo-contrato-button';
 import { columns } from './columns';
 
 interface ModelosContratoDataTableProps {
-  data: ModeloContratoSummary[];
-  pageCount: number;
+  readonly data: ModeloContratoSummary[];
+  readonly pageCount: number;
 }
 
 export function ModelosContratoDataTable({

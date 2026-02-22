@@ -18,9 +18,9 @@ import { COBRANCA_TYPES } from '../constants';
 import { StatusBadge } from './status-badge';
 
 interface ViewCobrancaDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  cobranca: CobrancaDetail;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly cobranca: CobrancaDetail;
 }
 
 const formatCurrency = (value: number) =>

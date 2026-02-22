@@ -58,7 +58,7 @@ import { toast } from 'sonner';
 import { useDebounce } from 'use-debounce';
 
 import { EmployeeSummary } from '@/types/employee';
-import { PaymentDetail, PaymentSummary, PaymentType } from '@/types/payment';
+import { PaymentDetail, PaymentType } from '@/types/payment';
 import { cn } from '@/lib/utils';
 
 import { PAYMENT_TYPES } from '../constants';
@@ -66,9 +66,9 @@ import { paymentFormSchema, PaymentFormValues } from '../schemas/paymentSchema';
 import { postPayment, putPayment } from '../services/paymentService';
 
 interface PaymentDialogProps {
-  payment?: PaymentDetail;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  readonly payment?: PaymentDetail;
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
 }
 
 export function PaymentDialog({
@@ -117,27 +117,30 @@ export function PaymentDialog({
   });
 
   useEffect(() => {
+    if (!open) return;
+
     const fetchEmployees = async () => {
-      if (open) {
-        try {
-          const params: {
-            limit: number;
-            columns?: string[];
-            content?: string[];
-          } = { limit: 20 };
-          if (debouncedSearchQuery) {
-            params.columns = ['name'];
-            params.content = [debouncedSearchQuery];
-          }
-          const response = await getFuncionarios(condId, params);
-          setEmployees(response.data);
-        } catch (error) {
-          console.error('Failed to fetch employees', error);
-          toast.error('Erro ao carregar funcionários');
+      try {
+        const queryParams: {
+          limit: number;
+          columns?: string[];
+          content?: string[];
+        } = { limit: 20 };
+
+        if (debouncedSearchQuery) {
+          queryParams.columns = ['name'];
+          queryParams.content = [debouncedSearchQuery];
         }
+
+        const response = await getFuncionarios(condId, queryParams);
+        setEmployees(response.data);
+      } catch (error) {
+        console.error('Failed to fetch employees', error);
+        toast.error('Erro ao carregar funcionários');
       }
     };
-    fetchEmployees();
+
+    void fetchEmployees();
   }, [open, condId, debouncedSearchQuery]);
 
   useEffect(() => {
@@ -162,7 +165,6 @@ export function PaymentDialog({
         employeeId: data.employeeId,
         type: data.type as PaymentType,
         value: Number(data.amount),
-        // Schema ensures at least one date is present
         dueDate: data.dueDate || data.paymentDate || '',
         paymentDate: data.paymentDate || undefined,
         observation: data.observation,
@@ -175,7 +177,7 @@ export function PaymentDialog({
           newFiles: files,
           existingFileIds,
         });
-        toast.success(`Pagamento atualizado com sucesso!`);
+        toast.success('Pagamento atualizado com sucesso!');
       } else {
         await postPayment(condId, paymentPayload, {
           newFiles: files.length > 0 ? files : undefined,
@@ -192,14 +194,20 @@ export function PaymentDialog({
       }
     } catch (error) {
       console.error('Error submitting payment:', error);
-      toast.error(
-        isEditing
-          ? 'Erro ao atualizar pagamento. Tente novamente.'
-          : 'Erro ao registrar pagamento. Tente novamente.'
-      );
+      const errorMsg = isEditing
+        ? 'Erro ao atualizar pagamento. Tente novamente.'
+        : 'Erro ao registrar pagamento. Tente novamente.';
+      toast.error(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  let submitButtonLabel = 'Adicionar registro';
+  if (isSubmitting) {
+    submitButtonLabel = isEditing ? 'Salvando...' : 'Adicionando...';
+  } else if (isEditing) {
+    submitButtonLabel = 'Salvar';
   }
 
   const dialogContent = (
@@ -392,11 +400,15 @@ export function PaymentDialog({
 
           {/* Comprovante */}
           <div className="space-y-2">
-            <label className="text-sm leading-none font-medium">
+            <label
+              htmlFor="payment-file-upload"
+              className="text-sm leading-none font-medium"
+            >
               Comprovante (PDF)
             </label>
             <div className="relative">
               <Input
+                id="payment-file-upload"
                 type="file"
                 accept=".pdf"
                 onChange={handleFileChange}
@@ -477,13 +489,7 @@ export function PaymentDialog({
               disabled={isSubmitting}
               className="w-full sm:w-auto"
             >
-              {isSubmitting
-                ? isEditing
-                  ? 'Salvando...'
-                  : 'Adicionando...'
-                : isEditing
-                  ? 'Salvar'
-                  : 'Adicionar registro'}
+              {submitButtonLabel}
             </Button>
           </DialogFooter>
         </form>

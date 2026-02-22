@@ -55,7 +55,7 @@ import { Condominium } from '@/types/condominium';
 
 import { RoleGuard } from './auth/RoleGuard';
 
-export function CondominiumSwitcher({ condId }: { condId?: string }) {
+export function CondominiumSwitcher({ condId }: { readonly condId?: string }) {
   const { isMobile } = useSidebar();
   const router = useRouter();
   const [condominiums, setCondominiums] = React.useState<Condominium[]>([]);
@@ -212,21 +212,25 @@ export function CondominiumSwitcher({ condId }: { condId?: string }) {
 
                   <RoleGuard roles={['Admin']}>
                     <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                      <div
+                      <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleOpenDialog(condo);
                         }}
                         className="hover:bg-muted cursor-pointer rounded p-1"
+                        aria-label={`Editar ${condo.name}`}
                       >
                         <PencilLine className="text-muted-foreground hover:text-foreground size-4" />
-                      </div>
-                      <div
+                      </button>
+                      <button
+                        type="button"
                         onClick={(e) => handleDeleteClick(e, condo)}
                         className="hover:bg-destructive/10 cursor-pointer rounded p-1"
+                        aria-label={`Excluir ${condo.name}`}
                       >
                         <Trash2 className="text-destructive hover:text-destructive size-4" />
-                      </div>
+                      </button>
                     </div>
                   </RoleGuard>
                 </DropdownMenuItem>

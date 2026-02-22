@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 interface DataTablePaginationProps<TData> {
-  table: Table<TData>;
+  readonly table: Table<TData>;
 }
 
 export function DataTablePagination<TData>({

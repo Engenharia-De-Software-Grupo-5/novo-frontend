@@ -8,10 +8,10 @@ export const metadata: Metadata = {
 };
 
 interface CobrancasPageProps {
-  params: Promise<{
+  readonly params: Promise<{
     condId: string;
   }>;
-  searchParams: Promise<{
+  readonly searchParams: Promise<{
     page?: string;
     limit?: string;
     sort?: string;
@@ -32,17 +32,19 @@ export default async function CobrancasPage({
   const limit = Number(resolvedSearchParams.limit) || 10;
   const sort = resolvedSearchParams.sort;
 
-  const columns = Array.isArray(resolvedSearchParams.columns)
-    ? resolvedSearchParams.columns
-    : resolvedSearchParams.columns
-      ? [resolvedSearchParams.columns]
-      : undefined;
+  let columns: string[] | undefined = undefined;
+  if (resolvedSearchParams.columns) {
+    columns = Array.isArray(resolvedSearchParams.columns)
+      ? resolvedSearchParams.columns
+      : [resolvedSearchParams.columns];
+  }
 
-  const content = Array.isArray(resolvedSearchParams.content)
-    ? resolvedSearchParams.content
-    : resolvedSearchParams.content
-      ? [resolvedSearchParams.content]
-      : undefined;
+  let content: string[] | undefined = undefined;
+  if (resolvedSearchParams.content) {
+    content = Array.isArray(resolvedSearchParams.content)
+      ? resolvedSearchParams.content
+      : [resolvedSearchParams.content];
+  }
 
   const { data: cobrancas, meta } = await getCobrancas(condId, {
     page,
@@ -56,10 +58,12 @@ export default async function CobrancasPage({
     <div className="flex h-full flex-1 flex-col space-y-3 px-4 pt-0 pb-4">
       <div className="flex items-center justify-between space-y-2">
         <div className="max-w-3xl space-y-2">
-          <h2 className="text-2xl font-bold tracking-tight">Gerenciar Cobranças</h2>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Gerenciar Cobranças
+          </h2>
           <p className="text-muted-foreground">
-            Gerencie as finanças do condomínio, acompanhe o status de pagamentos, emita
-            boletos, defina juros e atribua a condôminos.
+            Gerencie as finanças do condomínio, acompanhe o status de
+            pagamentos, emita boletos, defina juros e atribua a condôminos.
           </p>
         </div>
       </div>

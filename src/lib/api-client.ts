@@ -12,6 +12,15 @@ export async function apiRequest<T>(
 
   const isFormData = body instanceof FormData;
 
+  let requestBody: BodyInit | null | undefined;
+  if (isFormData) {
+    requestBody = body as FormData;
+  } else if (body) {
+    requestBody = JSON.stringify(body);
+  } else {
+    requestBody = undefined;
+  }
+
   const response = await fetch(`${API_URL}${path}`, {
     headers: {
       // Don't set Content-Type for FormData — the browser sets it
@@ -19,7 +28,7 @@ export async function apiRequest<T>(
       ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...headers,
     },
-    body: isFormData ? body : body ? JSON.stringify(body) : undefined,
+    body: requestBody,
     ...rest,
   });
 

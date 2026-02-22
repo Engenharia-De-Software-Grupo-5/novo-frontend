@@ -12,15 +12,15 @@ import {
 import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { User, UserSummary } from '@/types/user';
+import { User } from '@/types/user';
 
 import { deleteUser } from '../services/users.service';
 
 interface DeleteUserDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  user: User | null;
-  condominioId: string;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly user: User | null;
+  readonly condominioId: string;
 }
 
 export function DeleteUserDialog({
@@ -45,7 +45,7 @@ export function DeleteUserDialog({
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Erro ao excluir usuário');
     } finally {
       setIsPending(false);

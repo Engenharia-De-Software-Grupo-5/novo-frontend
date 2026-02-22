@@ -3,8 +3,6 @@ import { apiRequest, buildQueryString } from '@/lib/api-client';
 
 import { UpdateUserPayload } from './users';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
 export const getUsers = async (
   condId: string,
   params?: {
@@ -16,11 +14,12 @@ export const getUsers = async (
   }
 ): Promise<UsersResponse> => {
   try {
-    const queryParams: Record<string, string | number | string[] | undefined> = {
-      page: params?.page,
-      limit: params?.limit,
-      sort: params?.sort,
-    };
+    const queryParams: Record<string, string | number | string[] | undefined> =
+      {
+        page: params?.page,
+        limit: params?.limit,
+        sort: params?.sort,
+      };
 
     if (params?.columns && params?.content && params.columns.length > 0) {
       queryParams.columns = params.columns;
@@ -30,11 +29,12 @@ export const getUsers = async (
     console.log(queryParams);
     const query = buildQueryString(queryParams);
 
-  
-
-    return await apiRequest<UsersResponse>(`/api/condominios/${condId}/usuarios${query}`, {
-      method: 'GET',
-    });
+    return await apiRequest<UsersResponse>(
+      `/api/condominios/${condId}/usuarios${query}`,
+      {
+        method: 'GET',
+      }
+    );
   } catch (error) {
     console.error('Error fetching users:', error);
     return {
@@ -43,7 +43,6 @@ export const getUsers = async (
     };
   }
 };
-
 
 export async function inviteUser(
   condominioId: string,

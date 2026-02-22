@@ -36,7 +36,7 @@ const statusConfig: Record<
 };
 
 interface StatusBadgeProps {
-  status: CobrancaStatus;
+  readonly status: CobrancaStatus;
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {

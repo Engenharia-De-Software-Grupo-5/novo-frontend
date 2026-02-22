@@ -4,12 +4,12 @@ import { useParams } from "next/navigation";
 import { DataTable } from "@/features/components/data-table/data-table";
 import { columns } from "./columns";
 import { DespesaSummary } from "@/types/despesa";
-import { DESPESA_STATUS, DESPESA_TIPOS, FORMA_PAGAMENTO, COLUMN_LABELS } from "../constants";
+import { DESPESA_TIPOS, FORMA_PAGAMENTO, COLUMN_LABELS } from "../constants";
 import { AddDespesaDialog } from "./add-despesa-dialog";
 
 interface DespesasDataTableProps {
-  data: DespesaSummary[];
-  pageCount: number;
+  readonly data: DespesaSummary[];
+  readonly pageCount: number;
 }
 
 export function DespesasDataTable({ data, pageCount }: DespesasDataTableProps) {

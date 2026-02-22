@@ -44,15 +44,29 @@ import {
 import { toast } from '@/features/components/ui/sonner';
 import { useFileUpload } from '@/features/hooks/useFileUpload';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ChevronsUpDown, FileText, Plus, Trash2, Upload } from 'lucide-react';
+import {
+  Check,
+  ChevronsUpDown,
+  FileText,
+  Plus,
+  Trash2,
+  Upload,
+} from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import { CobrancaDetail, CobrancaTenant } from '@/types/cobranca';
 import { cn } from '@/lib/utils';
 
-import { COBRANCA_PAYMENT_METHODS, COBRANCA_STATUSES, COBRANCA_TYPES } from '../constants';
-import { CobrancaFormValues, cobrancaFormSchema } from '../schemas/cobrancaSchema';
+import {
+  COBRANCA_PAYMENT_METHODS,
+  COBRANCA_STATUSES,
+  COBRANCA_TYPES,
+} from '../constants';
+import {
+  cobrancaFormSchema,
+  CobrancaFormValues,
+} from '../schemas/cobrancaSchema';
 import {
   getCobrancaTenants,
   postCobranca,
@@ -60,9 +74,9 @@ import {
 } from '../services/cobrancaService';
 
 interface CobrancaDialogProps {
-  cobranca?: CobrancaDetail;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  readonly cobranca?: CobrancaDetail;
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
 }
 
 const defaultValues: Partial<CobrancaFormValues> = {
@@ -114,11 +128,9 @@ export function CobrancaDialog({
   });
 
   useEffect(() => {
-    const loadTenants = async () => {
-      if (!open) {
-        return;
-      }
+    if (!open) return;
 
+    const loadTenants = async () => {
       try {
         const data = await getCobrancaTenants(condId);
         setTenants(data);
@@ -128,21 +140,17 @@ export function CobrancaDialog({
       }
     };
 
-    loadTenants();
+    void loadTenants();
   }, [open, condId]);
 
   useEffect(() => {
-    if (!debouncedTenantSearch) {
-      return;
-    }
+    if (!debouncedTenantSearch) return;
 
     const found = tenants.some((tenant) =>
       tenant.name.toLowerCase().includes(debouncedTenantSearch.toLowerCase())
     );
 
-    if (!found) {
-      setOpenTenant(true);
-    }
+    if (!found) setOpenTenant(true);
   }, [debouncedTenantSearch, tenants]);
 
   useEffect(() => {
@@ -171,31 +179,37 @@ export function CobrancaDialog({
     resetFiles();
   }, [open, cobranca, form, resetFiles, setInitialAttachments]);
 
+  const buildPayload = (
+    values: CobrancaFormValues
+  ): Partial<CobrancaDetail> => {
+    const status = isEditing
+      ? (values.status ?? cobranca?.status ?? 'pendente')
+      : 'pendente';
+
+    return {
+      tenantId: values.tenantId,
+      type: values.type,
+      status,
+      dueDate: values.dueDate,
+      value: Number(values.value),
+      penalty: Number(values.penalty),
+      interest: Number(values.interest),
+      paymentMethod: values.paymentMethod,
+      observation: isEditing ? values.observation || undefined : undefined,
+      isActive: status !== 'desativada',
+    };
+  };
+
   const onSubmit = async (values: CobrancaFormValues) => {
     try {
       setIsSubmitting(true);
 
-      const status = isEditing
-        ? (values.status ?? cobranca?.status ?? 'pendente')
-        : 'pendente';
-
-      const payload: Partial<CobrancaDetail> = {
-        tenantId: values.tenantId,
-        type: values.type,
-        status,
-        dueDate: values.dueDate,
-        value: Number(values.value),
-        penalty: Number(values.penalty),
-        interest: Number(values.interest),
-        paymentMethod: values.paymentMethod,
-        observation: isEditing ? values.observation || undefined : undefined,
-        isActive: status !== 'desativada',
-      };
+      const payload = buildPayload(values);
 
       if (isEditing && cobranca) {
         await putCobranca(condId, cobranca.id, payload, {
           newFiles: files,
-          existingFileIds: existingAttachments.map((attachment) => attachment.id),
+          existingFileIds: existingAttachments.map((a) => a.id),
         });
         toast.success('Cobrança atualizada com sucesso.');
       } else {
@@ -207,11 +221,10 @@ export function CobrancaDialog({
       setOpen(false);
     } catch (error) {
       console.error('Error saving charge', error);
-      toast.error(
-        isEditing
-          ? 'Erro ao atualizar cobrança. Tente novamente.'
-          : 'Erro ao adicionar cobrança. Tente novamente.'
-      );
+      const errorMsg = isEditing
+        ? 'Erro ao atualizar cobrança. Tente novamente.'
+        : 'Erro ao adicionar cobrança. Tente novamente.';
+      toast.error(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -221,10 +234,19 @@ export function CobrancaDialog({
     tenant.name.toLowerCase().includes(tenantSearch.toLowerCase())
   );
 
+  let submitLabel = 'Adicionar cobrança';
+  if (isSubmitting) {
+    submitLabel = isEditing ? 'Salvando...' : 'Adicionando...';
+  } else if (isEditing) {
+    submitLabel = 'Editar cobrança';
+  }
+
   const content = (
     <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[560px]">
       <DialogHeader className="space-y-2 pb-1">
-        <DialogTitle>{isEditing ? 'Editar cobrança' : 'Adicionar nova cobrança'}</DialogTitle>
+        <DialogTitle>
+          {isEditing ? 'Editar cobrança' : 'Adicionar nova cobrança'}
+        </DialogTitle>
         <DialogDescription>
           {isEditing
             ? 'Atualize os dados para editar a cobrança.'
@@ -253,8 +275,8 @@ export function CobrancaDialog({
                         )}
                       >
                         {field.value
-                          ? tenants.find((tenant) => tenant.id === field.value)?.name ||
-                            'Escolher condômino'
+                          ? tenants.find((tenant) => tenant.id === field.value)
+                              ?.name || 'Escolher condômino'
                           : 'Escolher condômino'}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -268,7 +290,9 @@ export function CobrancaDialog({
                         onValueChange={setTenantSearch}
                       />
                       <CommandList>
-                        <CommandEmpty>Nenhum condômino encontrado.</CommandEmpty>
+                        <CommandEmpty>
+                          Nenhum condômino encontrado.
+                        </CommandEmpty>
                         <CommandGroup>
                           {filteredTenants.map((tenant) => (
                             <CommandItem
@@ -282,7 +306,9 @@ export function CobrancaDialog({
                               <Check
                                 className={cn(
                                   'mr-2 h-4 w-4',
-                                  tenant.id === field.value ? 'opacity-100' : 'opacity-0'
+                                  tenant.id === field.value
+                                    ? 'opacity-100'
+                                    : 'opacity-0'
                                 )}
                               />
                               {tenant.name}
@@ -371,7 +397,13 @@ export function CobrancaDialog({
               <FormItem className="space-y-3">
                 <FormLabel>Valor *</FormLabel>
                 <FormControl>
-                  <Input type="number" min="0" step="0.01" placeholder="R$ 0,00" {...field} />
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="R$ 0,00"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -386,7 +418,13 @@ export function CobrancaDialog({
                 <FormItem className="space-y-3">
                   <FormLabel>Multa (R$) *</FormLabel>
                   <FormControl>
-                    <Input type="number" min="0" step="0.01" placeholder="R$ 0,00" {...field} />
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="R$ 0,00"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -399,7 +437,13 @@ export function CobrancaDialog({
                 <FormItem className="space-y-3">
                   <FormLabel>Juros por Mês (%) *</FormLabel>
                   <FormControl>
-                    <Input type="number" min="0" step="0.01" placeholder="0,00" {...field} />
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0,00"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -416,7 +460,10 @@ export function CobrancaDialog({
                 <FormControl>
                   <div className="space-y-2">
                     {COBRANCA_PAYMENT_METHODS.map((item) => (
-                      <label key={item.value} className="flex items-center gap-2 text-sm">
+                      <label
+                        key={item.value}
+                        className="flex items-center gap-2 text-sm"
+                      >
                         <input
                           type="radio"
                           name="paymentMethod"
@@ -444,7 +491,10 @@ export function CobrancaDialog({
                   <FormItem className="space-y-3">
                     <FormLabel>Observação</FormLabel>
                     <FormControl>
-                      <Input placeholder="Informações complementares..." {...field} />
+                      <Input
+                        placeholder="Informações complementares..."
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -452,9 +502,15 @@ export function CobrancaDialog({
               />
 
               <div className="space-y-2">
-                <label className="text-sm leading-none font-medium">Anexos (PDF)</label>
+                <label
+                  htmlFor="cobranca-file-upload"
+                  className="text-sm leading-none font-medium"
+                >
+                  Anexos (PDF)
+                </label>
                 <div className="relative">
                   <Input
+                    id="cobranca-file-upload"
                     type="file"
                     accept=".pdf"
                     onChange={handleFileChange}
@@ -483,7 +539,9 @@ export function CobrancaDialog({
                           type="button"
                           variant="ghost"
                           size="icon"
-                          onClick={() => removeExistingAttachment(attachment.id)}
+                          onClick={() =>
+                            removeExistingAttachment(attachment.id)
+                          }
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -516,17 +574,15 @@ export function CobrancaDialog({
           ) : null}
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? isEditing
-                  ? 'Salvando...'
-                  : 'Adicionando...'
-                : isEditing
-                  ? 'Editar cobrança'
-                  : 'Adicionar cobrança'}
+              {submitLabel}
             </Button>
           </DialogFooter>
         </form>

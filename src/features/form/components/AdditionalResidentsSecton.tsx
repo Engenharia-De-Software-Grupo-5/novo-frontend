@@ -1,7 +1,7 @@
 "use client"
 
 import { useFieldArray, useFormContext } from "react-hook-form"
-import { Plus, Trash2, Users } from "lucide-react"
+import { Plus, Trash2 } from "lucide-react"
 import {
   FormControl,
   FormField,

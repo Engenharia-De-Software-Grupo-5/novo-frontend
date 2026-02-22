@@ -3,19 +3,15 @@ import { getCobrancasDb, getCobrancaTenantsDb } from '@/mocks/in-memory-db';
 
 import { CobrancaDetail, CobrancaStatus } from '@/types/cobranca';
 import { FileAttachment } from '@/types/file';
+import { secureRandom } from '@/lib/secure-random';
 
 const resolveStatus = (
   dueDate: string,
   paymentDate?: string,
   isActive = true
 ): CobrancaStatus => {
-  if (!isActive) {
-    return 'desativada';
-  }
-
-  if (paymentDate) {
-    return 'pago';
-  }
+  if (!isActive) return 'desativada';
+  if (paymentDate) return 'pago';
 
   const due = new Date(dueDate);
   const today = new Date();
@@ -25,11 +21,71 @@ const resolveStatus = (
   return due < today ? 'vencida' : 'pendente';
 };
 
+interface ParsedCobrancaBody {
+  body: Partial<CobrancaDetail>;
+  keptAttachments: FileAttachment[] | undefined;
+  uploadedAttachments: FileAttachment[];
+}
+
+async function parseCobrancaBody(
+  request: NextRequest,
+  currentAttachments: FileAttachment[]
+): Promise<ParsedCobrancaBody> {
+  const contentType = request.headers.get('content-type') ?? '';
+
+  if (!contentType.includes('multipart/form-data')) {
+    const body = (await request.json()) as Partial<CobrancaDetail>;
+    return { body, keptAttachments: undefined, uploadedAttachments: [] };
+  }
+
+  const formData = await request.formData();
+  const dataField = formData.get('data');
+
+  let body: Partial<CobrancaDetail> = {};
+  if (dataField) {
+    body = JSON.parse(dataField as string);
+  }
+
+  const existingIds = formData.get('existingFileIds');
+  let idsToKeep: string[] | undefined = undefined;
+  if (existingIds) {
+    idsToKeep = JSON.parse(existingIds as string);
+  }
+
+  let keptAttachments: FileAttachment[] | undefined = undefined;
+  if (idsToKeep !== undefined) {
+    keptAttachments = currentAttachments.filter((item) =>
+      idsToKeep!.includes(item.id)
+    );
+  }
+
+  const uploadedAttachments = formData
+    .getAll('newFiles')
+    .filter((file): file is File => file instanceof File)
+    .map((file) => ({
+      id: `att-${secureRandom(9)}`,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      url: `/uploads/cobrancas/${secureRandom(9)}_${file.name}`,
+    }));
+
+  return { body, keptAttachments, uploadedAttachments };
+}
+
+function mergeFinalAttachments(
+  current: FileAttachment[],
+  kept: FileAttachment[] | undefined,
+  uploaded: FileAttachment[]
+): FileAttachment[] {
+  if (kept === undefined && uploaded.length === 0) return current;
+  return [...(kept ?? []), ...uploaded];
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; cobrancaId: string }> }
 ) {
-  await request;
   const { condId, cobrancaId } = await params;
   const cobrancasDb = getCobrancasDb(condId);
   const found = cobrancasDb.find((item) => item.id === cobrancaId);
@@ -61,45 +117,10 @@ export async function PUT(
   }
 
   const current = cobrancasDb[index];
-  const contentType = request.headers.get('content-type') || '';
+  const { body, keptAttachments, uploadedAttachments } =
+    await parseCobrancaBody(request, current.attachments ?? []);
 
-  let body: Partial<CobrancaDetail> = {};
-  let keptAttachments: FileAttachment[] | undefined;
-  let uploadedAttachments: FileAttachment[] = [];
-
-  if (contentType.includes('multipart/form-data')) {
-    const formData = await request.formData();
-    const dataField = formData.get('data');
-    if (dataField) {
-      body = JSON.parse(dataField as string);
-    }
-
-    const existingIds = formData.get('existingFileIds');
-    const idsToKeep: string[] | undefined = existingIds
-      ? JSON.parse(existingIds as string)
-      : undefined;
-
-    if (idsToKeep !== undefined) {
-      keptAttachments = (current.attachments || []).filter((item) =>
-        idsToKeep.includes(item.id)
-      );
-    }
-
-    uploadedAttachments = formData
-      .getAll('newFiles')
-      .filter((file): file is File => file instanceof File)
-      .map((file) => ({
-        id: `att-${Math.random().toString(36).slice(2, 11)}`,
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        url: `/uploads/cobrancas/${Math.random().toString(36).slice(2, 11)}_${file.name}`,
-      }));
-  } else {
-    body = await request.json();
-  }
-
-  const tenantId = body.tenantId || current.tenantId;
+  const tenantId = body.tenantId ?? current.tenantId;
   const tenant = cobrancaTenantsDb.find((item) => item.id === tenantId);
   if (!tenant) {
     return NextResponse.json(
@@ -109,15 +130,15 @@ export async function PUT(
   }
 
   const isActive = body.isActive ?? current.isActive;
-  const dueDate = body.dueDate || current.dueDate;
+  const dueDate = body.dueDate ?? current.dueDate;
   const paymentDate = body.paymentDate ?? current.paymentDate;
-  const status =
-    body.status ?? resolveStatus(dueDate, paymentDate, isActive);
+  const status = body.status ?? resolveStatus(dueDate, paymentDate, isActive);
 
-  let finalAttachments = current.attachments || [];
-  if (keptAttachments !== undefined || uploadedAttachments.length > 0) {
-    finalAttachments = [...(keptAttachments ?? []), ...uploadedAttachments];
-  }
+  const finalAttachments = mergeFinalAttachments(
+    current.attachments ?? [],
+    keptAttachments,
+    uploadedAttachments
+  );
 
   const updated: CobrancaDetail = {
     ...current,
@@ -159,7 +180,7 @@ export async function PATCH(
 
   const isActive = body.isActive ?? current.isActive;
   const status = resolveStatus(
-    body.dueDate || current.dueDate,
+    body.dueDate ?? current.dueDate,
     body.paymentDate ?? current.paymentDate,
     isActive
   );
@@ -179,7 +200,6 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; cobrancaId: string }> }
 ) {
-  await request;
   const { condId, cobrancaId } = await params;
   const cobrancasDb = getCobrancasDb(condId);
   const index = cobrancasDb.findIndex((item) => item.id === cobrancaId);

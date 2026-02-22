@@ -13,27 +13,27 @@ interface DataTableSkeletonProps {
    * Number of columns to render in the skeleton table.
    * @default 5
    */
-  columnCount?: number;
+  readonly columnCount?: number;
   /**
    * Number of rows to render in the skeleton table.
    * @default 10
    */
-  rowCount?: number;
+  readonly rowCount?: number;
   /**
    * Number of filter buttons to render in the toolbar.
    * @default 2
    */
-  filterCount?: number;
+  readonly filterCount?: number;
   /**
    * Whether to show the search input skeleton.
    * @default true
    */
-  showSearch?: boolean;
+  readonly showSearch?: boolean;
   /**
    * Whether to show the action button skeleton (e.g. "Add" button).
    * @default true
    */
-  showActions?: boolean;
+  readonly showActions?: boolean;
 }
 
 export function DataTableSkeleton({
@@ -74,19 +74,20 @@ export function DataTableSkeleton({
           <TableBody>
             {Array.from({ length: rowCount }).map((_, rowIndex) => (
               <TableRow key={`row-${rowIndex}`}>
-                {Array.from({ length: columnCount }).map((_, colIndex) => (
-                  <TableCell key={`cell-${rowIndex}-${colIndex}`}>
-                    <Skeleton
-                      className={`h-4 ${
-                        colIndex === 0
-                          ? 'w-[180px]'
-                          : colIndex === columnCount - 1
-                            ? 'w-[40px]'
-                            : 'w-[100px]'
-                      }`}
-                    />
-                  </TableCell>
-                ))}
+                {Array.from({ length: columnCount }).map((_, colIndex) => {
+                  let widthClass = 'w-[100px]';
+                  if (colIndex === 0) {
+                    widthClass = 'w-[180px]';
+                  } else if (colIndex === columnCount - 1) {
+                    widthClass = 'w-[40px]';
+                  }
+
+                  return (
+                    <TableCell key={`cell-${rowIndex}-${colIndex}`}>
+                      <Skeleton className={`h-4 ${widthClass}`} />
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))}
           </TableBody>

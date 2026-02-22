@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FileText, Loader2 } from 'lucide-react';
-
 import { Button } from '@/features/components/ui/button';
 import {
   Dialog,
@@ -11,15 +9,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/features/components/ui/dialog';
+import { FileText, Loader2 } from 'lucide-react';
+
 import { ContratoDetail } from '@/types/contrato';
 
 import { getContratoById } from '../services/contratoService';
 
 interface ViewContractDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  contractId: string;
-  condId: string;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly contractId: string;
+  readonly condId: string;
 }
 
 const formatDate = (value: string) => {
@@ -55,6 +55,57 @@ export function ViewContractDialog({
     void loadData();
   }, [open, condId, contractId]);
 
+  let dialogContent;
+  if (isLoading) {
+    dialogContent = (
+      <div className="flex items-center justify-center py-10">
+        <Loader2 className="h-7 w-7 animate-spin" />
+      </div>
+    );
+  } else if (data) {
+    dialogContent = (
+      <div className="space-y-4">
+        <div>
+          <p className="text-sm font-medium">Imóvel</p>
+          <p className="text-muted-foreground text-sm">{data.property}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium">Locatário</p>
+          <p className="text-muted-foreground text-sm">{data.tenantName}</p>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <p className="text-sm font-medium">Data de criação</p>
+            <p className="text-muted-foreground text-sm">
+              {formatDate(data.createdAt)}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm font-medium">Data de vencimento</p>
+            <p className="text-muted-foreground text-sm">
+              {formatDate(data.dueDate)}
+            </p>
+          </div>
+        </div>
+        <div>
+          <p className="text-sm font-medium">Arquivo PDF</p>
+          <Button variant="outline" size="sm" className="mt-2" asChild>
+            <a href={data.pdfFileUrl} target="_blank" rel="noreferrer">
+              <FileText className="mr-2 h-4 w-4" />
+              {data.pdfFileName}
+            </a>
+          </Button>
+        </div>
+      </div>
+    );
+  } else {
+    dialogContent = (
+      <p className="text-muted-foreground py-8 text-center text-sm">
+        Não foi possível carregar o contrato.
+      </p>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl">
@@ -65,45 +116,7 @@ export function ViewContractDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-10">
-            <Loader2 className="h-7 w-7 animate-spin" />
-          </div>
-        ) : data ? (
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm font-medium">Imóvel</p>
-              <p className="text-muted-foreground text-sm">{data.property}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium">Locatário</p>
-              <p className="text-muted-foreground text-sm">{data.tenantName}</p>
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-sm font-medium">Data de criação</p>
-                <p className="text-muted-foreground text-sm">{formatDate(data.createdAt)}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium">Data de vencimento</p>
-                <p className="text-muted-foreground text-sm">{formatDate(data.dueDate)}</p>
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-medium">Arquivo PDF</p>
-              <Button variant="outline" size="sm" className="mt-2" asChild>
-                <a href={data.pdfFileUrl} target="_blank" rel="noreferrer">
-                  <FileText className="mr-2 h-4 w-4" />
-                  {data.pdfFileName}
-                </a>
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <p className="text-muted-foreground py-8 text-center text-sm">
-            Não foi possível carregar o contrato.
-          </p>
-        )}
+        {dialogContent}
       </DialogContent>
     </Dialog>
   );

@@ -22,7 +22,7 @@ import { postModeloContrato } from '../services/modeloContratoService';
 import { RichTextEditor } from './rich-text-editor';
 
 interface AddModeloContratoProps {
-  condId: string;
+  readonly condId: string;
 }
 
 const DEFAULT_TEMPLATE = `# CONTRATO DE LOCACAO RESIDENCIAL DE IMOVEL URBANO

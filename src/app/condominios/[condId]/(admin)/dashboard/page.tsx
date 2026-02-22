@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 interface DashboardPageProps {
-  params: Promise<{
+  readonly params: Promise<{
     condId: string;
   }>;
 }

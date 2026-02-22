@@ -17,8 +17,8 @@ interface DataTableColumnHeaderProps<
   TData,
   TValue,
 > extends React.HTMLAttributes<HTMLDivElement> {
-  column: Column<TData, TValue>;
-  title: string;
+  readonly column: Column<TData, TValue>;
+  readonly title: string;
 }
 
 export function DataTableColumnHeader<TData, TValue>({
@@ -28,6 +28,13 @@ export function DataTableColumnHeader<TData, TValue>({
 }: DataTableColumnHeaderProps<TData, TValue>) {
   if (!column.getCanSort()) {
     return <div className={cn(className)}>{title}</div>;
+  }
+
+  let SortIcon = ChevronsUpDown;
+  if (column.getIsSorted() === 'desc') {
+    SortIcon = ArrowDown;
+  } else if (column.getIsSorted() === 'asc') {
+    SortIcon = ArrowUp;
   }
 
   return (
@@ -40,13 +47,7 @@ export function DataTableColumnHeader<TData, TValue>({
             className="data-[state=open]:bg-accent -ml-3 h-8"
           >
             <span>{title}</span>
-            {column.getIsSorted() === 'desc' ? (
-              <ArrowDown className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUp className="ml-2 h-4 w-4" />
-            ) : (
-              <ChevronsUpDown className="ml-2 h-4 w-4" />
-            )}
+            <SortIcon className="ml-2 h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">

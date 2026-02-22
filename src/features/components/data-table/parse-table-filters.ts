@@ -1,12 +1,19 @@
+export function parseTableFilters(sParams: {
+  [key: string]: string | string[] | undefined;
+}) {
+  let columnsArr: string[] = [];
+  if (sParams.columns) {
+    columnsArr = Array.isArray(sParams.columns)
+      ? sParams.columns
+      : [sParams.columns];
+  }
 
-export function parseTableFilters(sParams: { [key: string]: string | string[] | undefined }) {
-  const columnsArr = Array.isArray(sParams.columns)
-    ? sParams.columns
-    : sParams.columns ? [sParams.columns] : [];
-
-  const contentArr = Array.isArray(sParams.content)
-    ? sParams.content
-    : sParams.content ? [sParams.content] : [];
+  let contentArr: string[] = [];
+  if (sParams.content) {
+    contentArr = Array.isArray(sParams.content)
+      ? sParams.content
+      : [sParams.content];
+  }
 
   const filterMap = new Map<string, string[]>();
   for (let i = 0; i < columnsArr.length; i++) {

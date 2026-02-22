@@ -3,6 +3,7 @@ import { getCobrancasDb, getCobrancaTenantsDb } from '@/mocks/in-memory-db';
 
 import { CobrancaDetail, CobrancaStatus } from '@/types/cobranca';
 import { FileAttachment } from '@/types/file';
+import { secureRandom } from '@/lib/secure-random';
 
 export async function GET(
   request: NextRequest,
@@ -11,8 +12,8 @@ export async function GET(
   const { condId } = await params;
   const cobrancasDb = getCobrancasDb(condId);
   const searchParams = request.nextUrl.searchParams;
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '10');
+  const page = Number.parseInt(searchParams.get('page') || '1');
+  const limit = Number.parseInt(searchParams.get('limit') || '10');
   const sortParam = searchParams.get('sort');
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';
@@ -130,11 +131,11 @@ export async function POST(
       .getAll('files')
       .filter((file): file is File => file instanceof File)
       .map((file) => ({
-        id: `att-${Math.random().toString(36).slice(2, 11)}`,
+        id: `att-${secureRandom(9)}`,
         name: file.name,
         type: file.type,
         size: file.size,
-        url: `/uploads/cobrancas/${Math.random().toString(36).slice(2, 11)}_${file.name}`,
+        url: `/uploads/cobrancas/${secureRandom(9)}_${file.name}`,
       }));
   } else {
     body = await request.json();

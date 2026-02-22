@@ -10,8 +10,8 @@ import { CalculatorDialog } from './calculator-dialog';
 import { columns } from './columns';
 
 interface CobrancasDataTableProps {
-  data: CobrancaSummary[];
-  pageCount: number;
+  readonly data: CobrancaSummary[];
+  readonly pageCount: number;
 }
 
 export function CobrancasDataTable({ data, pageCount }: CobrancasDataTableProps) {

@@ -44,12 +44,12 @@ import { ImovelSummary } from '@/types/imoveis';
 import { PaymentSummary } from '@/types/payment';
 
 interface DashboardClientProps {
-  pagamentos: PaymentSummary[];
-  despesas: DespesaSummary[];
-  cobrancas: CobrancaSummary[];
-  funcionarios: EmployeeSummary[];
-  imoveis: ImovelSummary[];
-  condominosTotal: number;
+  readonly pagamentos: PaymentSummary[];
+  readonly despesas: DespesaSummary[];
+  readonly cobrancas: CobrancaSummary[];
+  readonly funcionarios: EmployeeSummary[];
+  readonly imoveis: ImovelSummary[];
+  readonly condominosTotal: number;
 }
 
 type ChartPoint = {
@@ -160,9 +160,9 @@ function KpiCard({
   value,
   icon: Icon,
 }: {
-  title: string;
-  value: string;
-  icon: React.ElementType;
+  readonly title: string;
+  readonly value: string;
+  readonly icon: React.ElementType;
 }) {
   return (
     <Card>
@@ -181,8 +181,8 @@ function BreakdownCard({
   title,
   data,
 }: {
-  title: string;
-  data: [string, number][];
+  readonly title: string;
+  readonly data: [string, number][];
 }) {
   return (
     <Card>

@@ -3,6 +3,7 @@ import { getEmployeesDb } from '@/mocks/in-memory-db';
 
 import { EmployeeDetail } from '@/types/employee';
 import { FileAttachment } from '@/types/file';
+import { secureRandom } from '@/lib/secure-random';
 
 /**
  * @swagger
@@ -111,11 +112,11 @@ export async function PUT(
     uploadedContracts = uploadedFiles
       .filter((f): f is File => f instanceof File)
       .map((file) => ({
-        id: `file-${Math.random().toString(36).substr(2, 9)}`,
+        id: `file-${secureRandom(9)}`,
         name: file.name,
         type: file.type,
         size: file.size,
-        url: `/uploads/contracts/${Math.random().toString(36).substr(2, 9)}_${file.name}`,
+        url: `/uploads/contracts/${secureRandom(9)}_${file.name}`,
       }));
 
     // Filter the employee's existing contracts to only keep the ones the user didn't remove

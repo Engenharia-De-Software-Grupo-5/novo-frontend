@@ -47,9 +47,9 @@ import {
 } from '../services/funcionarioService';
 
 interface EmployeeDialogProps {
-  employee?: EmployeeDetail;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  readonly employee?: EmployeeDetail;
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
 }
 
 export function EmployeeDialog({
@@ -156,6 +156,11 @@ export function EmployeeDialog({
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  let buttonLabel = 'Salvar';
+  if (isSubmitting) {
+    buttonLabel = isEditing ? 'Salvando...' : 'Adicionando...';
   }
 
   const dialogContent = (
@@ -308,12 +313,16 @@ export function EmployeeDialog({
 
           {/* Contrato (Upload) */}
           <div className="space-y-2">
-            <label className="text-sm leading-none font-medium">
+            <label
+              htmlFor="employee-file-upload"
+              className="text-sm leading-none font-medium"
+            >
               Contrato (PDF)
             </label>
             <div className="flex flex-col gap-3">
               <div className="relative">
                 <Input
+                  id="employee-file-upload"
                   type="file"
                   accept=".pdf"
                   onChange={handleFileChange}
@@ -401,11 +410,7 @@ export function EmployeeDialog({
               disabled={isSubmitting}
               className="w-full sm:w-auto"
             >
-              {isSubmitting
-                ? isEditing
-                  ? 'Salvando...'
-                  : 'Adicionando...'
-                : 'Salvar'}
+              {buttonLabel}
             </Button>
           </DialogFooter>
         </form>

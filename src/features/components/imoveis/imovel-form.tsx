@@ -31,8 +31,8 @@ export interface ImovelFormData {
 }
 
 interface ImovelFormProps {
-  formData: ImovelFormData;
-  setFormData: React.Dispatch<React.SetStateAction<ImovelFormData>>;
+  readonly formData: ImovelFormData;
+  readonly setFormData: React.Dispatch<React.SetStateAction<ImovelFormData>>;
 }
 
 export function ImovelForm({ formData, setFormData }: ImovelFormProps) {

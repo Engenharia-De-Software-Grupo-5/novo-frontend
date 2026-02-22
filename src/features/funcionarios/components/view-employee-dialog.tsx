@@ -15,12 +15,12 @@ import { EmployeeDetail } from '@/types/employee';
 import { StatusBadge } from './status-badge';
 
 interface ViewEmployeeDialogProps {
-  employee: EmployeeDetail;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  readonly employee: EmployeeDetail;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
 }
 
-function FieldItem({ label, value }: { label: string; value?: string | null }) {
+function FieldItem({ label, value }: { readonly label: string; readonly value?: string | null }) {
   return (
     <div className="space-y-0.5">
       <p className="text-sm font-medium">{label}</p>

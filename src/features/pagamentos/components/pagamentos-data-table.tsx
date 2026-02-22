@@ -10,8 +10,8 @@ import { AddPaymentDialog } from './add-payment-dialog';
 import { columns } from './columns';
 
 interface PagamentosDataTableProps {
-  data: PaymentSummary[];
-  pageCount: number;
+  readonly data: PaymentSummary[];
+  readonly pageCount: number;
 }
 
 export function PagamentosDataTable({
