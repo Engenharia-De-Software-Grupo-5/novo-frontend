@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { despesasDb } from '@/mocks/in-memory-db';
+import { getDespesasDb } from '@/mocks/in-memory-db';
 
 import { DespesaDetail } from '@/types/despesa';
 import { FileAttachment } from '@/types/file';
@@ -8,6 +8,8 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ condId: string }> }
 ) {
+  const { condId } = await params;
+  const despesasDb = getDespesasDb(condId);
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '10');
@@ -62,6 +64,8 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ condId: string }> }
 ) {
+  const { condId } = await params;
+  const despesasDb = getDespesasDb(condId);
   const contentType = request.headers.get('content-type') || '';
   let data: DespesaDetail;
   let anexos: FileAttachment[] = [];

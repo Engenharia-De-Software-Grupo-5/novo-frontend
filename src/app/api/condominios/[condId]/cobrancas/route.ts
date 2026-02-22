@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cobrancasDb, cobrancaTenantsDb } from '@/mocks/in-memory-db';
+import { getCobrancasDb, getCobrancaTenantsDb } from '@/mocks/in-memory-db';
 
 import { CobrancaDetail, CobrancaStatus } from '@/types/cobranca';
 import { FileAttachment } from '@/types/file';
@@ -8,7 +8,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string }> }
 ) {
-  await params;
+  const { condId } = await params;
+  const cobrancasDb = getCobrancasDb(condId);
   const searchParams = request.nextUrl.searchParams;
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '10');
@@ -112,7 +113,9 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string }> }
 ) {
-  await params;
+  const { condId } = await params;
+  const cobrancasDb = getCobrancasDb(condId);
+  const cobrancaTenantsDb = getCobrancaTenantsDb(condId);
   const contentType = request.headers.get('content-type') || '';
 
   let body: Partial<CobrancaDetail> = {};
