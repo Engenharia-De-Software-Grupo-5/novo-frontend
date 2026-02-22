@@ -1,16 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ArrowLeft,
-  Bold,
-  Italic,
-  List,
-  ListOrdered,
-  Table2,
-  Underline,
-} from 'lucide-react';
-
 import { Button } from '@/features/components/ui/button';
 import {
   Command,
@@ -25,6 +15,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/features/components/ui/popover';
+import {
+  ArrowLeft,
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Table2,
+  Underline,
+} from 'lucide-react';
+
 import { cn } from '@/lib/utils';
 
 interface RichTextEditorProps {
@@ -43,9 +43,7 @@ const PLACEHOLDER_GROUPS: PlaceholderGroup[] = [
   {
     key: 'imovel',
     label: 'Imóvel',
-    fields: [
-      { key: 'endereco', label: 'Endereço' }
-    ],
+    fields: [{ key: 'endereco', label: 'Endereço' }],
   },
   {
     key: 'locador',
@@ -68,7 +66,7 @@ const PLACEHOLDER_GROUPS: PlaceholderGroup[] = [
       { key: 'profissao', label: 'Profissão' },
       { key: 'estado_civil', label: 'Estado civil' },
       { key: 'orgao_expedidor', label: 'Orgao expedidor' },
-      { key: 'renda_mensal', label: 'Renda mensal'},
+      { key: 'renda_mensal', label: 'Renda mensal' },
       { key: 'email', label: 'E-mail' },
       { key: 'telefone_principal', label: 'Telefone principal' },
       { key: 'telefone_secundario', label: 'Telefone secundário' },
@@ -89,7 +87,7 @@ const PLACEHOLDER_GROUPS: PlaceholderGroup[] = [
       { key: 'profissao', label: 'Profissao' },
       { key: 'estado_civil', label: 'Estado civil' },
       { key: 'orgao_expedidor', label: 'Orgao expedidor' },
-      { key: 'renda_mensal', label: 'Renda Mensal'},
+      { key: 'renda_mensal', label: 'Renda Mensal' },
       { key: 'email', label: 'E-mail' },
       { key: 'telefone_principal', label: 'Telefone principal' },
       { key: 'telefone_secundario', label: 'Telefone secundário' },
@@ -110,7 +108,7 @@ const PLACEHOLDER_GROUPS: PlaceholderGroup[] = [
     fields: [
       { key: 'data_inicio', label: 'Data de início' },
       { key: 'data_fim', label: 'Data de fim' },
-      { key: 'informacoes_adicionais', label: 'Informações adicionais' }
+      { key: 'informacoes_adicionais', label: 'Informações adicionais' },
     ],
   },
   {
@@ -120,15 +118,19 @@ const PLACEHOLDER_GROUPS: PlaceholderGroup[] = [
       { key: 'valor_aluguel', label: 'Valor aluguel' },
       { key: 'valor_condominio', label: 'Valor condomínio' },
       { key: 'valor_iptu', label: 'Valor IPTU' },
-      { key: 'valor_tcr', label: 'Valor TCR' }
+      { key: 'valor_tcr', label: 'Valor TCR' },
     ],
-  }
+  },
 ];
 
 const TABLE_GRID_ROWS = 10;
 const TABLE_GRID_COLS = 8;
 
-export function RichTextEditor({ value, onChange, className }: RichTextEditorProps) {
+export function RichTextEditor({
+  value,
+  onChange,
+  className,
+}: RichTextEditorProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const slashRangeRef = useRef<Range | null>(null);
@@ -149,7 +151,8 @@ export function RichTextEditor({ value, onChange, className }: RichTextEditorPro
   }, [value]);
 
   const selectedGroup = useMemo(
-    () => PLACEHOLDER_GROUPS.find((item) => item.key === selectedGroupKey) || null,
+    () =>
+      PLACEHOLDER_GROUPS.find((item) => item.key === selectedGroupKey) || null,
     [selectedGroupKey]
   );
 
@@ -274,7 +277,8 @@ export function RichTextEditor({ value, onChange, className }: RichTextEditorPro
     }
 
     const textNode = container as Text;
-    const textBeforeCaret = textNode.textContent?.slice(0, range.startOffset) || '';
+    const textBeforeCaret =
+      textNode.textContent?.slice(0, range.startOffset) || '';
     const slashMatch = textBeforeCaret.match(/\/([a-zA-Z0-9._-]*)$/);
 
     if (!slashMatch) {
@@ -347,9 +351,17 @@ export function RichTextEditor({ value, onChange, className }: RichTextEditorPro
   };
 
   return (
-    <div ref={wrapperRef} className={cn('relative rounded-md border', className)}>
+    <div
+      ref={wrapperRef}
+      className={cn('relative rounded-md border', className)}
+    >
       <div className="flex flex-wrap items-center gap-1 border-b p-2">
-        <Button type="button" size="icon" variant="ghost" onClick={() => runCommand('bold')}>
+        <Button
+          type="button"
+          size="icon"
+          variant="ghost"
+          onClick={() => runCommand('bold')}
+        >
           <Bold className="h-4 w-4" />
         </Button>
         <Button
@@ -368,10 +380,20 @@ export function RichTextEditor({ value, onChange, className }: RichTextEditorPro
         >
           <Underline className="h-4 w-4" />
         </Button>
-        <Button type="button" size="icon" variant="ghost" onClick={toggleUnorderedList}>
+        <Button
+          type="button"
+          size="icon"
+          variant="ghost"
+          onClick={toggleUnorderedList}
+        >
           <List className="h-4 w-4" />
         </Button>
-        <Button type="button" size="icon" variant="ghost" onClick={toggleOrderedList}>
+        <Button
+          type="button"
+          size="icon"
+          variant="ghost"
+          onClick={toggleOrderedList}
+        >
           <ListOrdered className="h-4 w-4" />
         </Button>
 
@@ -394,28 +416,32 @@ export function RichTextEditor({ value, onChange, className }: RichTextEditorPro
             <div className="space-y-2">
               <p className="text-sm font-medium">Inserir tabela</p>
               <div className="grid grid-cols-8 gap-1">
-                {Array.from({ length: TABLE_GRID_ROWS * TABLE_GRID_COLS }).map((_, index) => {
-                  const row = Math.floor(index / TABLE_GRID_COLS) + 1;
-                  const col = (index % TABLE_GRID_COLS) + 1;
-                  const active = row <= hoveredRows && col <= hoveredCols;
+                {Array.from({ length: TABLE_GRID_ROWS * TABLE_GRID_COLS }).map(
+                  (_, index) => {
+                    const row = Math.floor(index / TABLE_GRID_COLS) + 1;
+                    const col = (index % TABLE_GRID_COLS) + 1;
+                    const active = row <= hoveredRows && col <= hoveredCols;
 
-                  return (
-                    <button
-                      key={`${row}-${col}`}
-                      type="button"
-                      className={cn(
-                        'h-4 w-4 rounded-xs border border-border',
-                        active ? 'bg-primary/70 border-primary/70' : 'bg-background'
-                      )}
-                      onMouseEnter={() => {
-                        setHoveredRows(row);
-                        setHoveredCols(col);
-                      }}
-                      onClick={() => insertTable(row, col)}
-                      aria-label={`Inserir tabela ${row} por ${col}`}
-                    />
-                  );
-                })}
+                    return (
+                      <button
+                        key={`${row}-${col}`}
+                        type="button"
+                        className={cn(
+                          'border-border h-4 w-4 rounded-xs border',
+                          active
+                            ? 'bg-primary/70 border-primary/70'
+                            : 'bg-background'
+                        )}
+                        onMouseEnter={() => {
+                          setHoveredRows(row);
+                          setHoveredCols(col);
+                        }}
+                        onClick={() => insertTable(row, col)}
+                        aria-label={`Inserir tabela ${row} por ${col}`}
+                      />
+                    );
+                  }
+                )}
               </div>
               <p className="text-muted-foreground text-xs">
                 {hoveredRows > 0 && hoveredCols > 0
@@ -429,14 +455,18 @@ export function RichTextEditor({ value, onChange, className }: RichTextEditorPro
 
       <div
         ref={editorRef}
+        role="textbox"
+        aria-multiline="true"
+        aria-label="Editor de texto"
+        tabIndex={0}
         contentEditable
         suppressContentEditableWarning
         className={cn(
-          'min-h-[420px] whitespace-pre-wrap p-4 text-sm outline-none',
-          '[&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-2',
-          '[&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-2',
-          '[&_table]:w-full [&_table]:border-collapse [&_table]:my-3',
-          '[&_th]:border [&_th]:bg-muted [&_th]:px-2 [&_th]:py-1.5 [&_th]:text-left',
+          'min-h-[420px] p-4 text-sm whitespace-pre-wrap outline-none',
+          '[&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-6',
+          '[&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-6',
+          '[&_table]:my-3 [&_table]:w-full [&_table]:border-collapse',
+          '[&_th]:bg-muted [&_th]:border [&_th]:px-2 [&_th]:py-1.5 [&_th]:text-left',
           '[&_td]:border [&_td]:px-2 [&_td]:py-1.5'
         )}
         onInput={() => {
@@ -462,7 +492,7 @@ export function RichTextEditor({ value, onChange, className }: RichTextEditorPro
 
       {slashOpen && (
         <div
-          className="absolute z-50 w-96 max-w-[calc(100%-24px)] rounded-md border bg-popover shadow-md"
+          className="bg-popover absolute z-50 w-96 max-w-[calc(100%-24px)] rounded-md border shadow-md"
           style={{ left: slashPosition.x, top: slashPosition.y }}
         >
           <Command>
@@ -493,7 +523,9 @@ export function RichTextEditor({ value, onChange, className }: RichTextEditorPro
                         key={`${selectedGroup.key}.${field.key}`}
                         value={`${selectedGroup.key}.${field.key}`}
                         onSelect={() =>
-                          insertTokenAtSlash(`${selectedGroup.key}.${field.key}`)
+                          insertTokenAtSlash(
+                            `${selectedGroup.key}.${field.key}`
+                          )
                         }
                       >
                         {selectedGroup.key}.{field.key}

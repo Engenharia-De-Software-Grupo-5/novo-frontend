@@ -10,8 +10,8 @@ export async function GET(
 ) {
   await params;
   const searchParams = request.nextUrl.searchParams;
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '10');
+  const page = Number.parseInt(searchParams.get('page') || '1');
+  const limit = Number.parseInt(searchParams.get('limit') || '10');
   const sortParam = searchParams.get('sort');
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';

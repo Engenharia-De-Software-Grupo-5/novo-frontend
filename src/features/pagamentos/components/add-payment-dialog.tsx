@@ -117,27 +117,30 @@ export function PaymentDialog({
   });
 
   useEffect(() => {
+    if (!open) return;
+
     const fetchEmployees = async () => {
-      if (open) {
-        try {
-          const params: {
-            limit: number;
-            columns?: string[];
-            content?: string[];
-          } = { limit: 20 };
-          if (debouncedSearchQuery) {
-            params.columns = ['name'];
-            params.content = [debouncedSearchQuery];
-          }
-          const response = await getFuncionarios(condId, params);
-          setEmployees(response.data);
-        } catch (error) {
-          console.error('Failed to fetch employees', error);
-          toast.error('Erro ao carregar funcionários');
+      try {
+        const queryParams: {
+          limit: number;
+          columns?: string[];
+          content?: string[];
+        } = { limit: 20 };
+
+        if (debouncedSearchQuery) {
+          queryParams.columns = ['name'];
+          queryParams.content = [debouncedSearchQuery];
         }
+
+        const response = await getFuncionarios(condId, queryParams);
+        setEmployees(response.data);
+      } catch (error) {
+        console.error('Failed to fetch employees', error);
+        toast.error('Erro ao carregar funcionários');
       }
     };
-    fetchEmployees();
+
+    void fetchEmployees();
   }, [open, condId, debouncedSearchQuery]);
 
   useEffect(() => {
@@ -162,7 +165,6 @@ export function PaymentDialog({
         employeeId: data.employeeId,
         type: data.type as PaymentType,
         value: Number(data.amount),
-        // Schema ensures at least one date is present
         dueDate: data.dueDate || data.paymentDate || '',
         paymentDate: data.paymentDate || undefined,
         observation: data.observation,
@@ -175,7 +177,7 @@ export function PaymentDialog({
           newFiles: files,
           existingFileIds,
         });
-        toast.success(`Pagamento atualizado com sucesso!`);
+        toast.success('Pagamento atualizado com sucesso!');
       } else {
         await postPayment(condId, paymentPayload, {
           newFiles: files.length > 0 ? files : undefined,
@@ -192,11 +194,10 @@ export function PaymentDialog({
       }
     } catch (error) {
       console.error('Error submitting payment:', error);
-      toast.error(
-        isEditing
-          ? 'Erro ao atualizar pagamento. Tente novamente.'
-          : 'Erro ao registrar pagamento. Tente novamente.'
-      );
+      const errorMsg = isEditing
+        ? 'Erro ao atualizar pagamento. Tente novamente.'
+        : 'Erro ao registrar pagamento. Tente novamente.';
+      toast.error(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -392,11 +393,15 @@ export function PaymentDialog({
 
           {/* Comprovante */}
           <div className="space-y-2">
-            <label className="text-sm leading-none font-medium">
+            <label
+              htmlFor="payment-file-upload"
+              className="text-sm leading-none font-medium"
+            >
               Comprovante (PDF)
             </label>
             <div className="relative">
               <Input
+                id="payment-file-upload"
                 type="file"
                 accept=".pdf"
                 onChange={handleFileChange}

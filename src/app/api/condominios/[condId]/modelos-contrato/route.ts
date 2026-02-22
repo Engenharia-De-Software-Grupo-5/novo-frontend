@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 import { contractModelsDb } from '@/mocks/in-memory-db';
-import { extractTemplateInputs } from '@/lib/contratos-template-inputs';
+
 import { ModeloContratoDetail } from '@/types/modelo-contrato';
+import { extractTemplateInputs } from '@/lib/contratos-template-inputs';
 
 const buildSearchIndex = (model: ModeloContratoDetail) => {
   return [model.name, model.purpose, model.createdAt].join(' ').toLowerCase();
 };
 
-const hydrateModelInputs = (model: ModeloContratoDetail): ModeloContratoDetail => ({
+const hydrateModelInputs = (
+  model: ModeloContratoDetail
+): ModeloContratoDetail => ({
   ...model,
   inputs: extractTemplateInputs(model.rawText || ''),
 });
@@ -20,8 +22,8 @@ export async function GET(
   const { condId } = await params;
   const searchParams = request.nextUrl.searchParams;
 
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || '20', 10);
+  const page = Number.parseInt(searchParams.get('page') || '1', 10);
+  const limit = Number.parseInt(searchParams.get('limit') || '20', 10);
   const sortParam = searchParams.get('sort');
 
   let sortField = sortParam;
@@ -64,7 +66,9 @@ export async function GET(
       const fieldValue = model[col as keyof typeof model];
       if (fieldValue === undefined) return false;
 
-      return values.some((v) => String(fieldValue).toLowerCase() === v.toLowerCase());
+      return values.some(
+        (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
+      );
     });
   }
 
@@ -91,12 +95,14 @@ export async function GET(
 
   const startIndex = (safePage - 1) * limit;
   const endIndex = startIndex + limit;
-  const paginatedModels = sortedModels.slice(startIndex, endIndex).map((item) => ({
-    id: item.id,
-    name: item.name,
-    purpose: item.purpose,
-    createdAt: item.createdAt,
-  }));
+  const paginatedModels = sortedModels
+    .slice(startIndex, endIndex)
+    .map((item) => ({
+      id: item.id,
+      name: item.name,
+      purpose: item.purpose,
+      createdAt: item.createdAt,
+    }));
 
   return NextResponse.json({
     data: paginatedModels,

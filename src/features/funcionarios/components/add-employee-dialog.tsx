@@ -308,12 +308,16 @@ export function EmployeeDialog({
 
           {/* Contrato (Upload) */}
           <div className="space-y-2">
-            <label className="text-sm leading-none font-medium">
+            <label
+              htmlFor="employee-file-upload"
+              className="text-sm leading-none font-medium"
+            >
               Contrato (PDF)
             </label>
             <div className="flex flex-col gap-3">
               <div className="relative">
                 <Input
+                  id="employee-file-upload"
                   type="file"
                   accept=".pdf"
                   onChange={handleFileChange}

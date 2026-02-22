@@ -153,10 +153,11 @@ export default function CondominiosPage() {
         <CardContent className="space-y-4">
           <div className="flex flex-col gap-2">
             {condominiums.map((condo) => (
-              <div
+              <button
                 key={condo.id}
+                type="button"
                 onClick={() => handleSwitch(condo.id)}
-                className="group hover:bg-accent flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors"
+                className="group hover:bg-accent flex w-full cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <div className="bg-background text-foreground flex size-10 items-center justify-center rounded-md border font-bold shadow-sm">
@@ -188,7 +189,7 @@ export default function CondominiosPage() {
                     </Button>
                   </div>
                 </RoleGuard>
-              </div>
+              </button>
             ))}
 
             {condominiums.length === 0 && (

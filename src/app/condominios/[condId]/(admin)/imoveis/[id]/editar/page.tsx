@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ImovelForm,
-  ImovelFormData,
 } from '@/features/components/imoveis/imovel-form';
 import { Button } from '@/features/components/ui/button';
 import {

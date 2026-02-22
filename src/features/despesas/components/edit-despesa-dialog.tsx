@@ -278,10 +278,14 @@ export function EditDespesaDialog({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm leading-none font-medium">
+                <label
+                  htmlFor="edit-despesa-file-upload"
+                  className="text-sm leading-none font-medium"
+                >
                   Anexos (PDF)
                 </label>
                 <Input
+                  id="edit-despesa-file-upload"
                   type="file"
                   multiple
                   accept="application/pdf"

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { contractModelsDb, contractsDb } from '@/mocks/in-memory-db';
 
-import { contractsDb, contractModelsDb } from '@/mocks/in-memory-db';
 import { ContratoDetail } from '@/types/contrato';
 
 const buildSearchIndex = (contract: ContratoDetail) => {
@@ -25,8 +25,8 @@ export async function GET(
   const { condId } = await params;
   const searchParams = request.nextUrl.searchParams;
 
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || '20', 10);
+  const page = Number.parseInt(searchParams.get('page') || '1', 10);
+  const limit = Number.parseInt(searchParams.get('limit') || '20', 10);
   const sortParam = searchParams.get('sort');
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';
@@ -62,7 +62,9 @@ export async function GET(
     contracts = contracts.filter((c) => {
       const fieldValue = c[col as keyof typeof c];
       if (fieldValue === undefined) return false;
-      return values.some((v) => String(fieldValue).toLowerCase() === v.toLowerCase());
+      return values.some(
+        (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
+      );
     });
   }
 
@@ -126,9 +128,11 @@ export async function POST(
       property: normalizeValue(formData.get('property')) || 'Sem imóvel',
       propertyId: normalizeValue(formData.get('propertyId')) || undefined,
       createdAt:
-        normalizeValue(formData.get('createdAt')) || new Date().toISOString().split('T')[0],
+        normalizeValue(formData.get('createdAt')) ||
+        new Date().toISOString().split('T')[0],
       dueDate:
-        normalizeValue(formData.get('dueDate')) || new Date().toISOString().split('T')[0],
+        normalizeValue(formData.get('dueDate')) ||
+        new Date().toISOString().split('T')[0],
       pdfFileName: contractFile.name || 'contrato.pdf',
       pdfFileUrl: `/mock-files/contracts/${Date.now()}-${contractFile.name}`,
       sourceType: 'upload',
@@ -150,7 +154,10 @@ export async function POST(
     );
 
     if (!selectedModel) {
-      return NextResponse.json({ error: 'Modelo não encontrado.' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Modelo não encontrado.' },
+        { status: 404 }
+      );
     }
 
     payload = {

@@ -66,7 +66,7 @@ export function AddUserDialog() {
 
       await new Promise((resolve) => setTimeout(resolve, 300));
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Erro ao enviar convite. Tente novamente.');
     } finally {
       setIsPending(false);

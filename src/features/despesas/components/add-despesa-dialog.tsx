@@ -219,10 +219,14 @@ export function AddDespesaDialog({ condId }: AddDespesaDialogProps) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm leading-none font-medium">
+              <label
+                htmlFor="add-despesa-file-upload"
+                className="text-sm leading-none font-medium"
+              >
                 Anexos (PDF)
               </label>
               <Input
+                id="add-despesa-file-upload"
                 type="file"
                 multiple
                 accept="application/pdf"

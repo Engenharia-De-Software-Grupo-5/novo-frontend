@@ -8,24 +8,23 @@ export const metadata: Metadata = {
 };
 
 interface PagamentosPageProps {
-  params: {
+  params: Promise<{
     condId: string;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     page?: string;
     limit?: string;
     sort?: string;
     columns?: string | string[];
     content?: string | string[];
-  };
+  }>;
 }
 
 export default async function PagamentosPage({
   params,
   searchParams,
 }: PagamentosPageProps) {
-  const resolvedParams = await params;
-  const { condId } = resolvedParams;
+  const { condId } = await params;
 
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page) || 1;
