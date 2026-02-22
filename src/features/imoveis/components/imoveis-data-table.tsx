@@ -1,10 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { Plus } from 'lucide-react';
 import { DataTable } from '@/features/components/data-table';
-import { Button } from '@/features/components/ui/button';
 
 import { ImovelSummary } from '@/types/imoveis';
 
@@ -13,6 +9,7 @@ import {
   IMOVEIS_SITUACOES,
   IMOVEIS_TIPOS,
 } from '../constants';
+import { ImovelDialog } from './add-imovel-dialog';
 import { columns } from './columns';
 
 interface ImoveisDataTableProps {
@@ -21,9 +18,6 @@ interface ImoveisDataTableProps {
 }
 
 export function ImoveisDataTable({ data, pageCount }: ImoveisDataTableProps) {
-  const params = useParams();
-  const condId = params?.condId as string | undefined;
-
   return (
     <DataTable
       data={data}
@@ -57,14 +51,7 @@ export function ImoveisDataTable({ data, pageCount }: ImoveisDataTableProps) {
         { columnId: 'tipo', isArray: true },
         { columnId: 'situacao', isArray: true },
       ]}
-      actions={
-        <Button asChild>
-          <Link href={condId ? `/condominios/${condId}/imoveis/novo` : '/imoveis/novo'}>
-            <Plus className="mr-2 h-4 w-4" />
-            Adicionar Imóvel
-          </Link>
-        </Button>
-      }
+      actions={<ImovelDialog />}
     />
   );
 }

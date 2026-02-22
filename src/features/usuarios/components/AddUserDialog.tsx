@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/features/components/ui/button';
@@ -37,6 +39,7 @@ export function AddUserDialog() {
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
 
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<Role>('Financeiro');
   const [message, setMessage] = useState('');
@@ -47,22 +50,23 @@ export function AddUserDialog() {
 
     try {
       await inviteUser(condId, {
+        name,
         email,
         role: role.toLowerCase(),
+        message,
       });
 
       toast.success('Convite enviado com sucesso!');
 
-      // Limpa o formulário
+      setName('');
       setEmail('');
       setRole('Financeiro');
       setMessage('');
       setOpen(false);
 
       await new Promise((resolve) => setTimeout(resolve, 300));
-
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error('Erro ao enviar convite. Tente novamente.');
     } finally {
       setIsPending(false);
@@ -87,6 +91,19 @@ export function AddUserDialog() {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+          {/* Nome */}
+          <div className="grid gap-2">
+            <Label htmlFor="name">Nome</Label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="João Silva"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+
           {/* E-mail */}
           <div className="grid gap-2">
             <Label htmlFor="email">E-mail</Label>

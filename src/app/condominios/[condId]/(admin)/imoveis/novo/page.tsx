@@ -14,6 +14,25 @@ import { toast } from 'sonner';
 
 import { ImovelSituacao } from '@/types/imoveis';
 
+interface ImovelFormState {
+  nome: string;
+  status: string;
+  tipo?: ImovelTipo;
+  endereco: {
+    logradouro: string;
+    numero: string;
+    complemento: string;
+    bairro: string;
+    cidade: string;
+    cep: string;
+  };
+  locatario: {
+    nome: string;
+    cpf: string;
+    telefone: string;
+  };
+}
+
 function mapStatusToSituacao(status: string): ImovelSituacao {
   if (status === 'manutencao') return 'manutenção';
   if (status === 'na planta') return 'na planta';
@@ -27,8 +46,8 @@ export default function NovoImovelAdminPage() {
   const condId = params?.condId as string;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<ImovelFormData>({
-    identificacao: '',
+  const [formData, setFormData] = useState<ImovelFormState>({
+    nome: '',
     status: '',
     tipo: 'apartamento',
     endereco: {
@@ -47,7 +66,7 @@ export default function NovoImovelAdminPage() {
   });
 
   const listPath = `/condominios/${condId}/imoveis`;
-  const detailsPath = '#';
+  const detailsPath = listPath;
 
   const handleSubmit = async () => {
     try {
@@ -58,9 +77,10 @@ export default function NovoImovelAdminPage() {
         !!formData.locatario?.cpf ||
         !!formData.locatario?.telefone;
 
-      const created = await postImovel(condId, {
+      await postImovel(condId, {
         idCondominio: condId,
         idImovel: '',
+        nome: formData.nome,
         tipo: formData.tipo || 'apartamento',
         situacao: mapStatusToSituacao(formData.status),
         endereco: {
@@ -69,8 +89,7 @@ export default function NovoImovelAdminPage() {
           bairro: formData.endereco?.bairro || '',
           cidade: formData.endereco?.cidade || '',
           estado: 'SP',
-          nomePredio: formData.identificacao || undefined,
-          bloco: formData.endereco?.complemento || undefined,
+          bloco: formData.endereco.complemento || undefined,
         },
         locatario: hasLocatario
           ? {
@@ -82,7 +101,7 @@ export default function NovoImovelAdminPage() {
       });
 
       toast.success('Imóvel criado com sucesso.');
-      router.push(`${listPath}/${created.idImovel}`);
+      router.push(listPath);
       router.refresh();
     } catch (error) {
       console.error('Error creating imovel:', error);
@@ -138,9 +157,9 @@ export default function NovoImovelAdminPage() {
             <div className="bg-muted flex h-40 items-center justify-center">
               <Building2 className="text-muted-foreground/60 h-14 w-14" />
             </div>
-            <div className="space-y-3 p-4">
-              <h4 className="text-foreground text-2xl leading-tight font-semibold">
-                {formData.identificacao || 'Identificação do Imóvel'}
+            <div className="p-4 space-y-3">
+              <h4 className="font-semibold text-2xl leading-tight text-foreground">
+                {formData.nome || 'Nome interno do imóvel'}
               </h4>
               <p className="text-muted-foreground flex items-center gap-1.5 text-sm">
                 <MapPin className="h-3.5 w-3.5" />

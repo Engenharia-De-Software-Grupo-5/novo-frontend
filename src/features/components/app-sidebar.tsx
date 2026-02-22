@@ -127,6 +127,7 @@ export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
         {
           title: 'Cobranças',
           url: `/condominios/${id}/cobrancas`,
+          roles: ['Financeiro', 'Admin'] as Role[],
         },
       ],
     },

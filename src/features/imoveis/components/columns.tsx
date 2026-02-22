@@ -13,7 +13,7 @@ export const columns: ColumnDef<ImovelSummary>[] = [
   {
     accessorKey: 'name',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Identificação" />
+      <DataTableColumnHeader column={column} title="Nome Interno" />
     ),
   },
   {

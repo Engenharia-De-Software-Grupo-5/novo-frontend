@@ -248,7 +248,7 @@ export async function GET(
  */
 export async function POST(request: NextRequest) {
   let body: Partial<CondominoFull>;
-   
+
   const contentType = request.headers.get('content-type') || '';
   let uploadedFiles: FileAttachment[] = [];
 

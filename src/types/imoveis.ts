@@ -26,6 +26,7 @@ export interface Locatario {
 export interface ImovelDetail {
   idCondominio: string;
   idImovel: string;
+  nome: string;
   tipo: ImovelTipo;
   situacao: ImovelSituacao;
   endereco: Endereco;

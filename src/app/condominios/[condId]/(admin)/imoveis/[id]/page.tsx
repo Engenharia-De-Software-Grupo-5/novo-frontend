@@ -43,7 +43,7 @@ export default async function DetalhesImovelAdminPage({
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-5xl space-y-8">
+    <div className="flex flex-col space-y-6 p-8 pt-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" className="border-border hover:bg-accent" asChild>
@@ -53,8 +53,8 @@ export default async function DetalhesImovelAdminPage({
           </Button>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-foreground">
-                {imovel.endereco.nomePredio || imovel.tipo.toUpperCase()} {imovel.idImovel}
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                {imovel.nome}
               </h1>
               <Badge variant="outline" className={getStatusColor(imovel.situacao)}>
                 {imovel.situacao.toUpperCase()}
@@ -77,8 +77,8 @@ export default async function DetalhesImovelAdminPage({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2 space-y-6">
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="text-base text-foreground">
@@ -86,6 +86,10 @@ export default async function DetalhesImovelAdminPage({
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-y-4 text-sm">
+              <div>
+                <span className="block text-muted-foreground">Nome interno</span>
+                <span className="font-medium text-foreground">{imovel.nome}</span>
+              </div>
               <div>
                 <span className="block text-muted-foreground">Código</span>
                 <span className="font-medium text-foreground">{imovel.idImovel}</span>
@@ -116,12 +120,6 @@ export default async function DetalhesImovelAdminPage({
                   {imovel.endereco.rua}, {imovel.endereco.numero}
                 </span>
               </p>
-              {imovel.endereco.nomePredio && (
-                <p>
-                  <span className="text-muted-foreground">Identificação:</span>{' '}
-                  <span className="text-foreground">{imovel.endereco.nomePredio}</span>
-                </p>
-              )}
               <p>
                 <span className="text-muted-foreground">Bairro:</span>{' '}
                 <span className="text-foreground">{imovel.endereco.bairro}</span>

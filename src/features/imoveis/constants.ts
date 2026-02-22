@@ -15,7 +15,7 @@ export const IMOVEIS_SITUACOES = [
 ] as const;
 
 export const IMOVEIS_COLUMN_LABELS: Record<string, string> = {
-  name: 'Identificação',
+  name: 'Nome Interno',
   tipo: 'Tipo',
   situacao: 'Situação',
   endereco: 'Endereço',

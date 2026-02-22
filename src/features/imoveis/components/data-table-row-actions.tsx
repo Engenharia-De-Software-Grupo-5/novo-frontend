@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import {
   AlertDialog,
@@ -24,10 +23,12 @@ import {
 import { MoreHorizontal, PencilLine, ScanEye, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { ImovelSummary } from '@/types/imoveis';
+import { ImovelDetail, ImovelSummary } from '@/types/imoveis';
 
 import { DEFAULT_COND_ID } from '../constants';
-import { deleteImovel } from '../services/imovelService';
+import { deleteImovel, getImovelById } from '../services/imovelService';
+import { ImovelDialog } from './add-imovel-dialog';
+import { ViewImovelDialog } from './view-imovel-dialog';
 
 interface DataTableRowActionsProps {
   imovel: ImovelSummary;
@@ -35,10 +36,41 @@ interface DataTableRowActionsProps {
 
 export function DataTableRowActions({ imovel }: DataTableRowActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showViewDialog, setShowViewDialog] = useState(false);
+  const [imovelDetail, setImovelDetail] = useState<ImovelDetail | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const params = useParams();
   const condId = params?.condId as string | undefined;
+
+  async function handleView() {
+    try {
+      const detail = await getImovelById(
+        condId || DEFAULT_COND_ID,
+        imovel.idImovel
+      );
+      setImovelDetail(detail);
+      setShowViewDialog(true);
+    } catch (error) {
+      console.error('Error fetching imovel details:', error);
+      toast.error('Erro ao carregar dados do imóvel.');
+    }
+  }
+
+  async function handleEdit() {
+    try {
+      const detail = await getImovelById(
+        condId || DEFAULT_COND_ID,
+        imovel.idImovel
+      );
+      setImovelDetail(detail);
+      setShowEditDialog(true);
+    } catch (error) {
+      console.error('Error fetching imovel details:', error);
+      toast.error('Erro ao carregar dados do imóvel.');
+    }
+  }
 
   async function handleDelete() {
     try {
@@ -65,31 +97,19 @@ export function DataTableRowActions({ imovel }: DataTableRowActionsProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem asChild>
-              <Link
-              href={
-                condId
-                  ? `/condominios/${condId}/imoveis/${imovel.idImovel}`
-                  : `/imoveis/${imovel.idImovel}`
-              }
-              className="flex items-center justify-between gap-2"
-            >
-              Visualizar
-              <ScanEye className="h-4 w-4" />
-            </Link>
+          <DropdownMenuItem
+            className="flex items-center justify-between gap-2"
+            onSelect={handleView}
+          >
+            Visualizar
+            <ScanEye className="h-4 w-4" />
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-              <Link
-              href={
-                condId
-                  ? `/condominios/${condId}/imoveis/${imovel.idImovel}/editar`
-                  : `/imoveis/${imovel.idImovel}/editar`
-              }
-              className="flex items-center justify-between gap-2"
-            >
-              Editar
-              <PencilLine className="h-4 w-4" />
-            </Link>
+          <DropdownMenuItem
+            className="flex items-center justify-between gap-2"
+            onSelect={handleEdit}
+          >
+            Editar
+            <PencilLine className="h-4 w-4" />
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -124,6 +144,28 @@ export function DataTableRowActions({ imovel }: DataTableRowActionsProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {imovelDetail && showViewDialog && (
+        <ViewImovelDialog
+          imovel={imovelDetail}
+          open={showViewDialog}
+          onOpenChange={(value) => {
+            setShowViewDialog(value);
+            if (!value) setImovelDetail(null);
+          }}
+        />
+      )}
+
+      {imovelDetail && showEditDialog && (
+        <ImovelDialog
+          imovel={imovelDetail}
+          open={showEditDialog}
+          onOpenChange={(value) => {
+            setShowEditDialog(value);
+            if (!value) setImovelDetail(null);
+          }}
+        />
+      )}
     </>
   );
 }

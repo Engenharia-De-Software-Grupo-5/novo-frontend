@@ -19,7 +19,7 @@ export interface Locatario {
 
 export interface Imovel {
   id: string;
-  identificacao: string;
+  nome: string;
   status: ImovelStatus;
   tipo: string;
   endereco: Endereco;

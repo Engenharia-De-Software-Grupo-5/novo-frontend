@@ -29,13 +29,7 @@ export function ImovelCard({ data }: ImovelCardProps) {
   const statusConfig = getStatusConfig(data?.situacao);
   const StatusIcon = statusConfig.icon;
 
-  const tipoFormatado = data?.tipo 
-    ? data.tipo.charAt(0).toUpperCase() + data.tipo.slice(1) 
-    : "Novo Imóvel";
-
-  const tituloImovel = data?.endereco?.nomePredio 
-    ? `${data.endereco.nomePredio} - ${data.endereco.numero || ''}`
-    : `${tipoFormatado} ${data?.idImovel || ''}`;
+  const tituloImovel = data?.nome || 'Novo Imóvel';
 
   return (
     <Link href={`/imoveis/${data?.idImovel || '#'}`} className="block group h-full">

@@ -4,13 +4,9 @@ import { imoveisDb } from '@/mocks/in-memory-db';
 import { ImovelDetail, ImovelSummary } from '@/types/imoveis';
 
 function toSummary(imovel: ImovelDetail): ImovelSummary {
-  const name = imovel.endereco.nomePredio
-    ? `${imovel.endereco.nomePredio} - ${imovel.idImovel}`
-    : `${imovel.tipo.toUpperCase()} ${imovel.idImovel}`;
-
   return {
     idImovel: imovel.idImovel,
-    name,
+    name: imovel.nome || `${imovel.tipo.toUpperCase()} ${imovel.idImovel}`,
     tipo: imovel.tipo,
     situacao: imovel.situacao,
     endereco: `${imovel.endereco.rua}, ${imovel.endereco.numero}`,
@@ -122,7 +118,12 @@ export async function POST(
   const { condId } = await params;
   const body = (await request.json()) as Partial<ImovelDetail>;
 
-  const nowId = `IMV-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+  const lastSequence = imoveisDb.reduce((max, imovel) => {
+    const numericPart = Number(imovel.idImovel.replace(/\D/g, ''));
+    return Number.isNaN(numericPart) ? max : Math.max(max, numericPart);
+  }, 0);
+  const nextSequence = lastSequence + 1;
+  const nowId = `IMV-${String(nextSequence).padStart(3, '0')}`;
 
   const hasLocatario =
     !!body.locatario?.nome ||
@@ -132,6 +133,7 @@ export async function POST(
   const newImovel: ImovelDetail = {
     idCondominio: condId,
     idImovel: body.idImovel || nowId,
+    nome: body.nome?.trim() || `Imóvel ${nextSequence}`,
     tipo: body.tipo || 'apartamento',
     situacao: body.situacao || 'ativo',
     endereco: {

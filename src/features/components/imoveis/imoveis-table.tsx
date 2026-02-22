@@ -61,9 +61,7 @@ function SortableRow({
 
   const statusConfig = getStatusConfig(imovel.situacao);
   const StatusIcon = statusConfig.icon;
-  const identificacao = imovel.endereco.nomePredio 
-    ? `${imovel.endereco.nomePredio} - ${imovel.idImovel}`
-    : `${imovel.tipo.toUpperCase()} ${imovel.idImovel}`;
+  const identificacao = `${imovel.nome} (${imovel.idImovel})`;
 
   return (
     <TableRow 

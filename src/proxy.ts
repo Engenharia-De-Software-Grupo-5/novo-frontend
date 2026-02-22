@@ -46,7 +46,7 @@ export default auth((req) => {
   const routeAccessMap: routerMap[] = [
     {
       match: (path: string) =>
-        path.includes('/pagamentos') || path.includes('/financeiro'),
+        path.includes('/pagamentos') || path.includes('/financeiro') || path.includes('/cobrancas'),
       allowedRoles: ['Financeiro', 'Admin'],
     },
     {

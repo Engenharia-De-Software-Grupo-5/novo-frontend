@@ -1,6 +1,5 @@
 'use client';
 
-import { Upload } from 'lucide-react';
 import { Input } from '@/features/components/ui/input';
 import { Label } from '@/features/components/ui/label';
 import {
@@ -18,7 +17,7 @@ import {
 } from '@/features/components/ui/select';
 
 export interface ImovelFormData {
-  identificacao: string;
+  nome: string;
   status: string;
   tipo?: 'casa' | 'apartamento';
   endereco?: {
@@ -74,12 +73,12 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="identificacao">Identificação do Imóvel *</Label>
+              <Label htmlFor="nome">Nome Interno do Imóvel *</Label>
               <Input
-                id="identificacao"
-                placeholder="Ex: Apto 302"
-                value={formData.identificacao || ''}
-                onChange={(e) => handleChange('identificacao', e.target.value)}
+                id="nome"
+                placeholder="Ex: Apartamento 302 - Bloco A"
+                value={formData.nome || ''}
+                onChange={(e) => handleChange('nome', e.target.value)}
                 className="bg-background border-border"
               />
             </div>
@@ -102,16 +101,6 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Foto do Imóvel</Label>
-            <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-accent transition-colors">
-              <Upload className="h-6 w-6 text-muted-foreground mb-3" />
-              <p className="text-sm text-foreground font-medium">
-                Clique para fazer upload da foto
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">PNG, JPG até 5MB</p>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
@@ -125,8 +114,8 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-4 gap-4">
-            <div className="col-span-3 space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="space-y-2 md:col-span-3">
               <Label>Logradouro *</Label>
               <Input
                 placeholder="Ex: Rua das Palmeiras"
@@ -137,7 +126,7 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
                 className="bg-background border-border"
               />
             </div>
-            <div className="col-span-1 space-y-2">
+            <div className="space-y-2 md:col-span-1">
               <Label>Número *</Label>
               <Input
                 placeholder="120"
@@ -150,7 +139,7 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Complemento</Label>
               <Input
@@ -175,7 +164,7 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Cidade *</Label>
               <Input
@@ -220,7 +209,7 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>CPF</Label>
               <Input

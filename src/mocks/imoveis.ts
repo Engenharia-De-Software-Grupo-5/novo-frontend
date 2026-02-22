@@ -4,6 +4,7 @@ export const mockImoveis: Imovel[] = [
   {
     idCondominio: '1',
     idImovel: 'IMV-001',
+    nome: 'Apartamento 101 - Bloco A',
     tipo: 'apartamento',
     situacao: 'ativo',
     endereco: {
@@ -12,7 +13,6 @@ export const mockImoveis: Imovel[] = [
       bairro: 'Centro',
       cidade: 'Campina Grande',
       estado: 'PB',
-      nomePredio: 'Apto 101',
       bloco: 'A',
     },
     locatario: {
@@ -24,6 +24,7 @@ export const mockImoveis: Imovel[] = [
   {
     idCondominio: '1',
     idImovel: 'IMV-002',
+    nome: 'Apartamento 202 - Bloco A',
     tipo: 'apartamento',
     situacao: 'ativo',
     endereco: {
@@ -32,7 +33,6 @@ export const mockImoveis: Imovel[] = [
       bairro: 'Centro',
       cidade: 'Campina Grande',
       estado: 'PB',
-      nomePredio: 'Apto 202',
       bloco: 'A',
     },
     locatario: {
@@ -44,6 +44,7 @@ export const mockImoveis: Imovel[] = [
   {
     idCondominio: '1',
     idImovel: 'IMV-003',
+    nome: 'Casa 45',
     tipo: 'casa',
     situacao: 'ativo',
     endereco: {
@@ -52,7 +53,6 @@ export const mockImoveis: Imovel[] = [
       bairro: 'Catole',
       cidade: 'Campina Grande',
       estado: 'PB',
-      nomePredio: 'Casa 45',
     },
     locatario: {
       nome: 'Joao Pedro Moura',
@@ -63,6 +63,7 @@ export const mockImoveis: Imovel[] = [
   {
     idCondominio: '2',
     idImovel: 'IMV-004',
+    nome: 'Apartamento 304 - Bloco B',
     tipo: 'apartamento',
     situacao: 'manutenção',
     endereco: {
@@ -71,7 +72,6 @@ export const mockImoveis: Imovel[] = [
       bairro: 'Bodocongo',
       cidade: 'Campina Grande',
       estado: 'PB',
-      nomePredio: 'Apto 304',
       bloco: 'B',
     },
     locatario: null,
@@ -79,6 +79,7 @@ export const mockImoveis: Imovel[] = [
   {
     idCondominio: '2',
     idImovel: 'IMV-005',
+    nome: 'Apartamento 905 - Torre Sul',
     tipo: 'apartamento',
     situacao: 'na planta',
     endereco: {
@@ -87,7 +88,6 @@ export const mockImoveis: Imovel[] = [
       bairro: 'Prata',
       cidade: 'Campina Grande',
       estado: 'PB',
-      nomePredio: 'Torre Sul 905',
       torre: 'Sul',
     },
     locatario: null,
@@ -95,6 +95,7 @@ export const mockImoveis: Imovel[] = [
   {
     idCondominio: '3',
     idImovel: 'IMV-006',
+    nome: 'Casa 310',
     tipo: 'casa',
     situacao: 'inativo',
     endereco: {
@@ -103,13 +104,13 @@ export const mockImoveis: Imovel[] = [
       bairro: 'Liberdade',
       cidade: 'Campina Grande',
       estado: 'PB',
-      nomePredio: 'Casa 310',
     },
     locatario: null,
   },
   {
     idCondominio: '3',
     idImovel: 'IMV-007',
+    nome: 'Apartamento 602',
     tipo: 'apartamento',
     situacao: 'ativo',
     endereco: {
@@ -118,7 +119,6 @@ export const mockImoveis: Imovel[] = [
       bairro: 'Centro',
       cidade: 'Joao Pessoa',
       estado: 'PB',
-      nomePredio: 'Apto 602',
     },
     locatario: {
       nome: 'Ana Cristina Ribeiro',
@@ -129,6 +129,7 @@ export const mockImoveis: Imovel[] = [
   {
     idCondominio: '3',
     idImovel: 'IMV-008',
+    nome: 'Apartamento 603',
     tipo: 'apartamento',
     situacao: 'manutenção',
     endereco: {
@@ -137,13 +138,13 @@ export const mockImoveis: Imovel[] = [
       bairro: 'Centro',
       cidade: 'Joao Pessoa',
       estado: 'PB',
-      nomePredio: 'Apto 603',
     },
     locatario: null,
   },
   {
     idCondominio: '4',
     idImovel: 'IMV-009',
+    nome: 'Casa 500',
     tipo: 'casa',
     situacao: 'ativo',
     endereco: {
@@ -152,7 +153,6 @@ export const mockImoveis: Imovel[] = [
       bairro: 'Mirante',
       cidade: 'Campina Grande',
       estado: 'PB',
-      nomePredio: 'Casa 500',
     },
     locatario: {
       nome: 'Renata Nogueira Dias',
@@ -163,6 +163,7 @@ export const mockImoveis: Imovel[] = [
   {
     idCondominio: '4',
     idImovel: 'IMV-010',
+    nome: 'Apartamento 1201 - Torre Norte',
     tipo: 'apartamento',
     situacao: 'na planta',
     endereco: {
@@ -171,7 +172,6 @@ export const mockImoveis: Imovel[] = [
       bairro: 'Mirante',
       cidade: 'Campina Grande',
       estado: 'PB',
-      nomePredio: 'Apto 1201',
       torre: 'Norte',
     },
     locatario: null,
@@ -179,6 +179,7 @@ export const mockImoveis: Imovel[] = [
   {
     idCondominio: '5',
     idImovel: 'IMV-011',
+    nome: 'Casa 100',
     tipo: 'casa',
     situacao: 'ativo',
     endereco: {
@@ -187,7 +188,6 @@ export const mockImoveis: Imovel[] = [
       bairro: 'Jardim America',
       cidade: 'Sao Paulo',
       estado: 'SP',
-      nomePredio: 'Casa 100',
     },
     locatario: {
       nome: 'Paulo Roberto Mendes',
@@ -198,6 +198,7 @@ export const mockImoveis: Imovel[] = [
   {
     idCondominio: '5',
     idImovel: 'IMV-012',
+    nome: 'Apartamento 301 - Bloco C',
     tipo: 'apartamento',
     situacao: 'inativo',
     endereco: {
@@ -206,7 +207,6 @@ export const mockImoveis: Imovel[] = [
       bairro: 'Jardim America',
       cidade: 'Sao Paulo',
       estado: 'SP',
-      nomePredio: 'Apto 301',
       bloco: 'C',
     },
     locatario: null,

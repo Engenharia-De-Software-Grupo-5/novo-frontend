@@ -58,13 +58,16 @@ export async function PUT(
       ...current.endereco,
       ...body.endereco,
     },
-    locatario: hasLocatario
-      ? {
-          nome: body.locatario?.nome || '',
-          cpf: body.locatario?.cpf || '',
-          telefone: body.locatario?.telefone || '',
-        }
-      : null,
+    locatario:
+      body.locatario === undefined
+        ? current.locatario
+        : hasLocatario
+          ? {
+              nome: body.locatario?.nome || '',
+              cpf: body.locatario?.cpf || '',
+              telefone: body.locatario?.telefone || '',
+            }
+          : null,
   };
 
   imoveisDb[index] = updated;

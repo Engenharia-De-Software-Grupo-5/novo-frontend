@@ -46,14 +46,13 @@ export const getUsers = async (
 
 export async function inviteUser(
   condominioId: string,
-  data: { email: string; role: string }
+  data: { name: string; email: string; role: string; message?: string }
 ) {
   return apiRequest(`/api/condominios/${condominioId}/usuarios`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
-
 /**
  * ATUALIZAÇÃO (PUT ou PATCH)
  */
