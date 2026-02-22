@@ -1,0 +1,313 @@
+'use client';
+
+import Image from 'next/image';
+import { useParams, useRouter } from 'next/navigation';
+import { Button } from '@/features/components/ui/button';
+import { Form } from '@/features/components/ui/form';
+import { createCondomino } from '@/features/condominos/services/condominos.service';
+import { AdditionalResidentsSection } from '@/features/form/components/AdditionalResidentsSecton';
+import { BankingInfoSection } from '@/features/form/components/BankingInfoSection';
+import { ContactSection } from '@/features/form/components/ContactSection';
+import { DocumentsSection } from '@/features/form/components/DocumentsSection';
+import { EmergencyContacts } from '@/features/form/components/EmergencyContacts';
+import { PersonalDataSection } from '@/features/form/components/PersonalDataSection';
+import { ProfessionalInfoSection } from '@/features/form/components/ProfessionalInfoSection';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import * as z from 'zod';
+
+const formSchema = z.object({
+  // --- DADOS PESSOAIS ---
+  name: z.string().trim().min(1, 'Nome completo é obrigatório'),
+  birthDate: z.string().min(1, 'Data de nascimento é obrigatória'),
+  maritalStatus: z.string().min(1, 'Estado civil é obrigatório'),
+
+  // RG: Aceita letras (alguns estados têm letras) mas remove pontos/traços
+  rg: z
+    .string()
+    .min(7, 'RG deve ter no mínimo 7 dígitos')
+    .max(9, 'RG deve ter no máximo 9 dígitos')
+    .transform((val) => val.replaceAll(/[^a-zA-Z0-9]/g, '')),
+
+  issuingAuthority: z.string().min(1, 'Órgão expedidor é obrigatório'),
+
+  // CPF: Limpa a máscara e valida se tem exatamente 11 dígitos
+  cpf: z
+    .string()
+    .min(1, 'CPF é obrigatório')
+    .transform((val) => val.replaceAll(/\D/g, ''))
+    .pipe(
+      z
+        .string()
+        .length(11, 'CPF deve ter 11 números')
+        .regex(/^\d+$/, 'Apenas números são permitidos')
+    ),
+
+  monthlyIncome: z.coerce.number().min(1, 'Informe sua renda mensal'),
+
+  // --- CONTATO ---
+  email: z
+    .email('Digite um formato de e-mail válido (ex: nome@exemplo.com)')
+    .min(1, 'E-mail é obrigatório')
+    .trim()
+    .toLowerCase()
+    .refine((val) => val.includes('.'), {
+      message: 'O e-mail deve conter um domínio válido (ex: .com ou .com.br)',
+    }),
+
+  primaryPhone: z
+    .string()
+    .min(1, 'Telefone principal é obrigatório')
+    // 1. Remove tudo que não for número antes de validar
+    .transform((val) => val.replaceAll(/\D/g, ''))
+    .pipe(
+      z
+        .string()
+        // DDD (2) + 8 ou 9 dígitos
+        .min(10, 'Telefone deve ter no mínimo 10 dígitos (com DDD)')
+        .max(11, 'Telefone não pode ter mais de 11 dígitos')
+    ),
+
+  secondaryPhone: z
+    .string()
+    .optional()
+    // Se o usuário digitar algo, limpa. Se não, retorna undefined
+    .transform((val) =>
+      val && val.trim() !== '' ? val.replaceAll(/\D/g, '') : undefined
+    )
+    .pipe(
+      z
+        .string()
+        .min(10, 'Telefone inválido')
+        .max(11, 'Telefone inválido')
+        .optional()
+        .or(z.literal(''))
+    ),
+
+  address: z.string().min(1, 'Endereço é obrigatório'),
+
+  // --- CONTATOS DE EMERGÊNCIA ---
+  emergencyContacts: z
+    .array(
+      z.object({
+        name: z.string().min(1, 'Nome é obrigatório'),
+        relationship: z.string().min(1, 'Parentesco é obrigatório'),
+        phone: z
+          .string()
+          .min(1, 'Telefone é obrigatório')
+          .transform((val) => val.replaceAll(/\D/g, '')),
+      })
+    )
+    .min(1, 'Adicione pelo menos um contato de emergência'),
+
+  // --- PROFISSIONAL ---
+  professionalInfo: z.object({
+    companyName: z.string().min(1, 'Nome da empresa é obrigatório'),
+    companyPhone: z
+      .string()
+      .min(1, 'Telefone da empresa é obrigatório')
+      .transform((v) => v.replaceAll(/\D/g, '')),
+    companyAddress: z.string().min(1, 'Endereço da empresa é obrigatório'),
+    position: z.string().min(1, 'Cargo é obrigatório'),
+    monthsWorking: z.coerce.number().min(0, 'Valor inválido'),
+  }),
+
+  // --- BANCÁRIO ---
+  bankingInfo: z.object({
+    bank: z.string().min(1, 'Banco é obrigatório'),
+    accountType: z.string().min(1, 'Tipo de conta é obrigatório'),
+    accountNumber: z
+      .string()
+      .min(1, 'Número da conta é obrigatório')
+      .regex(/^\d+$/, 'Apenas números'),
+    agency: z
+      .string()
+      .min(1, 'Agência é obrigatória')
+      .regex(/^\d+$/, 'Apenas números'),
+  }),
+
+  // --- CÔNJUGE ---
+  spouse: z
+    .object({
+      name: z.string().min(1, 'Tem que informar o nome do cônjuge'),
+      rg: z
+        .string()
+        .min(7, 'RG deve ter no mínimo 7 dígitos')
+        .max(9, 'RG deve ter no máximo 9 dígitos')
+        .transform((val) => val.replaceAll(/[^a-zA-Z0-9]/g, '')),
+      cpf: z
+        .string()
+        .min(11, 'CPF deve ter no mínimo 11 dígitos')
+        .max(14, 'CPF deve ter no máximo 14 dígitos')
+        .transform((v) => v?.replaceAll(/\D/g, '') ?? ''),
+      profession: z
+        .string()
+        .min(1, 'Tem que informar a profissão do cônjuge')
+        .default(''),
+      monthlyIncome: z.coerce
+        .number()
+        .min(1, 'Tem que informar a renda do cônjuge')
+        .default(0),
+    })
+    .optional(),
+
+  // --- MORADORES ADICIONAIS ---
+  additionalResidents: z
+    .array(
+      z.object({
+        name: z.string().min(1, 'Nome é obrigatório'),
+        relationship: z.string().min(1, 'Parentesco é obrigatório'),
+        age: z.coerce.number().min(0, 'Idade inválida'),
+      })
+    )
+    .default([]),
+
+  // --- DOCUMENTOS (UPLOAD) ---
+  documents: z.object({
+    rg: z.instanceof(File, { message: 'O upload do RG é obrigatório' }),
+    cpf: z.instanceof(File, { message: 'O upload do CPF é obrigatório' }),
+    incomeProof: z.instanceof(File, {
+      message: 'O comprovante de renda é obrigatório',
+    }),
+  }),
+});
+
+type PreCadastroFormData = z.infer<typeof formSchema>;
+type PreCadastroFormInput = z.input<typeof formSchema>;
+
+export default function PreCadastroForm() {
+  const params = useParams();
+  const router = useRouter();
+  const condominiumId = Array.isArray(params.condId)
+    ? params.condId[0]
+    : params.condId;
+
+  const form = useForm<PreCadastroFormInput, unknown, PreCadastroFormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      birthDate: '',
+      maritalStatus: '',
+      rg: '',
+      issuingAuthority: '',
+      cpf: '',
+      email: '',
+      primaryPhone: '',
+      secondaryPhone: '',
+      address: '',
+      // Inicialize o objeto spouse para evitar o erro de undefined ao renderizar
+      spouse: {
+        name: '',
+        rg: '',
+        cpf: '',
+        profession: '',
+        monthlyIncome: 0,
+      },
+      emergencyContacts: [{ name: '', relationship: '', phone: '' }],
+      professionalInfo: {
+        companyName: '',
+        companyPhone: '',
+        companyAddress: '',
+        position: '',
+        monthsWorking: 0,
+      },
+      bankingInfo: {
+        bank: '',
+        accountType: '',
+        accountNumber: '',
+        agency: '',
+      },
+      additionalResidents: [],
+      documents: {
+        rg: undefined,
+        cpf: undefined,
+        incomeProof: undefined,
+      },
+    },
+  });
+
+  // PR PRPRP PR
+
+  const onSubmit: SubmitHandler<PreCadastroFormData> = async (
+    values: PreCadastroFormData
+  ) => {
+    console.log('FORM VALUES:', values);
+    if (!condominiumId) {
+      console.error('condominioId não definido!');
+      return;
+    }
+
+    try {
+      const payload = { ...values, condominiumId };
+
+      await createCondomino(condominiumId, payload);
+
+      router.push(
+        `/condominios/${condominiumId}/pre-cadastro-sucesso?submitted=true`
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <div className="container mx-auto max-w-4xl space-y-8 py-10">
+      <div className="flex flex-col items-center space-y-2 text-center">
+        <Image src="/logo-icon.png" width={40} height={40} alt="Logo Moratta" />
+
+        <h1 className="text-brand-dark text-3xl font-bold">
+          Pré-cadastro de Condômino
+        </h1>
+        <p className="text-muted-foreground">
+          Formulário para pre-cadastro de proponentes a locatário.
+          <br /> Preencha cuidadosamente as informações a seguir.
+        </p>
+      </div>
+      {/* SEÇÃO: DADOS PESSOAIS */}
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit, (errors) =>
+            console.log('FORM ERRORS:', errors)
+          )}
+          className="space-y-10"
+        >
+          <PersonalDataSection />
+          {/* <Separator className="bg-slate-100" /> */}
+          {/* CONTATO */}
+          <ContactSection />
+          {/* CONTATO EMERGÊNCIA */}
+          <EmergencyContacts />
+
+          {/* INFORMAÇÕES PROFISSIONAIS */}
+          <ProfessionalInfoSection />
+
+          {/* INFORMAÇÕES BANCÁRIAS */}
+          <BankingInfoSection />
+          {/* MORADORES ADICIONAIS */}
+          <AdditionalResidentsSection />
+
+          {/* DOCUMENTOS */}
+          <DocumentsSection />
+
+          <div className="mt-10 flex flex-col-reverse items-center justify-end gap-4 border-t border-slate-100 pt-8 md:flex-row">
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-12 w-full bg-gray-200 px-8 hover:bg-gray-300 md:w-auto"
+              onClick={() => {}}
+            >
+              Cancelar
+            </Button>
+
+            <Button
+              type="submit"
+              className="h-12 w-full bg-blue-600 px-10 text-[16px] font-bold shadow-sm hover:bg-blue-700 md:w-auto"
+            >
+              Enviar Cadastro
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+}

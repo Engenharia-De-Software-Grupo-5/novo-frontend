@@ -1,0 +1,18 @@
+export const ROUTE_CONFIG: Record<string, string> = {
+  '/dashboard': 'Dashboard',
+  '/imoveis': 'Imóveis',
+  '/imoveis/novo': 'Adicionar Imóvel',
+  '/admin': 'Admin',
+  '/usuarios': 'Gerenciar Usuários',
+  '/contratos': 'Gerenciar Contratos',
+  '/contratos/novo': 'Adicionar Contrato',
+  '/modelos': 'Modelos de Contratos',
+  '/modelos/novo': 'Adicionar Modelo',
+  '/condominos': 'Gerenciar Condôminos',
+  '/cobrancas': 'Cobranças',
+  '/funcionarios': 'Gerenciar Funcionários',
+  '/pagamentos': 'Pagamentos',
+  '/despesas': 'Despesas',
+  '/despesas/condominio': 'Condomínio',
+  '/despesas/imoveis': 'Imóveis',
+};
