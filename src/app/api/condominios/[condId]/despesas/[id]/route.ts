@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { despesasDb } from '@/mocks/in-memory-db';
+import { getDespesasDb } from '@/mocks/in-memory-db';
 
 import { DespesaDetail } from '@/types/despesa';
 
@@ -8,6 +8,7 @@ export async function GET(
   props: { params: Promise<{ condId: string; id: string }> }
 ) {
   const params = await props.params;
+  const despesasDb = getDespesasDb(params.condId);
 
   const despesa = despesasDb.find((d) => d.id === params.id);
 
@@ -22,6 +23,7 @@ export async function PUT(
   props: { params: Promise<{ condId: string; id: string }> }
 ) {
   const params = await props.params;
+  const despesasDb = getDespesasDb(params.condId);
 
   const index = despesasDb.findIndex((d) => d.id === params.id);
   if (index === -1)
@@ -68,6 +70,7 @@ export async function DELETE(
   props: { params: Promise<{ condId: string; id: string }> }
 ) {
   const params = await props.params;
+  const despesasDb = getDespesasDb(params.condId);
 
   const index = despesasDb.findIndex((d) => d.id === params.id);
   if (index !== -1) {

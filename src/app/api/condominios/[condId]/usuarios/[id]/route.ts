@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { users } from '@/mocks/users';
+import { getUsersDb } from '@/mocks/in-memory-db';
+
+import { User } from '@/types/user';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -45,10 +47,11 @@ export const revalidate = 0;
  */
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ condId: string; id: string }> }
 ) {
-  const { id } = await params;
-  const user = users.find((u) => u.id === id);
+  const { condId, id } = await params;
+  const usersDb = getUsersDb(condId);
+  const user = usersDb.find((u) => u.id === id);
 
   if (!user) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -96,10 +99,11 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ condId: string; id: string }> }
 ) {
-  const { id } = await params;
-  let body: Record<string, unknown>;
+  const { condId, id } = await params;
+  const usersDb = getUsersDb(condId);
+  let body: Partial<User>;
 
   const contentType = request.headers.get('content-type') || '';
 
@@ -112,22 +116,22 @@ export async function PUT(
     body = await request.json();
   }
 
-  const index = users.findIndex((u) => u.id === id);
+  const index = usersDb.findIndex((u) => u.id === id);
 
   if (index === -1) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
   // Atualização robusta conforme sua interface User
-  users[index] = {
-    ...users[index],
+  usersDb[index] = {
+    ...usersDb[index],
     ...body,
 
-    id: users[index].id,
+    id: usersDb[index].id,
   };
 
   console.log(`PUT: Usuário ${id} editado com sucesso:`, body);
-  return NextResponse.json(users[index]);
+  return NextResponse.json(usersDb[index]);
 }
 /**
  * @swagger
@@ -168,12 +172,13 @@ export async function PUT(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ condId: string; id: string }> }
 ) {
-  const { id } = await params;
+  const { condId, id } = await params;
+  const usersDb = getUsersDb(condId);
   const body = await request.json();
 
-  const user = users.find((u) => u.id === id);
+  const user = usersDb.find((u) => u.id === id);
 
   if (!user) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -214,13 +219,14 @@ export async function PATCH(
  */
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ condId: string; id: string }> }
 ) {
-  const { id } = await params;
+  const { condId, id } = await params;
+  const usersDb = getUsersDb(condId);
 
   // Busca o índice no banco de dados de usuários
   // Substitua 'usersDb' pelo nome real do seu array de usuários
-  const index = users.findIndex((u) => u.id === id);
+  const index = usersDb.findIndex((u) => u.id === id);
 
   if (index === -1) {
     return NextResponse.json(
@@ -230,7 +236,7 @@ export async function DELETE(
   }
 
   // Remove o usuário de verdade
-  users.splice(index, 1);
+  usersDb.splice(index, 1);
 
   console.log(`Usuário com id ${id} foi apagado`);
 

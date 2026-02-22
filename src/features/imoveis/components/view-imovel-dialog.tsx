@@ -67,12 +67,6 @@ export function ViewImovelDialog({
             label="Cidade/UF"
             value={`${imovel.endereco.cidade}/${imovel.endereco.estado}`}
           />
-
-          <div className="h-px bg-border" />
-
-          <FieldItem label="Locatário" value={imovel.locatario?.nome} />
-          <FieldItem label="CPF" value={imovel.locatario?.cpf} />
-          <FieldItem label="Telefone" value={imovel.locatario?.telefone} />
         </div>
       </DialogContent>
     </Dialog>

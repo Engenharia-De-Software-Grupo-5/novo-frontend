@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { users } from '@/mocks/users';
+import { getUsersDb } from '@/mocks/in-memory-db';
 
 import { User } from '@/types/user';
 
@@ -75,6 +75,7 @@ export async function GET(
   { params }: { params: Promise<{ condId: string }> }
 ) {
   const { condId } = await params;
+  const usersDb = getUsersDb(condId);
 
   if (!condId) {
     return NextResponse.json({ error: 'ID não fornecido' }, { status: 400 });
@@ -105,8 +106,8 @@ export async function GET(
   console.log('columnsArr:', columnsArr);
   console.log('contentArr:', contentArr);
   console.log('filterMap:', Object.fromEntries(filterMap));
-  console.log('users total:', users.length);
-  console.log('primeiro user:', users[0]);
+  console.log('users total:', usersDb.length);
+  console.log('primeiro user:', usersDb[0]);
 
   for (let i = 0; i < columnsArr.length; i++) {
     const col = columnsArr[i];
@@ -120,7 +121,7 @@ export async function GET(
     }
   }
 
-  let filteredUsers = [...users];
+  let filteredUsers = [...usersDb];
 
   console.log('filteredUsers:', filteredUsers.length);
 
@@ -221,18 +222,51 @@ export async function GET(
  *                 data:
  *                   type: object
  */
-export async function POST(request: NextRequest) {
-  const body = (await request.json()) as User;
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ condId: string }> }
+) {
+  const { condId } = await params;
+  const usersDb = getUsersDb(condId);
+  const body = (await request.json()) as Partial<User>;
+
+  const normalizeRole = (role: string | undefined): User['role'] => {
+    const normalized = (role ?? '').toLowerCase();
+    if (normalized === 'financeiro') return 'Financeiro';
+    if (normalized === 'rh') return 'RH';
+    return 'Admin';
+  };
+
+  const normalizeStatus = (status: string | undefined): User['status'] => {
+    const normalized = (status ?? '').toLowerCase();
+    if (normalized === 'inativo') return 'inativo';
+    if (normalized === 'pendente') return 'pendente';
+    return 'ativo';
+  };
+
+  const now = new Date();
+  const inviteDate = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
+
+  const newUser: User = {
+    id: `${condId}-${Math.random().toString(36).slice(2, 9)}`,
+    name: body.name?.trim() || 'Novo usuário',
+    email: body.email?.trim() || `usuario-${Date.now()}@exemplo.com`,
+    role: normalizeRole(body.role),
+    status: normalizeStatus(body.status),
+    inviteDate,
+  };
 
   console.log('\n');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('CONVITE SERÁ ENVIADO PELO BACKEND');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('Payload recebido:');
-  console.log(body);
+  console.log(newUser);
+
+  usersDb.unshift(newUser);
 
   return NextResponse.json(
-    { message: 'User created successfully', data: body },
+    { message: 'User created successfully', data: newUser },
     { status: 201 }
   );
 }

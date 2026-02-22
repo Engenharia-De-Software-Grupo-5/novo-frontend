@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cobrancasDb, cobrancaTenantsDb } from '@/mocks/in-memory-db';
+import { getCobrancasDb, getCobrancaTenantsDb } from '@/mocks/in-memory-db';
 
 import { CobrancaDetail, CobrancaStatus } from '@/types/cobranca';
 import { FileAttachment } from '@/types/file';
@@ -80,7 +80,9 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; cobrancaId: string }> }
 ) {
-  const { cobrancaId } = await params;
+  await request;
+  const { condId, cobrancaId } = await params;
+  const cobrancasDb = getCobrancasDb(condId);
   const found = cobrancasDb.find((item) => item.id === cobrancaId);
 
   if (!found) {
@@ -97,7 +99,9 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; cobrancaId: string }> }
 ) {
-  const { cobrancaId } = await params;
+  const { condId, cobrancaId } = await params;
+  const cobrancasDb = getCobrancasDb(condId);
+  const cobrancaTenantsDb = getCobrancaTenantsDb(condId);
   const index = cobrancasDb.findIndex((item) => item.id === cobrancaId);
 
   if (index < 0) {
@@ -155,7 +159,8 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; cobrancaId: string }> }
 ) {
-  const { cobrancaId } = await params;
+  const { condId, cobrancaId } = await params;
+  const cobrancasDb = getCobrancasDb(condId);
   const index = cobrancasDb.findIndex((item) => item.id === cobrancaId);
 
   if (index < 0) {
@@ -190,7 +195,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; cobrancaId: string }> }
 ) {
-  const { cobrancaId } = await params;
+  await request;
+  const { condId, cobrancaId } = await params;
+  const cobrancasDb = getCobrancasDb(condId);
   const index = cobrancasDb.findIndex((item) => item.id === cobrancaId);
 
   if (index < 0) {

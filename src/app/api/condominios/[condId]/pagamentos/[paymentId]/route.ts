@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { employeesDb, paymentsDb } from '@/mocks/in-memory-db';
+import { getEmployeesDb, getPaymentsDb } from '@/mocks/in-memory-db';
 
 import { FileAttachment } from '@/types/file';
 import { PaymentDetail, PaymentStatus } from '@/types/payment';
@@ -96,7 +96,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; paymentId: string }> }
 ) {
-  const { paymentId } = await params;
+  const { condId, paymentId } = await params;
+  const paymentsDb = getPaymentsDb(condId);
 
   const payment = paymentsDb.find((p) => p.id === paymentId);
 
@@ -111,7 +112,9 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; paymentId: string }> }
 ) {
-  const { paymentId } = await params;
+  const { condId, paymentId } = await params;
+  const employeesDb = getEmployeesDb(condId);
+  const paymentsDb = getPaymentsDb(condId);
 
   const index = paymentsDb.findIndex((p) => p.id === paymentId);
 
@@ -157,7 +160,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; paymentId: string }> }
 ) {
-  const { paymentId } = await params;
+  const { condId, paymentId } = await params;
+  const paymentsDb = getPaymentsDb(condId);
 
   const paymentIndex = paymentsDb.findIndex((p) => p.id === paymentId);
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { employeesDb, paymentsDb } from '@/mocks/in-memory-db';
+import { getEmployeesDb, getPaymentsDb } from '@/mocks/in-memory-db';
 
 import { FileAttachment } from '@/types/file';
 import { PaymentDetail, PaymentStatus } from '@/types/payment';
@@ -85,6 +85,8 @@ export async function GET(request: NextRequest) {
   // Simulate API delay for loading state testing
   // await new Promise((resolve) => setTimeout(resolve, 1000));
 
+  const { condId } = await params;
+  let payments = getPaymentsDb(condId);
   const searchParams = request.nextUrl.searchParams;
 
   const page = Number.Number.parseInt(searchParams.get('page') || '1');
@@ -115,8 +117,6 @@ export async function GET(request: NextRequest) {
       filterMap.get(col)!.push(val);
     }
   }
-
-  let payments = paymentsDb;
 
   // Apply filters generically
   for (const [col, values] of filterMap.entries()) {
@@ -228,7 +228,13 @@ export async function GET(request: NextRequest) {
  *                 data:
  *                   $ref: '#/components/schemas/PaymentDetail'
  */
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ condId: string }> }
+) {
+  const { condId } = await params;
+  const employeesDb = getEmployeesDb(condId);
+  const paymentsDb = getPaymentsDb(condId);
   let body: PaymentDetail;
   let uploadedProofs: FileAttachment[] = [];
   const contentType = request.headers.get('content-type') || '';

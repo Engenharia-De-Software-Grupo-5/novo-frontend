@@ -3,9 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  ImovelForm,
-} from '@/features/components/imoveis/imovel-form';
+import { ImovelForm } from '@/features/components/imoveis/imovel-form';
 import { Button } from '@/features/components/ui/button';
 import {
   getImovelById,
@@ -26,11 +24,6 @@ interface ImovelFormState {
     bairro: string;
     cidade: string;
     cep: string;
-  };
-  locatario: {
-    nome: string;
-    cpf: string;
-    telefone: string;
   };
 }
 
@@ -69,11 +62,6 @@ export default function EditarImovelAdminPage({
       cidade: '',
       cep: '',
     },
-    locatario: {
-      nome: '',
-      cpf: '',
-      telefone: '',
-    },
   });
 
   useEffect(() => {
@@ -90,11 +78,6 @@ export default function EditarImovelAdminPage({
             bairro: imovel.endereco.bairro,
             cidade: imovel.endereco.cidade,
             cep: '',
-          },
-          locatario: {
-            nome: imovel.locatario?.nome || '',
-            cpf: imovel.locatario?.cpf || '',
-            telefone: imovel.locatario?.telefone || '',
           },
         });
       } catch (error) {
@@ -113,11 +96,6 @@ export default function EditarImovelAdminPage({
     try {
       setIsSubmitting(true);
 
-      const hasLocatario =
-        !!formData.locatario?.nome ||
-        !!formData.locatario?.cpf ||
-        !!formData.locatario?.telefone;
-
       await putImovel(condId, id, {
         situacao: mapStatusToSituacao(formData.status),
         endereco: {
@@ -129,13 +107,7 @@ export default function EditarImovelAdminPage({
           bloco: formData.endereco.complemento || undefined,
         },
         nome: formData.nome,
-        locatario: hasLocatario
-          ? {
-              nome: formData.locatario?.nome || '',
-              cpf: formData.locatario?.cpf || '',
-              telefone: formData.locatario?.telefone || '',
-            }
-          : null,
+        locatario: null,
       });
 
       toast.success('Imóvel atualizado com sucesso.');
@@ -159,15 +131,24 @@ export default function EditarImovelAdminPage({
 
   return (
     <div className="flex flex-col space-y-6 p-8 pt-6 pb-20">
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="outline" size="icon" className="border-border hover:bg-accent" asChild>
+      <div className="mb-8 flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          className="border-border hover:bg-accent"
+          asChild
+        >
           <Link href={`/condominios/${condId}/imoveis/${id}`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Editar Imóvel</h1>
-          <p className="text-muted-foreground">Atualize as informações da unidade.</p>
+          <h1 className="text-foreground text-3xl font-bold tracking-tight">
+            Editar Imóvel
+          </h1>
+          <p className="text-muted-foreground">
+            Atualize as informações da unidade.
+          </p>
         </div>
       </div>
 

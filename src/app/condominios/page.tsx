@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { RoleGuard } from '@/features/components/auth/RoleGuard';
 import {
@@ -142,6 +143,9 @@ export default function CondominiosPage() {
     <main className="bg-muted relative flex min-h-screen flex-col items-center justify-center px-4 py-8">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center">
+          <div className="mb-2 flex justify-center">
+            <Image src="/logo-icon.png" alt="Moratta" width={40} height={40} />
+          </div>
           <CardTitle className="flex items-center justify-center gap-2 text-2xl font-bold">
             <Building2 className="size-6" />
             Condomínios
@@ -160,7 +164,7 @@ export default function CondominiosPage() {
                 className="group hover:bg-accent flex w-full cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div className="bg-background text-foreground flex size-10 items-center justify-center rounded-md border font-bold shadow-sm">
+                  <div className="bg-primary text-primary-foreground border-primary/20 flex size-10 items-center justify-center rounded-md border font-bold shadow-sm">
                     {getInitials(condo.name)}
                   </div>
                   <span className="text-sm font-medium">{condo.name}</span>
