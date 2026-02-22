@@ -17,10 +17,10 @@ import { User } from '@/types/user';
 import { deleteUser } from '../services/users.service';
 
 interface DeleteUserDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  user: User | null;
-  condominioId: string;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly user: User | null;
+  readonly condominioId: string;
 }
 
 export function DeleteUserDialog({

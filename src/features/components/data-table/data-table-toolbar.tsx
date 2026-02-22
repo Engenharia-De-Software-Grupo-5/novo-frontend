@@ -20,12 +20,12 @@ export interface FacetedFilterConfig {
 }
 
 interface DataTableToolbarProps<TData> {
-  table: Table<TData>;
-  searchColumnId?: string;
-  searchPlaceholder?: string;
-  facetedFilters?: FacetedFilterConfig[];
-  columnLabels?: Record<string, string>;
-  actions?: React.ReactNode;
+  readonly table: Table<TData>;
+  readonly searchColumnId?: string;
+  readonly searchPlaceholder?: string;
+  readonly facetedFilters?: FacetedFilterConfig[];
+  readonly columnLabels?: Record<string, string>;
+  readonly actions?: React.ReactNode;
 }
 
 export function DataTableToolbar<TData>({

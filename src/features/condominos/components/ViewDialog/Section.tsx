@@ -2,8 +2,8 @@ export function SectionTitle({
   icon: Icon,
   title,
 }: {
-  icon: React.ElementType;
-  title: string;
+  readonly icon: React.ElementType;
+  readonly title: string;
 }) {
   return (
     <div className="mt-6 mb-4 flex items-center gap-2 first:mt-0">
@@ -22,9 +22,9 @@ export function Info({
   value,
   className = '',
 }: {
-  label: string;
-  value: string | number | null | undefined;
-  className?: string;
+  readonly label: string;
+  readonly value: string | number | null | undefined;
+  readonly className?: string;
 }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>

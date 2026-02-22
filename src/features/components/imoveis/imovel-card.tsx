@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Imovel } from "@/types/imoveis";
 
 interface ImovelCardProps {
-  data: Imovel;
+  readonly data: Imovel;
 }
 
 export function ImovelCard({ data }: ImovelCardProps) {

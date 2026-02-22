@@ -5,7 +5,7 @@ import { Badge } from '@/features/components/ui/badge';
 import { PAYMENT_STATUSES } from '../constants';
 
 interface StatusBadgeProps {
-  status: string;
+  readonly status: string;
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {

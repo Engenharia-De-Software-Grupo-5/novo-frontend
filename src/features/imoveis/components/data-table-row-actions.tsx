@@ -31,7 +31,7 @@ import { ImovelDialog } from './add-imovel-dialog';
 import { ViewImovelDialog } from './view-imovel-dialog';
 
 interface DataTableRowActionsProps {
-  imovel: ImovelSummary;
+  readonly imovel: ImovelSummary;
 }
 
 export function DataTableRowActions({ imovel }: DataTableRowActionsProps) {

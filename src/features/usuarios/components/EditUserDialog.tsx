@@ -28,10 +28,10 @@ import { updateUser } from '../services/users.service';
 type UserStatus = 'ativo' | 'inativo' | 'pendente';
 
 interface EditUserDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  user: User | null;
-  condominioId: string;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly user: User | null;
+  readonly condominioId: string;
 }
 
 export function EditUserDialog({

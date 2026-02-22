@@ -45,8 +45,8 @@ import { Role } from '@/types/user';
 import { RoleGuard } from './auth/RoleGuard';
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  condId?: string;
-  user?: {
+  readonly condId?: string;
+  readonly user?: {
     name?: string | null;
     email?: string | null;
   };

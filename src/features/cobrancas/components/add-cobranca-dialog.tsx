@@ -74,9 +74,9 @@ import {
 } from '../services/cobrancaService';
 
 interface CobrancaDialogProps {
-  cobranca?: CobrancaDetail;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  readonly cobranca?: CobrancaDetail;
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
 }
 
 const defaultValues: Partial<CobrancaFormValues> = {
@@ -233,6 +233,13 @@ export function CobrancaDialog({
   const filteredTenants = tenants.filter((tenant) =>
     tenant.name.toLowerCase().includes(tenantSearch.toLowerCase())
   );
+
+  let submitLabel = 'Adicionar cobrança';
+  if (isSubmitting) {
+    submitLabel = isEditing ? 'Salvando...' : 'Adicionando...';
+  } else if (isEditing) {
+    submitLabel = 'Editar cobrança';
+  }
 
   const content = (
     <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[560px]">
@@ -575,13 +582,7 @@ export function CobrancaDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? isEditing
-                  ? 'Salvando...'
-                  : 'Adicionando...'
-                : isEditing
-                  ? 'Editar cobrança'
-                  : 'Adicionar cobrança'}
+              {submitLabel}
             </Button>
           </DialogFooter>
         </form>

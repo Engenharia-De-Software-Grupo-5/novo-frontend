@@ -79,9 +79,9 @@ import {
 import { cn } from '@/lib/utils';
 
 interface AddContratoProps {
-  condId: string;
-  properties: ImovelSummary[];
-  tenants: CondominoSummary[];
+  readonly condId: string;
+  readonly properties: ImovelSummary[];
+  readonly tenants: CondominoSummary[];
 }
 
 interface TenantViewModel {

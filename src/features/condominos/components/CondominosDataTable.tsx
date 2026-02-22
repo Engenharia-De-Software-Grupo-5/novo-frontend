@@ -19,8 +19,8 @@ const CONDOMINO_COLUMN_LABELS = {
 };
 
 interface CondominosDataTableProps {
-  data: CondominoSummary[];
-  pageCount: number;
+  readonly data: CondominoSummary[];
+  readonly pageCount: number;
 }
 
 export function CondominosDataTable({ data, pageCount }: CondominosDataTableProps) {

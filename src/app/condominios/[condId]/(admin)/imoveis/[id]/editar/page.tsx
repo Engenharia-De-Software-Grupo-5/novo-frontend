@@ -44,7 +44,7 @@ function mapStatusToSituacao(status: string): ImovelSituacao {
 export default function EditarImovelAdminPage({
   params,
 }: {
-  params: Promise<{ condId: string; id: string }>;
+  readonly params: Promise<{ condId: string; id: string }>;
 }) {
   const { condId, id } = use(params);
   const router = useRouter();

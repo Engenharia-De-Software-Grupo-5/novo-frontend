@@ -39,19 +39,24 @@ async function parseCobrancaBody(
 
   const formData = await request.formData();
   const dataField = formData.get('data');
-  const body: Partial<CobrancaDetail> = dataField
-    ? JSON.parse(dataField as string)
-    : {};
+
+  let body: Partial<CobrancaDetail> = {};
+  if (dataField) {
+    body = JSON.parse(dataField as string);
+  }
 
   const existingIds = formData.get('existingFileIds');
-  const idsToKeep: string[] | undefined = existingIds
-    ? JSON.parse(existingIds as string)
-    : undefined;
+  let idsToKeep: string[] | undefined = undefined;
+  if (existingIds) {
+    idsToKeep = JSON.parse(existingIds as string);
+  }
 
-  const keptAttachments =
-    idsToKeep !== undefined
-      ? currentAttachments.filter((item) => idsToKeep.includes(item.id))
-      : undefined;
+  let keptAttachments: FileAttachment[] | undefined = undefined;
+  if (idsToKeep !== undefined) {
+    keptAttachments = currentAttachments.filter((item) =>
+      idsToKeep!.includes(item.id)
+    );
+  }
 
   const uploadedAttachments = formData
     .getAll('newFiles')
@@ -80,7 +85,6 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; cobrancaId: string }> }
 ) {
-  await request;
   const { condId, cobrancaId } = await params;
   const cobrancasDb = getCobrancasDb(condId);
   const found = cobrancasDb.find((item) => item.id === cobrancaId);
@@ -195,7 +199,6 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; cobrancaId: string }> }
 ) {
-  await request;
   const { condId, cobrancaId } = await params;
   const cobrancasDb = getCobrancasDb(condId);
   const index = cobrancasDb.findIndex((item) => item.id === cobrancaId);

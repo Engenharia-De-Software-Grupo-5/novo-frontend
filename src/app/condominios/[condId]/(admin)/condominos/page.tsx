@@ -2,10 +2,13 @@ import { CondominosDataTable } from '@/features/condominos/components/Condominos
 import { getCondominos } from '@/features/condominos/services/condominos.service';
 
 interface PageProps {
-  params: Promise<{ condId: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly params: Promise<{ condId: string }>;
+  readonly searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
-export default async function CondominosPage({ params, searchParams }: PageProps) {
+export default async function CondominosPage({
+  params,
+  searchParams,
+}: PageProps) {
   const resolvedParams = await params;
   const sParams = await searchParams;
   const condId = resolvedParams.condId;
@@ -16,12 +19,15 @@ export default async function CondominosPage({ params, searchParams }: PageProps
 
   const rawColumns = sParams.columns;
   const rawContent = sParams.content;
-  const columnsArr = rawColumns
-    ? Array.isArray(rawColumns) ? rawColumns : [rawColumns]
-    : [];
-  const contentArr = rawContent
-    ? Array.isArray(rawContent) ? rawContent : [rawContent]
-    : [];
+  let columnsArr: string[] = [];
+  if (rawColumns) {
+    columnsArr = Array.isArray(rawColumns) ? rawColumns : [rawColumns];
+  }
+
+  let contentArr: string[] = [];
+  if (rawContent) {
+    contentArr = Array.isArray(rawContent) ? rawContent : [rawContent];
+  }
 
   const data = await getCondominos(condId, {
     page,

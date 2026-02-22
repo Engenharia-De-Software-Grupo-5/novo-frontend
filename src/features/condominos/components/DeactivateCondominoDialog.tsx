@@ -19,10 +19,10 @@ import { CondominoSummary } from '@/types/condomino';
 import { changeCondominoStatus } from '../services/condominos.service';
 
 interface DeactivateCondominoDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  condomino: CondominoSummary;
-  condominioId: string;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly condomino: CondominoSummary;
+  readonly condominioId: string;
 }
 
 export function DeactivateCondominoDialog({
@@ -62,6 +62,13 @@ export function DeactivateCondominoDialog({
       setIsPending(false);
     }
   };
+
+  let buttonLabel = 'Ativar';
+  if (isPending) {
+    buttonLabel = 'Processando...';
+  } else if (isAtivo) {
+    buttonLabel = 'Desativar';
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -109,7 +116,7 @@ export function DeactivateCondominoDialog({
             onClick={handleConfirm}
             disabled={isPending}
           >
-            {isPending ? 'Processando...' : isAtivo ? 'Desativar' : 'Ativar'}
+            {buttonLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -119,7 +119,7 @@ export async function POST(
   const body = (await request.json()) as Partial<ImovelDetail>;
 
   const lastSequence = imoveisDb.reduce((max, imovel) => {
-    const numericPart = Number(imovel.idImovel.replace(/\D/g, ''));
+    const numericPart = Number(imovel.idImovel.replaceAll(/\D/g, ''));
     return Number.isNaN(numericPart) ? max : Math.max(max, numericPart);
   }, 0);
   const nextSequence = lastSequence + 1;

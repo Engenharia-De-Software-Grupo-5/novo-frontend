@@ -31,7 +31,7 @@ import { PaymentDialog } from './add-payment-dialog';
 import { ViewPaymentDialog } from './view-payment-dialog';
 
 interface DataTableRowActionsProps {
-  payment: PaymentSummary;
+  readonly payment: PaymentSummary;
 }
 
 export function DataTableRowActions({ payment }: DataTableRowActionsProps) {

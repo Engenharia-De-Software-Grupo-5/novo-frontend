@@ -3,7 +3,7 @@ import { getCondominos } from '@/features/condominos/services/condominos.service
 import { getImoveis } from '@/features/imoveis/services/imovelService';
 
 interface NovoContratoPageProps {
-  params: Promise<{ condId: string }>;
+  readonly params: Promise<{ condId: string }>;
 }
 
 export default async function NovoContratoPage({ params }: NovoContratoPageProps) {

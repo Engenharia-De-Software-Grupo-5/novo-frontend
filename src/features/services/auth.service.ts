@@ -40,7 +40,7 @@ export async function loginWithApi(email: string, password: string) {
 
 export async function logout(): Promise<void> {
   // Simulando logout do mock (não faz nada assíncrono real, mas limparia estado)
-  return Promise.resolve();
+  return;
 }
 
 export async function logoutWithApi(token: string) {

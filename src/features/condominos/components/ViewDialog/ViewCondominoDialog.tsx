@@ -1,27 +1,29 @@
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/features/components/ui/dialog';
-import { Separator } from '@/features/components/ui/separator';
 import { ScrollArea } from '@/features/components/ui/scroll-area';
+import { Separator } from '@/features/components/ui/separator';
 import { Loader2 } from 'lucide-react';
+
 import { CondominoFull } from '@/types/condomino';
-import { PersonalInfoSection } from './PersonalInfoSection';
-import { FinanceSection } from './FinanceSection';
-import { DocumentSection } from './DocumentSection';
-import { useEffect, useState } from 'react';
+
 import { getCondominoById } from '../../services/condominos.service';
 import { AdditionalResidentsSection } from './AdditionalResidentsSection';
+import { DocumentSection } from './DocumentSection';
 import { EmergencyContactsSection } from './EmergencyContacts';
+import { FinanceSection } from './FinanceSection';
+import { PersonalInfoSection } from './PersonalInfoSection';
 
 interface ViewCondominoDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  condominoId: string;
-  condominioId: string;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly condominoId: string;
+  readonly condominioId: string;
 }
 
 export function ViewCondominoDialog({
@@ -59,6 +61,39 @@ export function ViewCondominoDialog({
         }).format(val)
       : '—';
 
+  let dialogContent;
+  if (isLoading) {
+    dialogContent = (
+      <div className="flex flex-col items-center justify-center gap-4 py-20">
+        <Loader2 className="text-primary/60 h-10 w-10 animate-spin" />
+      </div>
+    );
+  } else if (data) {
+    dialogContent = (
+      <div className="space-y-8 p-6">
+        <PersonalInfoSection data={data} formatCurrency={formatCurrency} />
+
+        <Separator />
+
+        <FinanceSection data={data} formatCurrency={formatCurrency} />
+
+        <AdditionalResidentsSection residents={data.additionalResidents} />
+
+        <EmergencyContactsSection contacts={data.emergencyContacts} />
+
+        <Separator />
+
+        <DocumentSection data={data} />
+      </div>
+    );
+  } else {
+    dialogContent = (
+      <div className="p-10 text-center text-slate-500">
+        Não foi possível carregar os dados.
+      </div>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex h-[90vh] flex-col overflow-hidden p-0 sm:max-w-187.5">
@@ -75,38 +110,7 @@ export function ViewCondominoDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center gap-4 py-20">
-              <Loader2 className="text-primary/60 h-10 w-10 animate-spin" />
-            </div>
-          ) : data ? (
-            <div className="space-y-8 p-6">
-              <PersonalInfoSection
-                data={data}
-                formatCurrency={formatCurrency}
-              />
-
-              <Separator />
-
-              <FinanceSection data={data} formatCurrency={formatCurrency} />
-
-              <AdditionalResidentsSection
-                residents={data.additionalResidents}
-              />
-
-              <EmergencyContactsSection contacts={data.emergencyContacts} />
-
-              <Separator />
-
-              <DocumentSection data={data} />
-            </div>
-          ) : (
-            <div className="p-10 text-center text-slate-500">
-              Não foi possível carregar os dados.
-            </div>
-          )}
-        </ScrollArea>
+        <ScrollArea className="flex-1">{dialogContent}</ScrollArea>
       </DialogContent>
     </Dialog>
   );

@@ -37,10 +37,10 @@ import { DespesaFormData, despesaSchema } from '../schemas/despesaSchema';
 import { despesaService } from '../services/despesaService';
 
 interface EditDespesaDialogProps {
-  condId: string;
-  despesaId: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  readonly condId: string;
+  readonly despesaId: string;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
 }
 
 export function EditDespesaDialog({

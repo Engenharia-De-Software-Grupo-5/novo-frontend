@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 };
 
 interface ContratosPageProps {
-  params: Promise<{ condId: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly params: Promise<{ condId: string }>;
+  readonly searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function ContratosPage({
@@ -26,16 +26,15 @@ export default async function ContratosPage({
 
   const rawColumns = resolvedSearchParams.columns;
   const rawContent = resolvedSearchParams.content;
-  const columnsArr = rawColumns
-    ? Array.isArray(rawColumns)
-      ? rawColumns
-      : [rawColumns]
-    : [];
-  const contentArr = rawContent
-    ? Array.isArray(rawContent)
-      ? rawContent
-      : [rawContent]
-    : [];
+  let columnsArr: string[] = [];
+  if (rawColumns) {
+    columnsArr = Array.isArray(rawColumns) ? rawColumns : [rawColumns];
+  }
+
+  let contentArr: string[] = [];
+  if (rawContent) {
+    contentArr = Array.isArray(rawContent) ? rawContent : [rawContent];
+  }
 
   const { data: contratos, meta } = await getContratos(condId, {
     page,

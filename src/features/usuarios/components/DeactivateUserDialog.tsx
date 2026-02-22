@@ -17,10 +17,10 @@ import { Status, User } from '@/types/user';
 import { changeUserStatus } from '../services/users.service';
 
 interface DeactivateUserDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  user: User | null;
-  condominioId: string;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly user: User | null;
+  readonly condominioId: string;
 }
 
 export function DeactivateUserDialog({
@@ -61,6 +61,13 @@ export function DeactivateUserDialog({
       setIsPending(false);
     }
   };
+
+  let buttonLabel = 'Tornar inativo';
+  if (isPending) {
+    buttonLabel = 'Processando...';
+  } else if (willActivate) {
+    buttonLabel = 'Tornar ativo';
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -113,11 +120,7 @@ export function DeactivateUserDialog({
             onClick={handleConfirm}
             disabled={isPending}
           >
-            {isPending
-              ? 'Processando...'
-              : willActivate
-                ? 'Tornar ativo'
-                : 'Tornar inativo'}
+            {buttonLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

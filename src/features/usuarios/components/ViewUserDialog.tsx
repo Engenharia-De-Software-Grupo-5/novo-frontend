@@ -19,9 +19,9 @@ import { User } from '@/types/user';
 import { inviteUser } from '../services/users.service';
 
 interface ViewUserDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  user: User;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly user: User;
 }
 
 export function ViewUserDialog({

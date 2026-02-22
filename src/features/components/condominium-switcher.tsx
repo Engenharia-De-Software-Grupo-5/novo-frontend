@@ -55,7 +55,7 @@ import { Condominium } from '@/types/condominium';
 
 import { RoleGuard } from './auth/RoleGuard';
 
-export function CondominiumSwitcher({ condId }: { condId?: string }) {
+export function CondominiumSwitcher({ condId }: { readonly condId?: string }) {
   const { isMobile } = useSidebar();
   const router = useRouter();
   const [condominiums, setCondominiums] = React.useState<Condominium[]>([]);

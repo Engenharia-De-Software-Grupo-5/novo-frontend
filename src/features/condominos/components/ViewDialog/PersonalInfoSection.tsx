@@ -6,8 +6,8 @@ import {SectionTitle, Info} from "./Section"
 
 // --- SEÇÃO PESSOAL ---
 interface SectionProps {
-  data: CondominoFull;
-  formatCurrency: (val?: number) => string;
+  readonly data: CondominoFull;
+  readonly formatCurrency: (val?: number) => string;
 }
 
 export function PersonalInfoSection({ data, formatCurrency }: SectionProps) {

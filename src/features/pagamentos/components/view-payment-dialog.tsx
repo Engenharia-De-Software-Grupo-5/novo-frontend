@@ -19,12 +19,12 @@ import { PaymentDetail } from '@/types/payment';
 import { StatusBadge } from './status-badge';
 
 interface ViewPaymentDialogProps {
-  payment: PaymentDetail;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  readonly payment: PaymentDetail;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
 }
 
-function FieldItem({ label, value }: { label: string; value?: string | null }) {
+function FieldItem({ label, value }: { readonly label: string; readonly value?: string | null }) {
   return (
     <div className="space-y-0.5">
       <p className="text-sm font-medium">{label}</p>

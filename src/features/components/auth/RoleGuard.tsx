@@ -6,9 +6,9 @@ import { useSession } from 'next-auth/react';
 import { Role } from '@/types/user';
 
 interface RoleGuardProps {
-  roles: Role[]; // Lista de roles permitidas listadas no types/user.ts
-  children: ReactNode;
-  fallback?: ReactNode; // O que renderizar caso o usuário não tenha permissão (ex: null, ou um trecho <p>Não autorizado</p>)
+  readonly roles: Role[]; // Lista de roles permitidas listadas no types/user.ts
+  readonly children: ReactNode;
+  readonly fallback?: ReactNode; // O que renderizar caso o usuário não tenha permissão (ex: null, ou um trecho <p>Não autorizado</p>)
 }
 
 export function RoleGuard({

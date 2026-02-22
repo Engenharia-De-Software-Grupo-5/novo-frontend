@@ -1,7 +1,7 @@
 
 interface SectionHeaderProps {
-  title: string;
-  description?: string;
+  readonly title: string;
+  readonly description?: string;
 }
 
 export const SectionHeader = ({ title, description }: SectionHeaderProps) => (

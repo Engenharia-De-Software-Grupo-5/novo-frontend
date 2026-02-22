@@ -28,9 +28,9 @@ import {
 import { cn } from '@/lib/utils';
 
 interface RichTextEditorProps {
-  value: string;
-  onChange: (value: string) => void;
-  className?: string;
+  readonly value: string;
+  readonly onChange: (value: string) => void;
+  readonly className?: string;
 }
 
 type PlaceholderGroup = {

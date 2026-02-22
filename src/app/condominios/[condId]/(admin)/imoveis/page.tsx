@@ -8,11 +8,14 @@ export const metadata: Metadata = {
 };
 
 interface ImoveisPageProps {
-  params: Promise<{ condId: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly params: Promise<{ condId: string }>;
+  readonly searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function ImoveisPage({ params, searchParams }: ImoveisPageProps) {
+export default async function ImoveisPage({
+  params,
+  searchParams,
+}: ImoveisPageProps) {
   const { condId } = await params;
   const resolvedSearchParams = await searchParams;
 
@@ -22,16 +25,14 @@ export default async function ImoveisPage({ params, searchParams }: ImoveisPageP
 
   const rawColumns = resolvedSearchParams.columns;
   const rawContent = resolvedSearchParams.content;
-  const columns = rawColumns
-    ? Array.isArray(rawColumns)
-      ? rawColumns
-      : [rawColumns]
-    : undefined;
-  const content = rawContent
-    ? Array.isArray(rawContent)
-      ? rawContent
-      : [rawContent]
-    : undefined;
+  let columns: string[] | undefined = undefined;
+  if (rawColumns) {
+    columns = Array.isArray(rawColumns) ? rawColumns : [rawColumns];
+  }
+  let content: string[] | undefined = undefined;
+  if (rawContent) {
+    content = Array.isArray(rawContent) ? rawContent : [rawContent];
+  }
 
   const { data: imoveis, meta } = await getImoveis(condId, {
     page,

@@ -14,8 +14,8 @@ import { AddEmployeeDialog } from './add-employee-dialog';
 import { columns } from './columns';
 
 interface FuncionariosDataTableProps {
-  data: EmployeeSummary[];
-  pageCount: number;
+  readonly data: EmployeeSummary[];
+  readonly pageCount: number;
 }
 
 export function FuncionariosDataTable({

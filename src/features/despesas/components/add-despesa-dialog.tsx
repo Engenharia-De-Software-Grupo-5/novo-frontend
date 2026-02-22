@@ -38,7 +38,7 @@ import { DespesaFormData, despesaSchema } from '../schemas/despesaSchema';
 import { despesaService } from '../services/despesaService';
 
 interface AddDespesaDialogProps {
-  condId: string;
+  readonly condId: string;
 }
 
 export function AddDespesaDialog({ condId }: AddDespesaDialogProps) {

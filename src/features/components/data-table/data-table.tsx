@@ -40,15 +40,15 @@ export interface FilterMapping {
 }
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  pageCount: number;
-  searchColumnId?: string;
-  searchPlaceholder?: string;
-  facetedFilters?: FacetedFilterConfig[];
-  columnLabels?: Record<string, string>;
-  filterMappings?: FilterMapping[];
-  actions?: React.ReactNode;
+  readonly columns: ColumnDef<TData, TValue>[];
+  readonly data: TData[];
+  readonly pageCount: number;
+  readonly searchColumnId?: string;
+  readonly searchPlaceholder?: string;
+  readonly facetedFilters?: FacetedFilterConfig[];
+  readonly columnLabels?: Record<string, string>;
+  readonly filterMappings?: FilterMapping[];
+  readonly actions?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({

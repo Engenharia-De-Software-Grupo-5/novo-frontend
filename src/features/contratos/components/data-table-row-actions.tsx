@@ -30,7 +30,7 @@ import { deleteContrato } from '../services/contratoService';
 import { ViewContractDialog } from './view-contract-dialog';
 
 interface DataTableRowActionsProps {
-  contract: ContratoSummary;
+  readonly contract: ContratoSummary;
 }
 
 export function DataTableRowActions({ contract }: DataTableRowActionsProps) {

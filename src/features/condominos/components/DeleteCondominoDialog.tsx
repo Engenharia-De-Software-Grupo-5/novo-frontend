@@ -19,10 +19,10 @@ import { CondominoSummary } from '@/types/condomino';
 import { deleteCondomino } from '../services/condominos.service';
 
 interface DeleteCondominoDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  condomino: CondominoSummary | null;
-  condominioId: string;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly condomino: CondominoSummary | null;
+  readonly condominioId: string;
 }
 
 export function DeleteCondominoDialog({

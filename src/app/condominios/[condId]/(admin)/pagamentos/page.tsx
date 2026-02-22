@@ -8,10 +8,10 @@ export const metadata: Metadata = {
 };
 
 interface PagamentosPageProps {
-  params: Promise<{
+  readonly params: Promise<{
     condId: string;
   }>;
-  searchParams: Promise<{
+  readonly searchParams: Promise<{
     page?: string;
     limit?: string;
     sort?: string;
@@ -32,17 +32,19 @@ export default async function PagamentosPage({
   const sort = resolvedSearchParams.sort;
 
   // Normalize columns and content to arrays
-  const columns = Array.isArray(resolvedSearchParams.columns)
-    ? resolvedSearchParams.columns
-    : resolvedSearchParams.columns
-      ? [resolvedSearchParams.columns]
-      : undefined;
+  let columns: string[] | undefined = undefined;
+  if (resolvedSearchParams.columns) {
+    columns = Array.isArray(resolvedSearchParams.columns)
+      ? resolvedSearchParams.columns
+      : [resolvedSearchParams.columns];
+  }
 
-  const content = Array.isArray(resolvedSearchParams.content)
-    ? resolvedSearchParams.content
-    : resolvedSearchParams.content
-      ? [resolvedSearchParams.content]
-      : undefined;
+  let content: string[] | undefined = undefined;
+  if (resolvedSearchParams.content) {
+    content = Array.isArray(resolvedSearchParams.content)
+      ? resolvedSearchParams.content
+      : [resolvedSearchParams.content];
+  }
 
   const { data: pagamentos, meta } = await getPayments(condId, {
     page,

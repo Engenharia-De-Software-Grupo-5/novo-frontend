@@ -8,8 +8,8 @@ import { DESPESA_TIPOS, FORMA_PAGAMENTO, COLUMN_LABELS } from "../constants";
 import { AddDespesaDialog } from "./add-despesa-dialog";
 
 interface DespesasDataTableProps {
-  data: DespesaSummary[];
-  pageCount: number;
+  readonly data: DespesaSummary[];
+  readonly pageCount: number;
 }
 
 export function DespesasDataTable({ data, pageCount }: DespesasDataTableProps) {

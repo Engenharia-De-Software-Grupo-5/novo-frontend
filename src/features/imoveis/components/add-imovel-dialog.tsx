@@ -25,9 +25,9 @@ import {
 import { postImovel, putImovel } from '../services/imovelService';
 
 interface ImovelDialogProps {
-  imovel?: ImovelDetail;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  readonly imovel?: ImovelDetail;
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
 }
 
 interface ImovelFormState extends ImovelFormData {

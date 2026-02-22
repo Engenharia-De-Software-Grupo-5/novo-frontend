@@ -66,9 +66,9 @@ import { paymentFormSchema, PaymentFormValues } from '../schemas/paymentSchema';
 import { postPayment, putPayment } from '../services/paymentService';
 
 interface PaymentDialogProps {
-  payment?: PaymentDetail;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  readonly payment?: PaymentDetail;
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
 }
 
 export function PaymentDialog({
@@ -201,6 +201,13 @@ export function PaymentDialog({
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  let submitButtonLabel = 'Adicionar registro';
+  if (isSubmitting) {
+    submitButtonLabel = isEditing ? 'Salvando...' : 'Adicionando...';
+  } else if (isEditing) {
+    submitButtonLabel = 'Salvar';
   }
 
   const dialogContent = (
@@ -482,13 +489,7 @@ export function PaymentDialog({
               disabled={isSubmitting}
               className="w-full sm:w-auto"
             >
-              {isSubmitting
-                ? isEditing
-                  ? 'Salvando...'
-                  : 'Adicionando...'
-                : isEditing
-                  ? 'Salvar'
-                  : 'Adicionar registro'}
+              {submitButtonLabel}
             </Button>
           </DialogFooter>
         </form>

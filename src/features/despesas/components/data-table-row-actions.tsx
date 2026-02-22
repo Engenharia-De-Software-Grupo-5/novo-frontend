@@ -31,7 +31,7 @@ import { EditDespesaDialog } from './edit-despesa-dialog';
 import { ViewDespesaDialog } from './view-despesa-dialog';
 
 interface DataTableRowActionsProps {
-  row: Row<DespesaSummary>;
+  readonly row: Row<DespesaSummary>;
 }
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {

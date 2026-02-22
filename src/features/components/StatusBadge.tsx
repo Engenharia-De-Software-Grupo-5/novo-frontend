@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 type Status = 'ativo' | 'pendente' | 'inativo';
 
 interface StatusBadgeProps {
-  status: Status;
+  readonly status: Status;
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
