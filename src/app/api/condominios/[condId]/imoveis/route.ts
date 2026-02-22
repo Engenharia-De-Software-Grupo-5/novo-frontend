@@ -22,8 +22,8 @@ export async function GET(
   const { condId } = await params;
   const searchParams = request.nextUrl.searchParams;
 
-  const page = Number.Number.parseInt(searchParams.get('page') || '1', 10);
-  const limit = Number.Number.parseInt(searchParams.get('limit') || '20', 10);
+  const page = Number.parseInt(searchParams.get('page') || '1', 10);
+  const limit = Number.parseInt(searchParams.get('limit') || '20', 10);
   const sortParam = searchParams.get('sort');
 
   let sortField = sortParam;

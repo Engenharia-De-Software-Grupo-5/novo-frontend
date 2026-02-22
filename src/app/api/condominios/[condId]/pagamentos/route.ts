@@ -81,7 +81,10 @@ import { PaymentDetail, PaymentStatus } from '@/types/payment';
  *                     totalPages:
  *                       type: integer
  */
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ condId: string }> }
+) {
   // Simulate API delay for loading state testing
   // await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -89,8 +92,8 @@ export async function GET(request: NextRequest) {
   let payments = getPaymentsDb(condId);
   const searchParams = request.nextUrl.searchParams;
 
-  const page = Number.Number.parseInt(searchParams.get('page') || '1');
-  const limit = Number.Number.parseInt(searchParams.get('limit') || '20');
+  const page = Number.parseInt(searchParams.get('page') || '1');
+  const limit = Number.parseInt(searchParams.get('limit') || '20');
   const sortParam = searchParams.get('sort');
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';

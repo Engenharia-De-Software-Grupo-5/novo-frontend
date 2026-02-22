@@ -76,11 +76,12 @@ function mergeFinalProofs(
 
 function resolveEmployeeInfo(
   body: Partial<PaymentDetail>,
-  currentPayment: PaymentDetail
+  currentPayment: PaymentDetail,
+  condId: string
 ): { employeeName: string; employeeRole: string } {
   let employeeName = currentPayment.name;
   let employeeRole = currentPayment.role;
-
+  const employeesDb = getEmployeesDb(condId);
   if (body.employeeId && body.employeeId !== currentPayment.employeeId) {
     const employee = employeesDb.find((e) => e.id === body.employeeId);
     if (employee) {
@@ -113,7 +114,6 @@ export async function PUT(
   { params }: { params: Promise<{ condId: string; paymentId: string }> }
 ) {
   const { condId, paymentId } = await params;
-  const employeesDb = getEmployeesDb(condId);
   const paymentsDb = getPaymentsDb(condId);
 
   const index = paymentsDb.findIndex((p) => p.id === paymentId);
@@ -139,7 +139,8 @@ export async function PUT(
 
   const { employeeName, employeeRole } = resolveEmployeeInfo(
     body,
-    currentPayment
+    currentPayment,
+    condId
   );
 
   const updatedPayment: PaymentDetail = {

@@ -11,8 +11,8 @@ export async function GET(
   const { condId } = await params;
   const despesasDb = getDespesasDb(condId);
   const { searchParams } = new URL(request.url);
-  const page = Number.Number.parseInt(searchParams.get('page') || '1');
-  const limit = Number.Number.parseInt(searchParams.get('limit') || '10');
+  const page = Number.parseInt(searchParams.get('page') || '1');
+  const limit = Number.parseInt(searchParams.get('limit') || '10');
   const columns =
     searchParams.getAll('columns').length > 0
       ? searchParams.getAll('columns')
