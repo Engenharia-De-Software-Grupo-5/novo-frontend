@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Image from 'next/image';
 import {
   BanknoteArrowDown,
   BanknoteArrowUp,
@@ -8,6 +9,7 @@ import {
   CircleDollarSign,
   TrendingDown,
   TrendingUp,
+  User,
   Users,
 } from 'lucide-react';
 import {
@@ -47,6 +49,7 @@ interface DashboardClientProps {
   cobrancas: CobrancaSummary[];
   funcionarios: EmployeeSummary[];
   imoveis: ImovelSummary[];
+  condominosTotal: number;
 }
 
 type ChartPoint = {
@@ -208,6 +211,7 @@ export function DashboardClient({
   cobrancas,
   funcionarios,
   imoveis,
+  condominosTotal,
 }: DashboardClientProps) {
   const [activeFinanceChart, setActiveFinanceChart] =
     useState<keyof typeof chartConfig>('lucro');
@@ -366,10 +370,31 @@ export function DashboardClient({
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+      <div className="overflow-hidden rounded-xl border border-border/70 bg-card">
+        <div className="h-1 w-full bg-gradient-to-r from-primary/70 via-primary/40 to-primary/10" />
+        <div className="flex flex-col items-center gap-4 p-6 text-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="rounded-xl border border-border/70 bg-white p-2 shadow-sm">
+              <Image src="/logo-icon.png" alt="Moratta" width={36} height={36} />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
+                Dashboard
+              </h1>
+              <p className="text-muted-foreground mx-auto max-w-2xl text-sm md:text-base">
+                Bem-vindo ao painel Moratta, a central administrativa do seu condomínio.
+                Aqui você acompanha receitas, despesas, equipe, imóveis e indicadores
+                estratégicos em um só lugar.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <RoleGuard roles={['Admin', 'Financeiro', 'RH']}>
-        <div className="rounded-xl border border-blue-200/60 bg-[#eff6ff]/70 p-5">
+        <div className="rounded-xl border border-border/70 bg-card p-5">
           <p className="text-sm text-muted-foreground">Visão geral do condomínio</p>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="mt-4 grid gap-4 md:grid-cols-3">
             <div className="rounded-lg border border-border/70 bg-card/80 p-4">
               <div className="text-muted-foreground flex items-center gap-2">
                 <Building2 className="size-4" />
@@ -386,6 +411,15 @@ export function DashboardClient({
               </div>
               <p className="mt-2 text-3xl font-semibold text-foreground">
                 {numberFormatter.format(funcionarios.length)}
+              </p>
+            </div>
+            <div className="rounded-lg border border-border/70 bg-card/80 p-4">
+              <div className="text-muted-foreground flex items-center gap-2">
+                <User className="size-4" />
+                <span className="text-sm">Condôminos cadastrados</span>
+              </div>
+              <p className="mt-2 text-3xl font-semibold text-foreground">
+                {numberFormatter.format(condominosTotal)}
               </p>
             </div>
           </div>
