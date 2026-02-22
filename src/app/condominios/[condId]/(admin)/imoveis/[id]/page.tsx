@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Pencil, User } from 'lucide-react';
+import { ArrowLeft, MapPin, Pencil } from 'lucide-react';
 import { Button } from '@/features/components/ui/button';
 import { Badge } from '@/features/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/features/components/ui/card';
@@ -77,8 +77,8 @@ export default async function DetalhesImovelAdminPage({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 gap-6">
+        <div className="space-y-6">
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="text-base text-foreground">
@@ -134,36 +134,6 @@ export default async function DetalhesImovelAdminPage({
           </Card>
         </div>
 
-        <div className="space-y-6">
-          <Card className="bg-muted/30 border-border shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center text-foreground">
-                <User className="h-4 w-4 mr-2 text-muted-foreground/70" />
-                Dados do Locatário
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm space-y-2">
-              <p>
-                <span className="text-muted-foreground">Nome Completo:</span>{' '}
-                <span className="font-medium text-foreground">
-                  {imovel.locatario?.nome || 'Não informado'}
-                </span>
-              </p>
-              <p>
-                <span className="text-muted-foreground">CPF:</span>{' '}
-                <span className="font-medium text-foreground">
-                  {imovel.locatario?.cpf || 'Não informado'}
-                </span>
-              </p>
-              <p>
-                <span className="text-muted-foreground">Telefone:</span>{' '}
-                <span className="font-medium text-foreground">
-                  {imovel.locatario?.telefone || 'Não informado'}
-                </span>
-              </p>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </div>
   );

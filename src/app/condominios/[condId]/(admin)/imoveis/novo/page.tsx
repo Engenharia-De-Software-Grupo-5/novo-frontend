@@ -3,10 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import {
-  ImovelForm,
-  ImovelFormData,
-} from '@/features/components/imoveis/imovel-form';
+import { ImovelForm } from '@/features/components/imoveis/imovel-form';
 import { Button } from '@/features/components/ui/button';
 import { postImovel } from '@/features/imoveis/services/imovelService';
 import { ArrowLeft, Building2, MapPin, Save } from 'lucide-react';
@@ -25,11 +22,6 @@ interface ImovelFormState {
     bairro: string;
     cidade: string;
     cep: string;
-  };
-  locatario: {
-    nome: string;
-    cpf: string;
-    telefone: string;
   };
 }
 
@@ -58,11 +50,6 @@ export default function NovoImovelAdminPage() {
       cidade: '',
       cep: '',
     },
-    locatario: {
-      nome: '',
-      cpf: '',
-      telefone: '',
-    },
   });
 
   const listPath = `/condominios/${condId}/imoveis`;
@@ -71,11 +58,6 @@ export default function NovoImovelAdminPage() {
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-
-      const hasLocatario =
-        !!formData.locatario?.nome ||
-        !!formData.locatario?.cpf ||
-        !!formData.locatario?.telefone;
 
       await postImovel(condId, {
         idCondominio: condId,
@@ -91,13 +73,7 @@ export default function NovoImovelAdminPage() {
           estado: 'SP',
           bloco: formData.endereco.complemento || undefined,
         },
-        locatario: hasLocatario
-          ? {
-              nome: formData.locatario?.nome || '',
-              cpf: formData.locatario?.cpf || '',
-              telefone: formData.locatario?.telefone || '',
-            }
-          : null,
+        locatario: null,
       });
 
       toast.success('Imóvel criado com sucesso.');
