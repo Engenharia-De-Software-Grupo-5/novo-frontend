@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { employeesDb } from '@/mocks/in-memory-db';
+import { getEmployeesDb } from '@/mocks/in-memory-db';
 
 import { EmployeeDetail } from '@/types/employee';
 import { FileAttachment } from '@/types/file';
@@ -81,7 +81,11 @@ import { FileAttachment } from '@/types/file';
  *                     totalPages:
  *                       type: integer
  */
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ condId: string }> }
+) {
+  const { condId } = await params;
   // Simulate API delay for loading state testing
   // await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -116,7 +120,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  let employees = employeesDb;
+  let employees = getEmployeesDb(condId);
 
   // Apply filters generically
   for (const [col, values] of filterMap.entries()) {
@@ -207,7 +211,12 @@ export async function GET(request: NextRequest) {
  *                 data:
  *                   $ref: '#/components/schemas/EmployeeDetail'
  */
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ condId: string }> }
+) {
+  const { condId } = await params;
+  const employeesDb = getEmployeesDb(condId);
   let body: EmployeeDetail;
   let uploadedContracts: FileAttachment[] = [];
   const contentType = request.headers.get('content-type') || '';

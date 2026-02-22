@@ -55,10 +55,10 @@ const generateFile = (
 });
 
 // Base date fixa para mocks determinísticos (não usa Date.now())
-const BASE_DATE = new Date('2025-06-15');
+const BASE_DATE = new Date('2025-11-01');
 
 export const mockPaymentDetails: PaymentDetail[] = Array.from({
-  length: 50,
+  length: 84,
 }).map((_, i) => {
   const seed = i * 777;
   const name = names[i % names.length];
@@ -70,7 +70,7 @@ export const mockPaymentDetails: PaymentDetail[] = Array.from({
 
   const dueDate = new Date(BASE_DATE);
   dueDate.setDate(
-    dueDate.getDate() + Math.floor(getSeededRandom(seed + 4) * 30) - 15
+    dueDate.getDate() + Math.floor(getSeededRandom(seed + 4) * 420) - 210
   );
   const dueDateStr = dueDate.toISOString().split('T')[0];
 

@@ -170,7 +170,7 @@ export function CondominiumSwitcher({ condId }: { condId?: string }) {
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   {activeCondominium ? (
                     <span className="text-xs font-bold">
                       {getInitials(activeCondominium.name)}

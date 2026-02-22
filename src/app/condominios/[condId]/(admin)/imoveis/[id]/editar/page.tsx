@@ -3,10 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  ImovelForm,
-  ImovelFormData,
-} from '@/features/components/imoveis/imovel-form';
+import { ImovelForm } from '@/features/components/imoveis/imovel-form';
 import { Button } from '@/features/components/ui/button';
 import {
   getImovelById,
@@ -27,11 +24,6 @@ interface ImovelFormState {
     bairro: string;
     cidade: string;
     cep: string;
-  };
-  locatario: {
-    nome: string;
-    cpf: string;
-    telefone: string;
   };
 }
 
@@ -70,11 +62,6 @@ export default function EditarImovelAdminPage({
       cidade: '',
       cep: '',
     },
-    locatario: {
-      nome: '',
-      cpf: '',
-      telefone: '',
-    },
   });
 
   useEffect(() => {
@@ -91,11 +78,6 @@ export default function EditarImovelAdminPage({
             bairro: imovel.endereco.bairro,
             cidade: imovel.endereco.cidade,
             cep: '',
-          },
-          locatario: {
-            nome: imovel.locatario?.nome || '',
-            cpf: imovel.locatario?.cpf || '',
-            telefone: imovel.locatario?.telefone || '',
           },
         });
       } catch (error) {
@@ -114,11 +96,6 @@ export default function EditarImovelAdminPage({
     try {
       setIsSubmitting(true);
 
-      const hasLocatario =
-        !!formData.locatario?.nome ||
-        !!formData.locatario?.cpf ||
-        !!formData.locatario?.telefone;
-
       await putImovel(condId, id, {
         situacao: mapStatusToSituacao(formData.status),
         endereco: {
@@ -130,13 +107,7 @@ export default function EditarImovelAdminPage({
           bloco: formData.endereco.complemento || undefined,
         },
         nome: formData.nome,
-        locatario: hasLocatario
-          ? {
-              nome: formData.locatario?.nome || '',
-              cpf: formData.locatario?.cpf || '',
-              telefone: formData.locatario?.telefone || '',
-            }
-          : null,
+        locatario: null,
       });
 
       toast.success('Imóvel atualizado com sucesso.');

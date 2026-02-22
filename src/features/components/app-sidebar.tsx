@@ -241,7 +241,7 @@ export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-black text-white">
+                  <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                     <span className="text-xs font-bold">{initials}</span>
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">

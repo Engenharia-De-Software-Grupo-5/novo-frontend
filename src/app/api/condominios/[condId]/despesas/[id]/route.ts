@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { despesasDb } from '@/mocks/in-memory-db';
-import { FileAttachment } from '@/types/file';
+import { getDespesasDb } from '@/mocks/in-memory-db';
+import { DespesaDetail } from '@/types/despesa';
 
 export async function GET(request: Request, props: { params: Promise<{ condId: string, id: string }> }) {
   const params = await props.params; 
+  const despesasDb = getDespesasDb(params.condId);
   
   const despesa = despesasDb.find(d => d.id === params.id);
   
@@ -14,12 +15,13 @@ export async function GET(request: Request, props: { params: Promise<{ condId: s
 
 export async function PUT(request: Request, props: { params: Promise<{ condId: string, id: string }> }) {
   const params = await props.params;
+  const despesasDb = getDespesasDb(params.condId);
   
   const index = despesasDb.findIndex(d => d.id === params.id);
   if (index === -1) return NextResponse.json({ error: 'Não encontrado' }, { status: 404 });
 
   const contentType = request.headers.get('content-type') || '';
-  let data: any;
+  let data: Partial<DespesaDetail>;
   let finalAnexos = [...despesasDb[index].anexos];
 
   if (contentType.includes('multipart/form-data')) {
@@ -53,6 +55,7 @@ export async function PUT(request: Request, props: { params: Promise<{ condId: s
 
 export async function DELETE(request: Request, props: { params: Promise<{ condId: string, id: string }> }) {
   const params = await props.params;
+  const despesasDb = getDespesasDb(params.condId);
   
   const index = despesasDb.findIndex(d => d.id === params.id);
   if (index !== -1) {

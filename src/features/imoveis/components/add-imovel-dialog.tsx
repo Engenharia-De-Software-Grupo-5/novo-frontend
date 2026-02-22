@@ -42,11 +42,6 @@ interface ImovelFormState extends ImovelFormData {
     cidade: string;
     cep: string;
   };
-  locatario: {
-    nome: string;
-    cpf: string;
-    telefone: string;
-  };
 }
 
 function mapStatusToSituacao(status: string): ImovelSituacao {
@@ -74,11 +69,6 @@ const initialFormState: ImovelFormState = {
     bairro: '',
     cidade: '',
     cep: '',
-  },
-  locatario: {
-    nome: '',
-    cpf: '',
-    telefone: '',
   },
 };
 
@@ -116,11 +106,6 @@ export function ImovelDialog({
           cidade: imovel.endereco.cidade,
           cep: '',
         },
-        locatario: {
-          nome: imovel.locatario?.nome || '',
-          cpf: imovel.locatario?.cpf || '',
-          telefone: imovel.locatario?.telefone || '',
-        },
       });
     }
 
@@ -132,11 +117,6 @@ export function ImovelDialog({
   async function onSubmit() {
     try {
       setIsSubmitting(true);
-
-      const hasLocatario =
-        !!formData.locatario.nome ||
-        !!formData.locatario.cpf ||
-        !!formData.locatario.telefone;
 
       const payload: Partial<ImovelDetail> = {
         nome: formData.nome,
@@ -150,13 +130,7 @@ export function ImovelDialog({
           estado: 'SP',
           bloco: formData.endereco.complemento || undefined,
         },
-        locatario: hasLocatario
-          ? {
-              nome: formData.locatario.nome,
-              cpf: formData.locatario.cpf,
-              telefone: formData.locatario.telefone,
-            }
-          : null,
+        locatario: null,
       };
 
       if (isEditing && imovel) {
@@ -177,13 +151,7 @@ export function ImovelDialog({
             estado: 'SP',
             bloco: formData.endereco.complemento || undefined,
           },
-          locatario: hasLocatario
-            ? {
-                nome: formData.locatario.nome,
-                cpf: formData.locatario.cpf,
-                telefone: formData.locatario.telefone,
-              }
-            : null,
+          locatario: null,
         });
         toast.success(`Imóvel "${formData.nome}" adicionado com sucesso!`);
       }

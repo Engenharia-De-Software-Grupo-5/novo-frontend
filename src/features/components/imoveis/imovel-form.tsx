@@ -28,11 +28,6 @@ export interface ImovelFormData {
     cidade?: string;
     cep?: string;
   };
-  locatario?: {
-    nome?: string;
-    cpf?: string;
-    telefone?: string;
-  };
 }
 
 interface ImovelFormProps {
@@ -46,7 +41,7 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
   };
 
   const handleNestedChange = (
-    parent: 'endereco' | 'locatario',
+    parent: 'endereco',
     field: string,
     value: string
   ) => {
@@ -182,51 +177,6 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
                 placeholder="00000-000"
                 value={formData.endereco?.cep || ''}
                 onChange={(e) => handleNestedChange('endereco', 'cep', e.target.value)}
-                className="bg-background border-border"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-card border-border">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-base font-semibold text-foreground">
-            Dados do Locatário
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Informe os dados quando a unidade estiver ocupada
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Nome Completo</Label>
-            <Input
-              placeholder="Nome do locatário"
-              value={formData.locatario?.nome || ''}
-              onChange={(e) => handleNestedChange('locatario', 'nome', e.target.value)}
-              className="bg-background border-border"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>CPF</Label>
-              <Input
-                placeholder="000.000.000-00"
-                value={formData.locatario?.cpf || ''}
-                onChange={(e) => handleNestedChange('locatario', 'cpf', e.target.value)}
-                className="bg-background border-border"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Telefone</Label>
-              <Input
-                placeholder="(83) 99999-9999"
-                value={formData.locatario?.telefone || ''}
-                onChange={(e) =>
-                  handleNestedChange('locatario', 'telefone', e.target.value)
-                }
                 className="bg-background border-border"
               />
             </div>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { employeesDb } from '@/mocks/in-memory-db';
+import { getEmployeesDb } from '@/mocks/in-memory-db';
 
 import { EmployeeDetail } from '@/types/employee';
 import { FileAttachment } from '@/types/file';
@@ -36,9 +36,10 @@ import { FileAttachment } from '@/types/file';
  */
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ funcId: string }> }
+  { params }: { params: Promise<{ condId: string; funcId: string }> }
 ) {
-  const { funcId } = await params;
+  const { condId, funcId } = await params;
+  const employeesDb = getEmployeesDb(condId);
   const employee = employeesDb.find((e) => e.id === funcId);
 
   if (!employee) {
@@ -84,9 +85,10 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ funcId: string }> }
+  { params }: { params: Promise<{ condId: string; funcId: string }> }
 ) {
-  const { funcId } = await params;
+  const { condId, funcId } = await params;
+  const employeesDb = getEmployeesDb(condId);
 
   let body: Partial<EmployeeDetail>;
   let keptContracts: FileAttachment[] | undefined;
@@ -192,9 +194,10 @@ export async function PUT(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ funcId: string }> }
+  { params }: { params: Promise<{ condId: string; funcId: string }> }
 ) {
-  const { funcId } = await params;
+  const { condId, funcId } = await params;
+  const employeesDb = getEmployeesDb(condId);
   const body = (await request.json()) as Partial<EmployeeDetail>;
 
   const index = employeesDb.findIndex((e) => e.id === funcId);
@@ -235,9 +238,10 @@ export async function PATCH(
  */
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ funcId: string }> }
+  { params }: { params: Promise<{ condId: string; funcId: string }> }
 ) {
-  const { funcId } = await params;
+  const { condId, funcId } = await params;
+  const employeesDb = getEmployeesDb(condId);
 
   const index = employeesDb.findIndex((e) => e.id === funcId);
 
