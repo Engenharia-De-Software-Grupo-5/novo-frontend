@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getDespesasDb } from '@/mocks/in-memory-db';
 
 import { DespesaDetail } from '@/types/despesa';
+import { secureRandom } from '@/lib/secure-random';
 
 export async function GET(
   request: Request,
@@ -49,11 +50,11 @@ export async function PUT(
       .getAll('anexos')
       .filter((f): f is File => f instanceof File)
       .map((file) => ({
-        id: `file-${Math.random().toString(36).substr(2, 9)}`,
+        id: `file-${secureRandom(9)}`,
         name: file.name,
         type: file.type,
         size: file.size,
-        url: `/uploads/${Math.random().toString(36).substr(2, 9)}_${file.name}`,
+        url: `/uploads/${secureRandom(9)}_${file.name}`,
       }));
 
     finalAnexos = [...finalAnexos, ...novosAnexos];

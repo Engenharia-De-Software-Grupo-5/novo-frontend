@@ -3,6 +3,7 @@ import { condominos } from '@/mocks/condominos';
 
 import { CondominoFull, CondominoSummary } from '@/types/condomino';
 import { FileAttachment } from '@/types/file';
+import { secureRandom } from '@/lib/secure-random';
 
 /**
  * @swagger
@@ -283,7 +284,7 @@ async function parseCondominoBody(
     .getAll('files')
     .filter((f): f is File => f instanceof File)
     .map((file) => ({
-      id: `file-${Math.random().toString(36).substr(2, 9)}`,
+      id: `file-${Math.random().toString(36).slice(2, 11)}`,
       name: file.name,
       type: file.type,
       size: file.size,
@@ -306,7 +307,7 @@ export async function POST(request: NextRequest) {
 
   const newCondomino: CondominoFull = {
     ...body,
-    id: Math.random().toString(36).substr(2, 9),
+    id: secureRandom(9),
     status: 'pendente',
     documents,
   } as CondominoFull;

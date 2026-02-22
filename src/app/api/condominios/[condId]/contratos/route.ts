@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { contractModelsDb, contractsDb } from '@/mocks/in-memory-db';
 
 import { ContratoDetail } from '@/types/contrato';
+import { secureRandom } from '@/lib/secure-random';
 
 const buildSearchIndex = (contract: ContratoDetail) => {
   return [
@@ -177,7 +178,7 @@ export async function POST(
   }
 
   const newContract: ContratoDetail = {
-    id: Math.random().toString(36).slice(2, 11),
+    id: secureRandom(9),
     condId,
     ...payload,
   };

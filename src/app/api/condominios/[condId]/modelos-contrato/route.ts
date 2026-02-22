@@ -3,6 +3,7 @@ import { contractModelsDb } from '@/mocks/in-memory-db';
 
 import { ModeloContratoDetail } from '@/types/modelo-contrato';
 import { extractTemplateInputs } from '@/lib/contratos-template-inputs';
+import { secureRandom } from '@/lib/secure-random';
 
 const buildSearchIndex = (model: ModeloContratoDetail) => {
   return [model.name, model.purpose, model.createdAt].join(' ').toLowerCase();
@@ -133,7 +134,7 @@ export async function POST(
   }
 
   const newModel: ModeloContratoDetail = {
-    id: Math.random().toString(36).slice(2, 11),
+    id: secureRandom(9),
     condId,
     name,
     purpose,

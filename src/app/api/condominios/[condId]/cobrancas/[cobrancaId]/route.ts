@@ -3,6 +3,7 @@ import { getCobrancasDb, getCobrancaTenantsDb } from '@/mocks/in-memory-db';
 
 import { CobrancaDetail, CobrancaStatus } from '@/types/cobranca';
 import { FileAttachment } from '@/types/file';
+import { secureRandom } from '@/lib/secure-random';
 
 const resolveStatus = (
   dueDate: string,
@@ -62,11 +63,11 @@ async function parseCobrancaBody(
     .getAll('newFiles')
     .filter((file): file is File => file instanceof File)
     .map((file) => ({
-      id: `att-${Math.random().toString(36).slice(2, 11)}`,
+      id: `att-${secureRandom(9)}`,
       name: file.name,
       type: file.type,
       size: file.size,
-      url: `/uploads/cobrancas/${Math.random().toString(36).slice(2, 11)}_${file.name}`,
+      url: `/uploads/cobrancas/${secureRandom(9)}_${file.name}`,
     }));
 
   return { body, keptAttachments, uploadedAttachments };

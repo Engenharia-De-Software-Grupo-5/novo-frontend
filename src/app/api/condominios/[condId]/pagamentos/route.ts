@@ -3,6 +3,7 @@ import { getEmployeesDb, getPaymentsDb } from '@/mocks/in-memory-db';
 
 import { FileAttachment } from '@/types/file';
 import { PaymentDetail, PaymentStatus } from '@/types/payment';
+import { secureRandom } from '@/lib/secure-random';
 
 /**
  * @swagger
@@ -252,11 +253,11 @@ export async function POST(
     uploadedProofs = uploadedFiles
       .filter((f): f is File => f instanceof File)
       .map((file) => ({
-        id: `file-${Math.random().toString(36).substr(2, 9)}`,
+        id: `file-${secureRandom(9)}`,
         name: file.name,
         type: file.type,
         size: file.size,
-        url: `/uploads/contracts/${Math.random().toString(36).substr(2, 9)}_${file.name}`,
+        url: `/uploads/contracts/${secureRandom(9)}_${file.name}`,
       }));
   } else {
     body = await request.json();
@@ -285,7 +286,7 @@ export async function POST(
 
   const newPayment: PaymentDetail = {
     ...body,
-    id: Math.random().toString(36).substr(2, 9),
+    id: secureRandom(9),
     name: employeeName,
     role: employeeRole,
     value: body.value,

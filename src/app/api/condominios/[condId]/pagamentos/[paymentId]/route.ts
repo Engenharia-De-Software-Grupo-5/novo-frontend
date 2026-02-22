@@ -3,6 +3,7 @@ import { getEmployeesDb, getPaymentsDb } from '@/mocks/in-memory-db';
 
 import { FileAttachment } from '@/types/file';
 import { PaymentDetail, PaymentStatus } from '@/types/payment';
+import { secureRandom } from '@/lib/secure-random';
 
 function resolvePaymentStatus(
   paymentDate: string | undefined,
@@ -55,11 +56,11 @@ async function parsePaymentBody(
     .getAll('newFiles')
     .filter((f): f is File => f instanceof File)
     .map((file) => ({
-      id: `file-${Math.random().toString(36).substr(2, 9)}`,
+      id: `file-${secureRandom(9)}`,
       name: file.name,
       type: file.type,
       size: file.size,
-      url: `/uploads/proofs/${Math.random().toString(36).substr(2, 9)}_${file.name}`,
+      url: `/uploads/proofs/${secureRandom(9)}_${file.name}`,
     }));
 
   return { body, keptProofs, uploadedProofs };
