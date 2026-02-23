@@ -136,7 +136,7 @@ export default function CondominiosPage() {
   };
 
   const handleSwitch = (id: string) => {
-    router.push(`/condominios/${id}/usuarios`);
+    router.push(`/condominios/${id}/dashboard`);
   };
 
   return (
