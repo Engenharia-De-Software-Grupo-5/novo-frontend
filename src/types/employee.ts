@@ -1,14 +1,11 @@
 import { FileAttachment } from './file';
 
-/** @deprecated Use `FileAttachment` from `@/types/file` directly for new code */
-export type EmployeeFile = FileAttachment;
-
 export interface EmployeeSummary {
   id: string;
   name: string;
   role: string;
   status: 'ativo' | 'pendente' | 'inativo';
-  lastContract?: EmployeeFile;
+  lastContract?: FileAttachment;
 }
 
 export interface EmployeeDetail extends EmployeeSummary {
@@ -18,7 +15,7 @@ export interface EmployeeDetail extends EmployeeSummary {
   admissionDate?: string;
   phone?: string;
   address?: string;
-  Contracts?: EmployeeFile[];
+  Contracts?: FileAttachment[];
 }
 
 export interface EmployeeResponse {
