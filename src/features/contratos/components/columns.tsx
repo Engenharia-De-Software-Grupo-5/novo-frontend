@@ -16,12 +16,12 @@ const formatDate = (value: string) => {
 
 export const columns: ColumnDef<ContratoSummary>[] = [
   {
-    accessorKey: 'property',
+    accessorKey: 'propertyName',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Imóvel" />
     ),
     cell: ({ row }) => (
-      <span className="font-medium">{row.original.property}</span>
+      <span className="font-medium">{row.original.propertyName}</span>
     ),
   },
   {
@@ -32,11 +32,11 @@ export const columns: ColumnDef<ContratoSummary>[] = [
     cell: ({ row }) => <span>{row.original.tenantName}</span>,
   },
   {
-    accessorKey: 'createdAt',
+    accessorKey: 'startDate',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Data de Criação" />
+      <DataTableColumnHeader column={column} title="Data de Início" />
     ),
-    cell: ({ row }) => <span>{formatDate(row.original.createdAt)}</span>,
+    cell: ({ row }) => <span>{formatDate(row.original.startDate)}</span>,
   },
   {
     accessorKey: 'dueDate',

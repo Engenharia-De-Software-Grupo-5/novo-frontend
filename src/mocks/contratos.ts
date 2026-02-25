@@ -163,22 +163,26 @@ const contractsSeed = [
   },
 ];
 
-export const mockContractDetails: ContratoDetail[] = contractsSeed;
-
-export const mockContractSummaries: ContratoSummary[] = mockContractDetails.map(
-  (item) => ({
+export const mockContractDetails: ContratoDetail[] = contractsSeed.map((item) => ({
     id: item.id,
     condId: item.condId,
     propertyId: item.propertyId,
     tenantName: item.tenantName,
     tenantId: item.tenantId,
-    property: item.property,
-    createdAt: item.createdAt,
+    propertyName: item.property,
+    startDate: item.createdAt,
     dueDate: item.dueDate,
+    content: item.modelInputValues
+      ? JSON.stringify(item.modelInputValues)
+      : 'Contrato enviado por upload',
     pdfFileName: item.pdfFileName,
     pdfFileUrl: item.pdfFileUrl,
     sourceType: item.sourceType,
     modelId: item.modelId,
     modelName: item.modelName,
-  })
+    modelInputValues: item.modelInputValues,
+  }));
+
+export const mockContractSummaries: ContratoSummary[] = mockContractDetails.map(
+  (item) => ({ ...item })
 );

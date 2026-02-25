@@ -73,7 +73,7 @@ export function ViewContractDialog({
           <div className="space-y-4">
             <div>
               <p className="text-sm font-medium">Imóvel</p>
-              <p className="text-muted-foreground text-sm">{data.property}</p>
+              <p className="text-muted-foreground text-sm">{data.propertyName}</p>
             </div>
             <div>
               <p className="text-sm font-medium">Locatário</p>
@@ -81,8 +81,8 @@ export function ViewContractDialog({
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <p className="text-sm font-medium">Data de criação</p>
-                <p className="text-muted-foreground text-sm">{formatDate(data.createdAt)}</p>
+                <p className="text-sm font-medium">Data de início</p>
+                <p className="text-muted-foreground text-sm">{formatDate(data.startDate)}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Data de vencimento</p>

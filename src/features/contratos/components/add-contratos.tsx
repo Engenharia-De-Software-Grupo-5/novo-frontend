@@ -687,13 +687,12 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
 
       if (creationMode === 'upload' && contractPdf) {
         const formData = new FormData();
-        formData.append('sourceType', 'upload');
-        formData.append('propertyId', selectedProperty.idImovel);
-        formData.append('property', formatPropertyLabel(selectedProperty));
         formData.append('tenantId', selectedTenant.id);
-        formData.append('tenantName', selectedTenant.name);
-        formData.append('createdAt', startDate);
+        formData.append('propertyId', selectedProperty.idImovel);
+        formData.append('content', `Arquivo enviado: ${contractPdf.name}`);
+        formData.append('startDate', startDate);
         formData.append('dueDate', endDate);
+        formData.append('sourceType', 'upload');
         formData.append('contractPdf', contractPdf);
 
         await postContrato(condId, formData);
@@ -703,13 +702,12 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
         );
 
         await postContrato(condId, {
-          sourceType: 'model',
-          tenantName: selectedTenant.name,
           tenantId: selectedTenant.id,
-          property: formatPropertyLabel(selectedProperty),
           propertyId: selectedProperty.idImovel,
-          createdAt: startDate,
+          content: JSON.stringify(normalizedModelValues),
+          startDate: startDate,
           dueDate: endDate,
+          sourceType: 'model',
           modelId,
           modelName: selectedModel?.name,
           modelInputValues: normalizedModelValues,
