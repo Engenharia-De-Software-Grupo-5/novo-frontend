@@ -4,7 +4,11 @@ import { DataTable } from '@/features/components/data-table/data-table';
 
 import { CobrancaSummary } from '@/types/cobranca';
 
-import { COBRANCA_COLUMN_LABELS, COBRANCA_STATUSES, COBRANCA_TYPES } from '../constants';
+import {
+  COBRANCA_COLUMN_LABELS,
+  COBRANCA_STATUSES,
+  COBRANCA_TYPES,
+} from '../constants';
 import { AddCobrancaDialog } from './add-cobranca-dialog';
 import { CalculatorDialog } from './calculator-dialog';
 import { columns } from './columns';
@@ -14,7 +18,10 @@ interface CobrancasDataTableProps {
   readonly pageCount: number;
 }
 
-export function CobrancasDataTable({ data, pageCount }: CobrancasDataTableProps) {
+export function CobrancasDataTable({
+  data,
+  pageCount,
+}: CobrancasDataTableProps) {
   return (
     <DataTable
       data={data}

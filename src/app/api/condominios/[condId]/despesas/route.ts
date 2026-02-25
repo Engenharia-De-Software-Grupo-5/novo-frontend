@@ -56,7 +56,7 @@ export async function GET(
   const paginatedData = data.slice((page - 1) * limit, page * limit);
 
   return NextResponse.json({
-    data: paginatedData,
+    items: paginatedData,
     meta: { pageIndex: page, pageCount, total },
   });
 }

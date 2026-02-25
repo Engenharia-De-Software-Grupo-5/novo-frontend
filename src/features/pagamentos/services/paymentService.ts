@@ -36,7 +36,7 @@ export const getPayments = async (
   } catch (error) {
     console.error('Error fetching payments:', error);
     return {
-      data: [],
+      items: [],
       meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }

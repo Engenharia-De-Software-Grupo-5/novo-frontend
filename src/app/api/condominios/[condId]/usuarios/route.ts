@@ -171,7 +171,7 @@ export async function GET(
   const paginatedUsers = sortedUsers.slice(startIndex, endIndex);
 
   return NextResponse.json({
-    data: paginatedUsers,
+    items: paginatedUsers,
     meta: {
       total: totalItems,
       page: safePage,
@@ -266,7 +266,7 @@ export async function POST(
   usersDb.unshift(newUser);
 
   return NextResponse.json(
-    { message: 'User created successfully', data: newUser },
+    { message: 'User created successfully', items: newUser },
     { status: 201 }
   );
 }

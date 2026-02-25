@@ -3,7 +3,9 @@ import { despesaService } from '@/features/despesas/services/despesaService';
 
 export default async function DespesasPage(props: {
   readonly params: Promise<{ condId: string }>;
-  readonly searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly searchParams: Promise<{
+    [key: string]: string | string[] | undefined;
+  }>;
 }) {
   const params = await props.params;
   const searchParams = await props.searchParams;
@@ -48,7 +50,7 @@ export default async function DespesasPage(props: {
         </div>
       </div>
       <DespesasDataTable
-        data={response.data}
+        data={response.items}
         pageCount={response.meta.pageCount}
       />
     </div>

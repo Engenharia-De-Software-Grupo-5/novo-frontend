@@ -46,7 +46,7 @@ export default async function PagamentosPage({
       : [resolvedSearchParams.content];
   }
 
-  const { data: pagamentos, meta } = await getPayments(condId, {
+  const { items: pagamentos, meta } = await getPayments(condId, {
     page,
     limit,
     sort,

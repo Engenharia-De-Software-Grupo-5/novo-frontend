@@ -1,10 +1,11 @@
-import { apiRequest, buildQueryString } from '@/lib/api-client';
 import {
   ModeloContratoDetail,
   ModeloContratoResponse,
 } from '@/types/modelo-contrato';
+import { apiRequest, buildQueryString } from '@/lib/api-client';
 
-const basePath = (condId: string) => `/api/condominios/${condId}/modelos-contrato`;
+const basePath = (condId: string) =>
+  `/api/condominios/${condId}/modelos-contrato`;
 
 export const getModelosContrato = async (
   condId: string,
@@ -17,11 +18,12 @@ export const getModelosContrato = async (
   }
 ): Promise<ModeloContratoResponse> => {
   try {
-    const queryParams: Record<string, string | number | string[] | undefined> = {
-      page: params?.page,
-      limit: params?.limit,
-      sort: params?.sort,
-    };
+    const queryParams: Record<string, string | number | string[] | undefined> =
+      {
+        page: params?.page,
+        limit: params?.limit,
+        sort: params?.sort,
+      };
 
     if (params?.columns && params?.content && params.columns.length > 0) {
       queryParams.columns = params.columns;
@@ -30,13 +32,16 @@ export const getModelosContrato = async (
 
     const query = buildQueryString(queryParams);
 
-    return await apiRequest<ModeloContratoResponse>(`${basePath(condId)}${query}`, {
-      method: 'GET',
-    });
+    return await apiRequest<ModeloContratoResponse>(
+      `${basePath(condId)}${query}`,
+      {
+        method: 'GET',
+      }
+    );
   } catch (error) {
     console.error('Error fetching contract models:', error);
     return {
-      data: [],
+      items: [],
       meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }

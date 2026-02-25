@@ -93,7 +93,7 @@ export async function GET(
   const paginatedContracts = sortedContracts.slice(startIndex, endIndex);
 
   return NextResponse.json({
-    data: paginatedContracts,
+    items: paginatedContracts,
     meta: {
       total: totalItems,
       page: safePage,
@@ -186,7 +186,7 @@ export async function POST(
   contractsDb.unshift(newContract);
 
   return NextResponse.json(
-    { message: 'Contrato criado com sucesso', data: newContract },
+    { message: 'Contrato criado com sucesso', items: newContract },
     { status: 201 }
   );
 }

@@ -50,7 +50,7 @@ export async function GET(
     return NextResponse.json({ error: 'Condômino not found' }, { status: 404 });
   }
 
-  return NextResponse.json({ data: morador });
+  return NextResponse.json({ items: morador });
 }
 /**
  * @swagger
@@ -115,7 +115,7 @@ export async function PATCH(
     }
   }
 
-  return NextResponse.json({ data: condominos[index] });
+  return NextResponse.json({ items: condominos[index] });
 }
 
 /**

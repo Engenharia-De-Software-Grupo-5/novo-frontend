@@ -133,7 +133,7 @@ export function PaymentDialog({
         }
 
         const response = await getFuncionarios(condId, queryParams);
-        setEmployees(response.data);
+        setEmployees(response.items);
       } catch (error) {
         console.error('Failed to fetch employees', error);
         toast.error('Erro ao carregar funcionários');

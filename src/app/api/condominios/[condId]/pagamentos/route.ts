@@ -168,7 +168,7 @@ export async function GET(
   const paginatedPayments = sortedPayments.slice(startIndex, endIndex);
 
   return NextResponse.json({
-    data: paginatedPayments,
+    items: paginatedPayments,
     meta: {
       total: totalItems,
       page: safePage,
@@ -297,7 +297,7 @@ export async function POST(
   paymentsDb.unshift(newPayment); // Add to beginning of list
 
   return NextResponse.json(
-    { message: 'Payment created successfully', data: newPayment },
+    { message: 'Payment created successfully', items: newPayment },
     { status: 201 }
   );
 }

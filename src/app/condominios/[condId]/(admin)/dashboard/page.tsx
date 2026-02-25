@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-
 import { getCobrancas } from '@/features/cobrancas/services/cobrancaService';
 import { getCondominos } from '@/features/condominos/services/condominos.service';
 import { DashboardClient } from '@/features/dashboard/components/dashboard-client';
@@ -29,23 +28,22 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     funcionariosResponse,
     imoveisResponse,
     condominosResponse,
-  ] =
-    await Promise.all([
-      getPayments(condId, { page: 1, limit: 500 }),
-      despesaService.getAll(condId, { page: 1, limit: 500 }),
-      getCobrancas(condId, { page: 1, limit: 500 }),
-      getFuncionarios(condId, { page: 1, limit: 500 }),
-      getImoveis(condId, { page: 1, limit: 500 }),
-      getCondominos(condId, { page: 1, limit: 1 }),
-    ]);
+  ] = await Promise.all([
+    getPayments(condId, { page: 1, limit: 500 }),
+    despesaService.getAll(condId, { page: 1, limit: 500 }),
+    getCobrancas(condId, { page: 1, limit: 500 }),
+    getFuncionarios(condId, { page: 1, limit: 500 }),
+    getImoveis(condId, { page: 1, limit: 500 }),
+    getCondominos(condId, { page: 1, limit: 1 }),
+  ]);
 
   return (
     <DashboardClient
-      pagamentos={pagamentosResponse.data}
-      despesas={despesasResponse.data}
-      cobrancas={cobrancasResponse.data}
-      funcionarios={funcionariosResponse.data}
-      imoveis={imoveisResponse.data}
+      pagamentos={pagamentosResponse.items}
+      despesas={despesasResponse.items}
+      cobrancas={cobrancasResponse.items}
+      funcionarios={funcionariosResponse.items}
+      imoveis={imoveisResponse.items}
       condominosTotal={condominosResponse.meta.total}
     />
   );

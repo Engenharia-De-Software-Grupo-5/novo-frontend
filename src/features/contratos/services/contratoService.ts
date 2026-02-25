@@ -34,7 +34,7 @@ export const getContratos = async (
   } catch (error) {
     console.error('Error fetching contracts:', error);
     return {
-      data: [],
+      items: [],
       meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }

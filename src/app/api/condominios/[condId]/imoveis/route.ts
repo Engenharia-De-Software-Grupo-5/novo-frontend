@@ -101,7 +101,7 @@ export async function GET(
   console.log(paginatedImoveis);
 
   return NextResponse.json({
-    data: paginatedImoveis,
+    items: paginatedImoveis,
     meta: {
       total: totalItems,
       page: safePage,
@@ -158,7 +158,7 @@ export async function POST(
   imoveisDb.unshift(newImovel);
 
   return NextResponse.json(
-    { message: 'Imóvel criado com sucesso', data: newImovel },
+    { message: 'Imóvel criado com sucesso', items: newImovel },
     { status: 201 }
   );
 }

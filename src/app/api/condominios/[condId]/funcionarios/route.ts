@@ -169,7 +169,7 @@ export async function GET(
   const paginatedEmployees = sortedEmployees.slice(startIndex, endIndex);
 
   return NextResponse.json({
-    data: paginatedEmployees,
+    items: paginatedEmployees,
     meta: {
       total: totalItems,
       page: safePage,
@@ -266,7 +266,7 @@ export async function POST(
   employeesDb.push(newEmployee);
 
   return NextResponse.json(
-    { message: 'Employee created successfully', data: newEmployee },
+    { message: 'Employee created successfully', items: newEmployee },
     { status: 201 }
   );
 }

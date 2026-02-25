@@ -19,7 +19,7 @@ export interface ModeloContratoDetail extends ModeloContratoSummary {
 }
 
 export interface ModeloContratoResponse {
-  data: ModeloContratoSummary[];
+  items: ModeloContratoSummary[];
   meta: {
     total: number;
     page: number;

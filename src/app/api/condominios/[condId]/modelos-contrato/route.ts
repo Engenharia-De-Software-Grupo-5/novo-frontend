@@ -106,7 +106,7 @@ export async function GET(
     }));
 
   return NextResponse.json({
-    data: paginatedModels,
+    items: paginatedModels,
     meta: {
       total: totalItems,
       page: safePage,
@@ -146,7 +146,7 @@ export async function POST(
   contractModelsDb.unshift(newModel);
 
   return NextResponse.json(
-    { message: 'Modelo criado com sucesso', data: newModel },
+    { message: 'Modelo criado com sucesso', items: newModel },
     { status: 201 }
   );
 }

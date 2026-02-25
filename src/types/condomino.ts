@@ -96,7 +96,7 @@ export interface CondominoSummary {
  * Resposta da API para listagem paginada
  */
 export interface CondominosResponse {
-  data: CondominoSummary[];
+  items: CondominoSummary[];
   meta: {
     total: number;
     page: number;

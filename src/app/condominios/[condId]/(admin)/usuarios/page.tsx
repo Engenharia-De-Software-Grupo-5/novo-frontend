@@ -3,7 +3,9 @@ import { getUsers } from '@/features/usuarios/services/users.service';
 
 interface PageProps {
   readonly params: Promise<{ condId: string }>;
-  readonly searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly searchParams: Promise<{
+    [key: string]: string | string[] | undefined;
+  }>;
 }
 
 export const dynamic = 'force-dynamic';
@@ -53,7 +55,7 @@ export default async function UsersPage({ params, searchParams }: PageProps) {
         </p>
       </div>
 
-      <UsersDataTable data={data.data} pageCount={data.meta.totalPages} />
+      <UsersDataTable data={data.items} pageCount={data.meta.totalPages} />
     </div>
   );
 }

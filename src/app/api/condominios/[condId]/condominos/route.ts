@@ -170,7 +170,7 @@ export async function GET(
   const paginated = mapped.slice(start, start + limit);
 
   return NextResponse.json({
-    data: paginated,
+    items: paginated,
     meta: {
       total: filtered.length,
       page,

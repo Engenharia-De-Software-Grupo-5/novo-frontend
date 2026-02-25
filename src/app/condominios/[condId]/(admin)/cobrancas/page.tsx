@@ -46,7 +46,7 @@ export default async function CobrancasPage({
       : [resolvedSearchParams.content];
   }
 
-  const { data: cobrancas, meta } = await getCobrancas(condId, {
+  const { items: cobrancas, meta } = await getCobrancas(condId, {
     page,
     limit,
     sort,

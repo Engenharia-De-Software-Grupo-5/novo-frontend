@@ -100,7 +100,7 @@ export async function GET(
   }));
 
   return NextResponse.json({
-    data: summaries,
+    items: summaries,
     meta: {
       total: totalItems,
       page: safePage,
@@ -174,7 +174,7 @@ export async function POST(
   cobrancasDb.unshift(created);
 
   return NextResponse.json(
-    { message: 'Cobrança criada com sucesso.', data: created },
+    { message: 'Cobrança criada com sucesso.', items: created },
     { status: 201 }
   );
 }

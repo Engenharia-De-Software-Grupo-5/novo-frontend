@@ -3,7 +3,9 @@ import { getCondominos } from '@/features/condominos/services/condominos.service
 
 interface PageProps {
   readonly params: Promise<{ condId: string }>;
-  readonly searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly searchParams: Promise<{
+    [key: string]: string | string[] | undefined;
+  }>;
 }
 export default async function CondominosPage({
   params,
@@ -48,7 +50,7 @@ export default async function CondominosPage({
           aprove ou rejeite um pré cadastro
         </p>
       </div>
-      <CondominosDataTable data={data.data} pageCount={data.meta.totalPages} />
+      <CondominosDataTable data={data.items} pageCount={data.meta.totalPages} />
     </div>
   );
 }

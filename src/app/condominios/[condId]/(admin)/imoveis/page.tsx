@@ -9,7 +9,9 @@ export const metadata: Metadata = {
 
 interface ImoveisPageProps {
   readonly params: Promise<{ condId: string }>;
-  readonly searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly searchParams: Promise<{
+    [key: string]: string | string[] | undefined;
+  }>;
 }
 
 export default async function ImoveisPage({
@@ -34,7 +36,7 @@ export default async function ImoveisPage({
     content = Array.isArray(rawContent) ? rawContent : [rawContent];
   }
 
-  const { data: imoveis, meta } = await getImoveis(condId, {
+  const { items: imoveis, meta } = await getImoveis(condId, {
     page,
     limit,
     sort,

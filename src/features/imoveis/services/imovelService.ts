@@ -1,5 +1,5 @@
-import { apiRequest, buildQueryString } from '@/lib/api-client';
 import { ImovelDetail, ImovelResponse } from '@/types/imoveis';
+import { apiRequest, buildQueryString } from '@/lib/api-client';
 
 const basePath = (condId: string) => `/api/condominios/${condId}/imoveis`;
 
@@ -34,7 +34,7 @@ export const getImoveis = async (
   } catch (error) {
     console.error('Error fetching imoveis:', error);
     return {
-      data: [],
+      items: [],
       meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }

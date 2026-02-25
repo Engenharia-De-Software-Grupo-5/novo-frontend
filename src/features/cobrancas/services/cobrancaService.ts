@@ -1,4 +1,8 @@
-import { CobrancaDetail, CobrancaResponse, CobrancaTenant } from '@/types/cobranca';
+import {
+  CobrancaDetail,
+  CobrancaResponse,
+  CobrancaTenant,
+} from '@/types/cobranca';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 import { buildFormDataBody, FileUploadOptions } from '@/lib/form-data';
 
@@ -29,7 +33,7 @@ export const getCobrancas = async (
   } catch (error) {
     console.error('Error fetching charges:', error);
     return {
-      data: [],
+      items: [],
       meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }
@@ -43,7 +47,9 @@ export const getCobrancaById = async (
     method: 'GET',
   });
 
-export const getCobrancaTenants = async (condId: string): Promise<CobrancaTenant[]> =>
+export const getCobrancaTenants = async (
+  condId: string
+): Promise<CobrancaTenant[]> =>
   apiRequest<CobrancaTenant[]>(`${basePath(condId)}/tenants`, {
     method: 'GET',
   });
@@ -83,4 +89,3 @@ export const deleteCobranca = async (condId: string, cobrancaId: string) =>
   apiRequest(`${basePath(condId)}/${cobrancaId}`, {
     method: 'DELETE',
   });
-
