@@ -1,12 +1,13 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
+const API_URL_REAL = 'https://api.bemconnect.com.br/api/v1';
 interface ApiRequestOptions extends Omit<RequestInit, 'body'> {
   body?: unknown;
 }
 
 export async function apiRequest<T>(
   path: string,
-  options: ApiRequestOptions = {}
+  options: ApiRequestOptions = {},
+  isReal: boolean = false
 ): Promise<T> {
   const { body, headers, ...rest } = options;
 
@@ -21,7 +22,7 @@ export async function apiRequest<T>(
     requestBody = undefined;
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await fetch(`${isReal ? API_URL_REAL : API_URL}${path}`, {
     headers: {
       // Don't set Content-Type for FormData — the browser sets it
       // automatically with the correct multipart boundary
