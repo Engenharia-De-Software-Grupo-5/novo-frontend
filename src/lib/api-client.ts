@@ -27,6 +27,8 @@ export async function apiRequest<T>(
     requestBody = undefined;
   }
 
+ 
+  
   const session = await auth();
   const token = session?.user?.accessToken;
 
@@ -35,6 +37,7 @@ export async function apiRequest<T>(
     authHeaders['Authorization'] = `Bearer ${token}`;
   }
 
+  console.log('Fetching:', `${API_URL}${path}`);
   const response = await fetch(`${isReal ? API_URL_REAL : API_URL}${path}`, {
     headers: {
       // Don't set Content-Type for FormData — the browser sets it
@@ -46,6 +49,8 @@ export async function apiRequest<T>(
     body: requestBody,
     ...rest,
   });
+  console.log('Response status:', response.status, 'URL:', response.url);
+
 
   if (response.status === 401) {
     redirect('/login');

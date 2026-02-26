@@ -1,15 +1,14 @@
 'use server';
-
 import { revalidatePath } from 'next/cache';
-
 import {
   CondominoCreateDTO,
   CondominoFull,
   CondominosResponse,
 } from '@/types/condomino';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
+import { buildFormDataBody, FileUploadOptions } from '@/lib/form-data';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const basePath = (condId: string) => `/api/condominios/${condId}/condominos`;
 
 export const getCondominos = async (
   condId: string,
@@ -22,12 +21,11 @@ export const getCondominos = async (
   }
 ): Promise<CondominosResponse> => {
   try {
-    const queryParams: Record<string, string | number | string[] | undefined> =
-      {
-        page: params?.page,
-        limit: params?.limit,
-        sort: params?.sort,
-      };
+    const queryParams: Record<string, string | number | string[] | undefined> = {
+      page: params?.page,
+      limit: params?.limit,
+      sort: params?.sort,
+    };
 
     if (params?.columns && params?.content && params.columns.length > 0) {
       queryParams.columns = params.columns;
@@ -36,129 +34,83 @@ export const getCondominos = async (
 
     const query = buildQueryString(queryParams);
 
-    return await apiRequest<CondominosResponse>(
-      `/api/condominios/${condId}/condominos${query}`,
-      {
-        method: 'GET',
-      }
-    );
+  
+    return await apiRequest<CondominosResponse>(`${basePath(condId)}${query}`, {
+      method: 'GET',
+    });
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('Error fetching condominos:', error);
     return {
       items: [],
       meta: { totalItems: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }
 };
-/**
- * BUSCA ÚNICA (Para detalhes)
- */
-export async function getCondominoById(
-  condominioId: string,
+
+export const getCondominoById = async (
+  condId: string,
   condominoId: string
-): Promise<CondominoFull> {
-  return apiRequest<CondominoFull>(
-    `/api/condominios/${condominioId}/condominos/${condominoId}`,
-    { method: 'GET' }
-  );
-}
+): Promise<CondominoFull> => {
+  return apiRequest<CondominoFull>(`${basePath(condId)}/${condominoId}`, {
+    method: 'GET',
+  });
+};
 
-export async function createCondomino(
-  condominioId: string,
-  data: CondominoCreateDTO
-) {
-  const formData = new FormData();
-
-  const { documents, ...rest } = data;
-  formData.append('data', JSON.stringify(rest));
-
-  if (documents) {
-    if (documents.rg instanceof File) {
-      formData.append('files', documents.rg);
-    }
-
-    if (documents.cpf instanceof File) {
-      formData.append('files', documents.cpf);
-    }
-
-    if (documents.incomeProof instanceof File) {
-      formData.append('files', documents.incomeProof);
-    }
-  }
-
-  const url = `${baseUrl}/api/condominios/${condominioId}/condominos`;
-  const response = await fetch(url, {
+export const postCondomino = async (
+  condId: string,
+  data: Partial<CondominoCreateDTO>,
+  options?: FileUploadOptions
+): Promise<void> => {
+  await apiRequest(basePath(condId), {
     method: 'POST',
-    body: formData,
+    body: buildFormDataBody(data, options),
   });
 
-  console.log('STATUS:', response.status);
+  revalidatePath(`/condominios/${condId}/condominos`);
+};
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('API ERROR:', errorText);
-    throw new Error('Erro ao criar condômino');
-  }
+export const putCondomino = async (
+  condId: string,
+  condominoId: string,
+  data: Partial<CondominoFull>,
+  options?: FileUploadOptions
+): Promise<void> => {
+  await apiRequest(`${basePath(condId)}/${condominoId}`, {
+    method: 'PUT',
+    body: buildFormDataBody(data, options),
+  });
 
-  const result = await response.json();
-  console.log('API SUCCESS:', result);
+  revalidatePath(`/condominios/${condId}/condominos`);
+};
 
-  revalidatePath(`/condominios/${condominioId}/condominos`);
-
-  return result;
-}
-
-/**
- * ATUALIZAÇÃO GENÉRICA (Padrão igual ao de usuários)
- */
-export async function updateCondomino(
-  condominioId: string,
+export const patchCondomino = async (
+  condId: string,
   condominoId: string,
   data: Partial<CondominoFull>
-) {
-  const result = await apiRequest(
-    `/api/condominios/${condominioId}/condominos/${condominoId}`,
-    {
-      method: 'PATCH',
-      body: data,
-    }
-  );
+): Promise<void> => {
+  await apiRequest(`${basePath(condId)}/${condominoId}`, {
+    method: 'PATCH',
+    body: data,
+  });
 
-  revalidatePath(`/condominios/${condominioId}/condominos`);
+  revalidatePath(`/condominios/${condId}/condominos`);
+};
 
-  return result;
-}
+export const deleteCondomino = async (
+  condId: string,
+  condominoId: string
+): Promise<void> => {
+  await apiRequest(`${basePath(condId)}/${condominoId}`, {
+    method: 'DELETE',
+  });
 
-/**
- * Helper específico (opcional, igual ao changeUserStatus)
- */
-export async function changeCondominoStatus(
-  condominioId: string,
+  revalidatePath(`/condominios/${condId}/condominos`);
+};
+
+export const changeCondominoStatus = async (
+  condId: string,
   condominoId: string,
   status: 'ativo' | 'inativo'
-) {
-  const result = await updateCondomino(condominioId, condominoId, { status });
-
-  revalidatePath(`/condominios/${condominioId}/condominos`);
-
-  return result;
-}
-
-/**
- * EXCLUSÃO
- */
-export async function deleteCondomino(
-  condominioId: string,
-  condominoId: string
-) {
-  const result = await apiRequest(
-    `/api/condominios/${condominioId}/condominos/${condominoId}`,
-    {
-      method: 'DELETE',
-    }
-  );
-
-  revalidatePath(`/condominios/${condominioId}/condominos`);
-
-  return result;
-}
+): Promise<void> => {
+  await patchCondomino(condId, condominoId, { status });
+};

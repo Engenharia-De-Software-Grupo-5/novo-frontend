@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { condominos } from '@/mocks/condominos';
 
+import { NextRequest, NextResponse } from 'next/server';
+import { getCondominosDb } from '@/mocks/in-memory-db';
 import { CondominoFull, CondominoSummary } from '@/types/condomino';
 import { FileAttachment } from '@/types/file';
 import { secureRandom } from '@/lib/secure-random';
+
 
 /**
  * @swagger
@@ -55,8 +56,6 @@ import { secureRandom } from '@/lib/secure-random';
  *                       type: integer
  */
 
-type Condomino = (typeof condominos)[number];
-
 function buildFilterMap(
   columnsArr: string[],
   contentArr: string[]
@@ -77,9 +76,9 @@ function buildFilterMap(
 }
 
 function applyFilters(
-  list: Condomino[],
+  list: CondominoSummary[],
   filterMap: Map<string, string[]>
-): Condomino[] {
+): CondominoSummary[] {
   let filtered = list;
 
   for (const [col, values] of filterMap.entries()) {
@@ -104,10 +103,10 @@ function applyFilters(
 }
 
 function sortCondominos(
-  list: Condomino[],
+  list: CondominoSummary[],
   sortField: string | null,
   sortOrder: string
-): Condomino[] {
+): CondominoSummary[] {
   if (!sortField) return list;
 
   return [...list].sort((a, b) => {
@@ -154,7 +153,7 @@ export async function GET(
     searchParams.getAll('content')
   );
 
-  const byCondominium = condominos.filter((c) => c.condominiumId === condId);
+  const byCondominium = getCondominosDb(condId);
   const filtered = applyFilters(byCondominium, filterMap);
   const sorted = sortCondominos(filtered, sortField, sortOrder);
 
@@ -268,6 +267,7 @@ async function parseCondominoBody(
   request: NextRequest
 ): Promise<{ body: Partial<CondominoFull>; uploadedFiles: FileAttachment[] }> {
   const contentType = request.headers.get('content-type') ?? '';
+ 
 
   if (!contentType.includes('multipart/form-data')) {
     const body = (await request.json()) as Partial<CondominoFull>;
@@ -296,8 +296,11 @@ async function parseCondominoBody(
   return { body, uploadedFiles };
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ condId: string }>}) {
   const { body, uploadedFiles } = await parseCondominoBody(request);
+
+  const { condId } = await params;
+  const condominosDB = getCondominosDb(condId)
 
   const documents = {
     rg: uploadedFiles[0],
@@ -312,10 +315,8 @@ export async function POST(request: NextRequest) {
     documents,
   } as CondominoFull;
 
-  condominos.push(newCondomino);
-
-  console.log('CONDOMINOS NOVO', condominos);
-
+  condominosDB.push(newCondomino)
+  
   return NextResponse.json(
     { message: 'Condomino created successfully', data: newCondomino },
     { status: 201 }

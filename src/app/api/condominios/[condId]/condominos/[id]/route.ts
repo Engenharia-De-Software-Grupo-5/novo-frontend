@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { condominos } from '@/mocks/condominos';
+import { getCondominosDb } from '@/mocks/in-memory-db';
 
 /**
  * @swagger
@@ -39,19 +39,18 @@ export async function GET(
   { params }: { params: Promise<{ condId: string; id: string }> }
 ) {
   const { condId, id } = await params;
+  const condominosDb = getCondominosDb(condId);
 
-  // Verifica se os parâmetros estão chegando
-
-  const morador = condominos.find(
-    (c) => c.id === id && c.condominiumId === condId
-  );
+  const morador = condominosDb.find((c) => c.id === id);
 
   if (!morador) {
     return NextResponse.json({ error: 'Condômino not found' }, { status: 404 });
   }
 
-  return NextResponse.json({ items: morador });
+  return NextResponse.json(morador);
 }
+
+
 /**
  * @swagger
  * /api/condominios/{condId}/condominos/{id}:
@@ -93,31 +92,21 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string; id: string }> }
 ) {
-  const { id } = await params;
-  const rawBody = await request.text();
-  console.log('Raw Body:', rawBody);
+  const { condId, id } = await params;
+  const condominosDb = getCondominosDb(condId);
+  const body = (await request.json()) as Partial<(typeof condominosDb)[0]>;
 
-  const body = JSON.parse(rawBody);
+  const index = condominosDb.findIndex((c) => c.id === id);
 
-  const novoStatus = body.status || body['status'];
-
-  const index = condominos.findIndex((c) => String(c.id) === String(id));
-
-  if (index !== -1) {
-    if (novoStatus) {
-      condominos[index] = {
-        ...condominos[index],
-        status: novoStatus,
-      };
-      console.log('AGORA FOI! Novo status no array:', condominos[index].status);
-    } else {
-      console.log('ERRO FATAL: O status ainda é nulo. Conteúdo de body:', body);
-    }
+  if (index === -1) {
+    return NextResponse.json({ error: 'Condômino not found' }, { status: 404 });
   }
 
-  return NextResponse.json({ items: condominos[index] });
-}
+  condominosDb[index] = { ...condominosDb[index], ...body };
 
+  console.log(`Patched condômino ${id}:`, body);
+  return NextResponse.json(condominosDb[index]);
+}
 /**
  * @swagger
  * /api/condominios/{condId}/condominos/{id}:
@@ -148,10 +137,10 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ condId: string; id: string }> }
 ) {
-  const { id } = await params;
+  const { condId, id } = await params;
+  const condominosDb = getCondominosDb(condId);
 
-  // Busca o índice no banco de dados de condôminos
-  const index = condominos.findIndex((c) => c.id === id);
+  const index = condominosDb.findIndex((c) => c.id === id);
 
   if (index === -1) {
     return NextResponse.json(
@@ -160,12 +149,8 @@ export async function DELETE(
     );
   }
 
-  // Remove o item do array
-  condominos.splice(index, 1);
+  condominosDb.splice(index, 1);
 
   console.log(`Condômino com id ${id} foi apagado`);
-
-  return NextResponse.json({
-    message: `Condômino com id ${id} foi apagado`,
-  });
+  return NextResponse.json({ message: `Condômino com id ${id} foi apagado` });
 }

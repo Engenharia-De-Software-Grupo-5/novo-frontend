@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/features/components/ui/button';
 import { Form } from '@/features/components/ui/form';
-import { createCondomino } from '@/features/condominos/services/condominos.service';
+import { postCondomino } from '@/features/condominos/services/condominos.service';
 import { AdditionalResidentsSection } from '@/features/form/components/AdditionalResidentsSecton';
 import { BankingInfoSection } from '@/features/form/components/BankingInfoSection';
 import { ContactSection } from '@/features/form/components/ContactSection';
@@ -240,7 +240,7 @@ export default function PreCadastroForm() {
     try {
       const payload = { ...values, condominiumId };
 
-      await createCondomino(condominiumId, payload);
+      await postCondomino(condominiumId, payload);
 
       router.push(
         `/condominios/${condominiumId}/pre-cadastro-sucesso?submitted=true`

@@ -13,7 +13,7 @@ export default auth((req) => {
   console.log('req.auth = ', req.auth);
   console.log('isLoggedIn = ', isLoggedIn);
 
-  // Rotas públicas — passa direto
+  // Rotas públicas — passa diretoa
   const isPublicRoute =
     pathname.startsWith('/auth') ||
     pathname.match(/^\/condominios\/[^\/]+\/form$/);

@@ -1,27 +1,27 @@
-"use client"
+'use client';
 
-import { useFormContext } from "react-hook-form"
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/features/components/ui/form"
-import { Input } from "@/features/components/ui/input"
+} from '@/features/components/ui/form';
+import { Input } from '@/features/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/features/components/ui/select"
+} from '@/features/components/ui/select';
+import { useFormContext } from 'react-hook-form';
 
 export function PersonalDataSection() {
-  const { control, watch } = useFormContext()
+  const { control, watch } = useFormContext();
 
   // Monitora o campo maritalStatus
-  const maritalStatus = watch("maritalStatus")
+  const maritalStatus = watch('maritalStatus');
 
   return (
     <section className="space-y-6">
@@ -37,9 +37,15 @@ export function PersonalDataSection() {
           name="name"
           render={({ field }) => (
             <FormItem className="md:col-span-2">
-              <FormLabel className="text-[14px] font-bold text-slate-800">Nome Completo *</FormLabel>
+              <FormLabel className="text-[14px] font-bold text-slate-800">
+                Nome Completo *
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Evil Rabbit" {...field} className="h-11 border-slate-200" />
+                <Input
+                  placeholder="Evil Rabbit"
+                  {...field}
+                  className="h-11 border-slate-200"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -52,9 +58,15 @@ export function PersonalDataSection() {
           name="birthDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[14px] font-bold text-slate-800">Data de Nascimento *</FormLabel>
+              <FormLabel className="text-[14px] font-bold text-slate-800">
+                Data de Nascimento *
+              </FormLabel>
               <FormControl>
-                <Input type="date" {...field} className="h-11 border-slate-200" />
+                <Input
+                  type="date"
+                  {...field}
+                  className="h-11 border-slate-200"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -67,7 +79,9 @@ export function PersonalDataSection() {
           name="maritalStatus"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[14px] font-bold text-slate-800">Estado Civil *</FormLabel>
+              <FormLabel className="text-[14px] font-bold text-slate-800">
+                Estado Civil *
+              </FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger className="h-11 border-slate-200 text-slate-500">
@@ -92,9 +106,15 @@ export function PersonalDataSection() {
           name="rg"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[14px] font-bold text-slate-800">RG *</FormLabel>
+              <FormLabel className="text-[14px] font-bold text-slate-800">
+                RG *
+              </FormLabel>
               <FormControl>
-                <Input placeholder="xx.xxx.xxx-x" {...field} className="h-11 border-slate-200" />
+                <Input
+                  placeholder="xx.xxx.xxx-x"
+                  {...field}
+                  className="h-11 border-slate-200"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -106,9 +126,15 @@ export function PersonalDataSection() {
           name="issuingAuthority"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[14px] font-bold text-slate-800">Órgão Expedidor *</FormLabel>
+              <FormLabel className="text-[14px] font-bold text-slate-800">
+                Órgão Expedidor *
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Ex.: SSP-PE" {...field} className="h-11 border-slate-200" />
+                <Input
+                  placeholder="Ex.: SSP-PE"
+                  {...field}
+                  className="h-11 border-slate-200"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -121,9 +147,15 @@ export function PersonalDataSection() {
           name="cpf"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[14px] font-bold text-slate-800">CPF *</FormLabel>
+              <FormLabel className="text-[14px] font-bold text-slate-800">
+                CPF *
+              </FormLabel>
               <FormControl>
-                <Input placeholder="xxx.xxx.xxx-xx" {...field} className="h-11 border-slate-200" />
+                <Input
+                  placeholder="xxx.xxx.xxx-xx"
+                  {...field}
+                  className="h-11 border-slate-200"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -135,11 +167,20 @@ export function PersonalDataSection() {
           name="monthlyIncome"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[14px] font-bold text-slate-800">Renda Mensal (R$) *</FormLabel>
+              <FormLabel className="text-[14px] font-bold text-slate-800">
+                Renda Mensal (R$) *
+              </FormLabel>
               <FormControl>
-                <Input placeholder="R$ 0,00" {...field} className="h-11 border-slate-200" />
+                <Input
+                  type='number'
+                  placeholder="R$ 0,00"
+                  {...field}
+                  className="h-11 border-slate-200"
+                />
               </FormControl>
-              <p className="text-[12px] text-slate-400">Informe valor bruto comprovável.</p>
+              <p className="text-[12px] text-slate-400">
+                Informe valor bruto comprovável.
+              </p>
               <FormMessage />
             </FormItem>
           )}
@@ -147,11 +188,15 @@ export function PersonalDataSection() {
       </div>
 
       {/* SEÇÃO DO CÔNJUGE - Aparece apenas se for Casado */}
-      {maritalStatus === "casado" && (
-        <div className="pt-6 mt-6 border-t border-slate-100 space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
+      {maritalStatus === 'casado' && (
+        <div className="animate-in fade-in slide-in-from-top-4 mt-6 space-y-6 border-t border-slate-100 pt-6 duration-500">
           <div className="space-y-1">
-            <h3 className="text-base font-bold text-slate-900">Dados do Cônjuge</h3>
-            <p className="text-sm text-slate-400">Preencha as informações do parceiro(a)</p>
+            <h3 className="text-base font-bold text-slate-900">
+              Dados do Cônjuge
+            </h3>
+            <p className="text-sm text-slate-400">
+              Preencha as informações do parceiro(a)
+            </p>
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -160,9 +205,15 @@ export function PersonalDataSection() {
               name="spouse.name"
               render={({ field }) => (
                 <FormItem className="md:col-span-2">
-                  <FormLabel className="text-[14px] font-bold text-slate-800">Nome Completo do Cônjuge *</FormLabel>
+                  <FormLabel className="text-[14px] font-bold text-slate-800">
+                    Nome Completo do Cônjuge *
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="Nome completo" {...field} className="h-11 border-slate-200" />
+                    <Input
+                      placeholder="Nome completo"
+                      {...field}
+                      className="h-11 border-slate-200"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -174,9 +225,15 @@ export function PersonalDataSection() {
               name="spouse.birthDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[14px] font-bold text-slate-800">Data de Nascimento *</FormLabel>
+                  <FormLabel className="text-[14px] font-bold text-slate-800">
+                    Data de Nascimento *
+                  </FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} className="h-11 border-slate-200" />
+                    <Input
+                      type="date"
+                      {...field}
+                      className="h-11 border-slate-200"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -188,9 +245,15 @@ export function PersonalDataSection() {
               name="spouse.cpf"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[14px] font-bold text-slate-800">CPF *</FormLabel>
+                  <FormLabel className="text-[14px] font-bold text-slate-800">
+                    CPF *
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="xxx.xxx.xxx-xx" {...field} className="h-11 border-slate-200" />
+                    <Input
+                      placeholder="xxx.xxx.xxx-xx"
+                      {...field}
+                      className="h-11 border-slate-200"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -202,9 +265,15 @@ export function PersonalDataSection() {
               name="spouse.rg"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[14px] font-bold text-slate-800">RG *</FormLabel>
+                  <FormLabel className="text-[14px] font-bold text-slate-800">
+                    RG *
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="xx.xxx.xxx-x" {...field} className="h-11 border-slate-200" />
+                    <Input
+                      placeholder="xx.xxx.xxx-x"
+                      {...field}
+                      className="h-11 border-slate-200"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -213,20 +282,47 @@ export function PersonalDataSection() {
 
             <FormField
               control={control}
-              name="spouse.monthlyIncome"
+              name="spouse.profession"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[14px] font-bold text-slate-800">Renda Mensal (R$) *</FormLabel>
+                  <FormLabel className="text-[14px] font-bold text-slate-800">
+                    Profissão *
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="R$ 0,00" {...field} className="h-11 border-slate-200" />
+                    <Input
+                      placeholder="Ex.: Engenheiro(a)"
+                      {...field}
+                      className="h-11 border-slate-200"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            
           </div>
+          <FormField
+              control={control}
+              name="spouse.monthlyIncome"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[14px] font-bold text-slate-800">
+                    Renda Mensal (R$) *
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="R$ 0,00"
+                      {...field}
+                      className="h-11 border-slate-200"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
         </div>
       )}
     </section>
-  )
+  );
 }
