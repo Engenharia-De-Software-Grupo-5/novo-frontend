@@ -1,3 +1,7 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
 import { PaymentDetail, PaymentResponse } from '@/types/payment';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 import { buildFormDataBody, FileUploadOptions } from '@/lib/form-data';
@@ -60,6 +64,8 @@ export const postPayment = async (
     method: 'POST',
     body: buildFormDataBody(data, options),
   });
+
+  revalidatePath(`/condominios/${condId}/pagamentos`);
 };
 
 export const putPayment = async (
@@ -72,6 +78,8 @@ export const putPayment = async (
     method: 'PUT',
     body: buildFormDataBody(data, options),
   });
+
+  revalidatePath(`/condominios/${condId}/pagamentos`);
 };
 
 export const patchPayment = async (
@@ -83,6 +91,8 @@ export const patchPayment = async (
     method: 'PATCH',
     body: data,
   });
+
+  revalidatePath(`/condominios/${condId}/pagamentos`);
 };
 
 export const deletePayment = async (
@@ -92,4 +102,6 @@ export const deletePayment = async (
   await apiRequest(`${basePath(condId)}/${paymentId}`, {
     method: 'DELETE',
   });
+
+  revalidatePath(`/condominios/${condId}/pagamentos`);
 };

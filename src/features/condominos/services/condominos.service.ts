@@ -1,3 +1,7 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
 import {
   CondominoCreateDTO,
   CondominoFull,
@@ -99,6 +103,8 @@ export async function createCondomino(
   const result = await response.json();
   console.log('API SUCCESS:', result);
 
+  revalidatePath(`/condominios/${condominioId}/condominos`);
+
   return result;
 }
 
@@ -110,13 +116,17 @@ export async function updateCondomino(
   condominoId: string,
   data: Partial<CondominoFull>
 ) {
-  return apiRequest(
+  const result = await apiRequest(
     `/api/condominios/${condominioId}/condominos/${condominoId}`,
     {
       method: 'PATCH',
       body: data,
     }
   );
+
+  revalidatePath(`/condominios/${condominioId}/condominos`);
+
+  return result;
 }
 
 /**
@@ -127,7 +137,11 @@ export async function changeCondominoStatus(
   condominoId: string,
   status: 'ativo' | 'inativo'
 ) {
-  return updateCondomino(condominioId, condominoId, { status });
+  const result = await updateCondomino(condominioId, condominoId, { status });
+
+  revalidatePath(`/condominios/${condominioId}/condominos`);
+
+  return result;
 }
 
 /**
@@ -137,10 +151,14 @@ export async function deleteCondomino(
   condominioId: string,
   condominoId: string
 ) {
-  return apiRequest(
+  const result = await apiRequest(
     `/api/condominios/${condominioId}/condominos/${condominoId}`,
     {
       method: 'DELETE',
     }
   );
+
+  revalidatePath(`/condominios/${condominioId}/condominos`);
+
+  return result;
 }

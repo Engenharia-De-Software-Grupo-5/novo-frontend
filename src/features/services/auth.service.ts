@@ -19,19 +19,24 @@ export async function login(email: string, password: string): Promise<User> {
 }
 
 export async function loginWithApi(email: string, password: string) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL; // Usado apenas no server-side
+  // const apiUrl = process.env.NEXT_PUBLIC_API_URL; // Usado apenas no server-side
+  const apiUrl = 'https://api.bemconnect.com.br/api/v1'; // Usado apenas no server-side
 
   try {
     const response = await fetch(`${apiUrl}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ userLogin: email, password }),
     });
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.error('Login Failed! Status:', response.status);
+      console.error('Login Failed! Payload:', await response.text());
+      return null;
+    }
 
-    // Exemplo do que o backend retorna: { accessToken: "ey...", user: { id, email, role } }
-    return await response.json();
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error('Error connecting to login API:', error);
     return null;

@@ -1,3 +1,7 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
 import { ContratoDetail, ContratoResponse } from '@/types/contrato';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 
@@ -57,6 +61,8 @@ export const postContrato = async (
     method: 'POST',
     body: data,
   });
+
+  revalidatePath(`/condominios/${condId}/contratos`);
 };
 
 export const deleteContrato = async (
@@ -66,4 +72,6 @@ export const deleteContrato = async (
   await apiRequest(`${basePath(condId)}/${contractId}`, {
     method: 'DELETE',
   });
+
+  revalidatePath(`/condominios/${condId}/contratos`);
 };

@@ -1,3 +1,7 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
 import { ImovelDetail, ImovelResponse } from '@/types/imoveis';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 
@@ -57,6 +61,9 @@ export const postImovel = async (
     method: 'POST',
     body: data,
   });
+
+  revalidatePath(`/condominios/${condId}/imoveis`);
+
   return response.data;
 };
 
@@ -65,10 +72,17 @@ export const putImovel = async (
   imovelId: string,
   data: Partial<ImovelDetail>
 ): Promise<ImovelDetail> => {
-  return apiRequest<ImovelDetail>(`${basePath(condId)}/${imovelId}`, {
-    method: 'PUT',
-    body: data,
-  });
+  const result = await apiRequest<ImovelDetail>(
+    `${basePath(condId)}/${imovelId}`,
+    {
+      method: 'PUT',
+      body: data,
+    }
+  );
+
+  revalidatePath(`/condominios/${condId}/imoveis`);
+
+  return result;
 };
 
 export const patchImovel = async (
@@ -80,6 +94,8 @@ export const patchImovel = async (
     method: 'PATCH',
     body: data,
   });
+
+  revalidatePath(`/condominios/${condId}/imoveis`);
 };
 
 export const deleteImovel = async (
@@ -89,4 +105,6 @@ export const deleteImovel = async (
   await apiRequest(`${basePath(condId)}/${imovelId}`, {
     method: 'DELETE',
   });
+
+  revalidatePath(`/condominios/${condId}/imoveis`);
 };

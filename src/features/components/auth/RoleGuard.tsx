@@ -3,10 +3,8 @@
 import { ReactNode, useState } from 'react';
 import { useSession } from 'next-auth/react';
 
-import { Role } from '@/types/user';
-
 interface RoleGuardProps {
-  readonly roles: Role[]; // Lista de roles permitidas listadas no types/user.ts
+  readonly roles: string[]; // Lista de roles permitidas (Ex: ['Admin', 'Financeiro'])
   readonly children: ReactNode;
   readonly fallback?: ReactNode; // O que renderizar caso o usuário não tenha permissão (ex: null, ou um trecho <p>Não autorizado</p>)
 }
@@ -26,10 +24,19 @@ export function RoleGuard({
     return <>{fallback}</>;
   }
 
-  const userRole = session?.user?.role as Role | undefined;
+  const isAdminMaster = session?.user?.isAdminMaster;
+  const userRole = session?.user?.currentRole;
 
-  // Se o usuário não tiver uma role, ou se a role dele não estiver na lista de roles permitidas
-  if (!userRole || !roles.includes(userRole)) {
+  // 1. Admin Master sempre tem acesso livre a tudo
+  if (isAdminMaster) {
+    return <>{children}</>;
+  }
+
+  // 2. Se não for master, checa se tem role atual setada e se está na lista
+  if (
+    !userRole ||
+    !roles.find((role) => role.toLowerCase() === userRole.toLowerCase())
+  ) {
     return <>{fallback}</>;
   }
 

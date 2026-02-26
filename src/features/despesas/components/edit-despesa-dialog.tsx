@@ -34,7 +34,7 @@ import { toast } from 'sonner';
 
 import { DESPESA_TIPOS, FORMA_PAGAMENTO } from '../constants';
 import { DespesaFormData, despesaSchema } from '../schemas/despesaSchema';
-import { despesaService } from '../services/despesaService';
+import { getById, update } from '../services/despesaService';
 
 interface EditDespesaDialogProps {
   readonly condId: string;
@@ -79,7 +79,7 @@ export function EditDespesaDialog({
       const fetchDespesa = async () => {
         setLoading(true);
         try {
-          const data = await despesaService.getById(condId, despesaId);
+          const data = await getById(condId, despesaId);
           form.reset({
             nome: data.nome,
             valor: data.valor,
@@ -117,7 +117,7 @@ export function EditDespesaDialog({
     try {
       const payload = { ...data, idImovel: data.idImovel || null };
 
-      await despesaService.update(condId, despesaId, payload, {
+      await update(condId, despesaId, payload, {
         newFiles: files.length > 0 ? files : undefined,
         existingFileIds: existingAttachments.map((a) => a.id),
       });

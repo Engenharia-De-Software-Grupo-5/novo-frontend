@@ -1,3 +1,7 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
 import { UsersResponse } from '@/types/user';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 
@@ -48,10 +52,12 @@ export async function inviteUser(
   condominioId: string,
   data: { name: string; email: string; role: string; message?: string }
 ) {
-  return apiRequest(`/api/condominios/${condominioId}/usuarios`, {
+  await apiRequest(`/api/condominios/${condominioId}/usuarios`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
+
+  revalidatePath(`/condominios/${condominioId}/usuarios`);
 }
 /**
  * ATUALIZAÇÃO (PUT ou PATCH)
@@ -61,10 +67,12 @@ export async function updateUser(
   userId: string,
   data: UpdateUserPayload
 ) {
-  return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
+  await apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
+
+  revalidatePath(`/condominios/${condominioId}/usuarios`);
 }
 
 export async function changeUserStatus(
@@ -72,17 +80,21 @@ export async function changeUserStatus(
   userId: string,
   status: 'ativo' | 'inativo'
 ) {
-  return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
+  await apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
     method: 'PATCH',
     body: JSON.stringify({ status }),
   });
+
+  revalidatePath(`/condominios/${condominioId}/usuarios`);
 }
 
 /**
  * EXCLUSÃO
  */
 export async function deleteUser(condominioId: string, userId: string) {
-  return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
+  await apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
     method: 'DELETE',
   });
+
+  revalidatePath(`/condominios/${condominioId}/usuarios`);
 }

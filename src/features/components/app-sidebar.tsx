@@ -68,7 +68,6 @@ interface NavItem {
 
 export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
   // Configured default in case they are completely undefined via prop spread
-  console.log(user);
   const name = user?.name || 'Admin User';
   const email = user?.email || 'admin@example.com';
   const initials = name

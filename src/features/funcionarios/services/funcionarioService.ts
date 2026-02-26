@@ -1,3 +1,7 @@
+'use server';
+
+import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate';
+
 import { EmployeeDetail, EmployeeResponse } from '@/types/employee';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 import { buildFormDataBody, FileUploadOptions } from '@/lib/form-data';
@@ -60,6 +64,8 @@ export const postFuncionario = async (
     method: 'POST',
     body: buildFormDataBody(data, options),
   });
+
+  revalidatePath(`/condominios/${condId}/funcionarios`);
 };
 
 export const putFuncionario = async (
@@ -72,6 +78,8 @@ export const putFuncionario = async (
     method: 'PUT',
     body: buildFormDataBody(data, options),
   });
+
+  revalidatePath(`/condominios/${condId}/funcionarios`);
 };
 
 export const patchFuncionario = async (
@@ -83,6 +91,8 @@ export const patchFuncionario = async (
     method: 'PATCH',
     body: data,
   });
+
+  revalidatePath(`/condominios/${condId}/funcionarios`);
 };
 
 export const deleteFuncionario = async (
@@ -92,4 +102,6 @@ export const deleteFuncionario = async (
   await apiRequest(`${basePath(condId)}/${funcId}`, {
     method: 'DELETE',
   });
+
+  revalidatePath(`/condominios/${condId}/funcionarios`);
 };

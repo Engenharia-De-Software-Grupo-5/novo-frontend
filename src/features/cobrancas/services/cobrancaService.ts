@@ -1,3 +1,7 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
 import {
   CobrancaDetail,
   CobrancaResponse,
@@ -58,34 +62,46 @@ export const postCobranca = async (
   condId: string,
   data: Partial<CobrancaDetail>,
   options?: FileUploadOptions
-) =>
+) => {
   apiRequest(basePath(condId), {
     method: 'POST',
     body: buildFormDataBody(data, options),
   });
+
+  revalidatePath(`/condominios/${condId}/cobrancas`);
+};
 
 export const putCobranca = async (
   condId: string,
   cobrancaId: string,
   data: Partial<CobrancaDetail>,
   options?: FileUploadOptions
-) =>
+) => {
   apiRequest(`${basePath(condId)}/${cobrancaId}`, {
     method: 'PUT',
     body: buildFormDataBody(data, options),
   });
 
+  revalidatePath(`/condominios/${condId}/cobrancas`);
+};
+
 export const patchCobranca = async (
   condId: string,
   cobrancaId: string,
   data: Record<string, unknown>
-) =>
+) => {
   apiRequest(`${basePath(condId)}/${cobrancaId}`, {
     method: 'PATCH',
     body: data,
   });
 
-export const deleteCobranca = async (condId: string, cobrancaId: string) =>
+  revalidatePath(`/condominios/${condId}/cobrancas`);
+};
+
+export const deleteCobranca = async (condId: string, cobrancaId: string) => {
   apiRequest(`${basePath(condId)}/${cobrancaId}`, {
     method: 'DELETE',
   });
+
+  revalidatePath(`/condominios/${condId}/cobrancas`);
+};

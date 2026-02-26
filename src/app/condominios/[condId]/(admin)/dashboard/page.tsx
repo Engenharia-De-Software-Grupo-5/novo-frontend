@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { getCobrancas } from '@/features/cobrancas/services/cobrancaService';
 import { getCondominos } from '@/features/condominos/services/condominos.service';
 import { DashboardClient } from '@/features/dashboard/components/dashboard-client';
-import { despesaService } from '@/features/despesas/services/despesaService';
+import { getAll } from '@/features/despesas/services/despesaService';
 import { getFuncionarios } from '@/features/funcionarios/services/funcionarioService';
 import { getImoveis } from '@/features/imoveis/services/imovelService';
 import { getPayments } from '@/features/pagamentos/services/paymentService';
@@ -30,7 +30,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     condominosResponse,
   ] = await Promise.all([
     getPayments(condId, { page: 1, limit: 500 }),
-    despesaService.getAll(condId, { page: 1, limit: 500 }),
+    getAll(condId, { page: 1, limit: 500 }),
     getCobrancas(condId, { page: 1, limit: 500 }),
     getFuncionarios(condId, { page: 1, limit: 500 }),
     getImoveis(condId, { page: 1, limit: 500 }),

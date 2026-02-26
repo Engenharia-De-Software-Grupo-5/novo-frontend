@@ -1,3 +1,7 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
 import {
   ModeloContratoDetail,
   ModeloContratoResponse,
@@ -64,4 +68,6 @@ export const postModeloContrato = async (
     method: 'POST',
     body: data,
   });
+
+  revalidatePath(`/condominios/${condId}/modelos-contrato`);
 };

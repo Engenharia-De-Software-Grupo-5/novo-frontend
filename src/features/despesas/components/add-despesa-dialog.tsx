@@ -35,7 +35,7 @@ import { toast } from 'sonner';
 
 import { DESPESA_TIPOS, FORMA_PAGAMENTO } from '../constants';
 import { DespesaFormData, despesaSchema } from '../schemas/despesaSchema';
-import { despesaService } from '../services/despesaService';
+import { create } from '../services/despesaService';
 
 interface AddDespesaDialogProps {
   readonly condId: string;
@@ -62,7 +62,7 @@ export function AddDespesaDialog({ condId }: AddDespesaDialogProps) {
     try {
       const payload = { ...data, idImovel: data.idImovel || null };
 
-      await despesaService.create(condId, payload, {
+      await create(condId, payload, {
         newFiles: files.length > 0 ? files : undefined,
       });
 

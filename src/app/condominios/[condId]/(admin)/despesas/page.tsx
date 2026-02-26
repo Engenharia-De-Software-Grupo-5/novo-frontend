@@ -1,5 +1,5 @@
 import { DespesasDataTable } from '@/features/despesas/components/despesas-data-table';
-import { despesaService } from '@/features/despesas/services/despesaService';
+import { getAll } from '@/features/despesas/services/despesaService';
 
 export default async function DespesasPage(props: {
   readonly params: Promise<{ condId: string }>;
@@ -30,7 +30,7 @@ export default async function DespesasPage(props: {
     content = [contentParam];
   }
 
-  const response = await despesaService.getAll(params.condId, {
+  const response = await getAll(params.condId, {
     page,
     limit,
     columns,

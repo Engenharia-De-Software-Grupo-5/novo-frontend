@@ -26,7 +26,7 @@ import { toast } from 'sonner';
 
 import { DespesaSummary } from '@/types/despesa';
 
-import { despesaService } from '../services/despesaService';
+import { deleteDespesa } from '../services/despesaService';
 import { EditDespesaDialog } from './edit-despesa-dialog';
 import { ViewDespesaDialog } from './view-despesa-dialog';
 
@@ -46,7 +46,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 
   const confirmDelete = async () => {
     try {
-      await despesaService.delete(condId, despesa.id);
+      await deleteDespesa(condId, despesa.id);
       toast.success('Despesa excluída com sucesso!');
       router.refresh();
     } catch {

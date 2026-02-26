@@ -3,7 +3,7 @@ import { ContratoDetail, ContratoSummary } from '@/types/contrato';
 const contractsSeed = [
   {
     id: '1',
-    condId: '1',
+    condId: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     tenantName: 'Lucas Almeida',
     tenantId: 'cond-1',
     property: 'IMV-001 / Apartamento 101 - Bloco A',
@@ -16,7 +16,7 @@ const contractsSeed = [
   },
   {
     id: '2',
-    condId: '1',
+    condId: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     tenantName: 'Marina Costa',
     tenantId: 'cond-2',
     property: 'IMV-002 / Apartamento 202 - Bloco A',
@@ -35,7 +35,7 @@ const contractsSeed = [
   },
   {
     id: '3',
-    condId: '1',
+    condId: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     tenantName: 'Ricardo Campos',
     tenantId: 'cond-3',
     property: 'IMV-013 / Apartamento 303 - Bloco B',
@@ -48,7 +48,7 @@ const contractsSeed = [
   },
   {
     id: '4',
-    condId: '1',
+    condId: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     tenantName: 'Patricia Torres',
     tenantId: 'cond-4',
     property: 'IMV-015 / Casa 88',
