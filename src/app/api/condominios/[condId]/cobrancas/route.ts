@@ -102,7 +102,7 @@ export async function GET(
   return NextResponse.json({
     items: summaries,
     meta: {
-      total: totalItems,
+      totalItems: totalItems,
       page: safePage,
       limit,
       totalPages,

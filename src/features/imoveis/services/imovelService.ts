@@ -39,7 +39,7 @@ export const getImoveis = async (
     console.error('Error fetching imoveis:', error);
     return {
       items: [],
-      meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
+      meta: { totalItems: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }
 };

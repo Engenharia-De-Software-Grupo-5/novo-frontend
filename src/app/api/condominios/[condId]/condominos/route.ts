@@ -45,7 +45,7 @@ import { secureRandom } from '@/lib/secure-random';
  *                 meta:
  *                   type: object
  *                   properties:
- *                     total:
+ *                     totalItems:
  *                       type: integer
  *                     page:
  *                       type: integer
@@ -172,7 +172,7 @@ export async function GET(
   return NextResponse.json({
     items: paginated,
     meta: {
-      total: filtered.length,
+      totalItems: filtered.length,
       page,
       limit,
       totalPages: Math.ceil(filtered.length / limit),

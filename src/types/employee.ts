@@ -21,7 +21,7 @@ export interface EmployeeDetail extends EmployeeSummary {
 export interface EmployeeResponse {
   items: EmployeeSummary[];
   meta: {
-    total: number;
+    totalItems: number;
     page: number;
     limit: number;
     totalPages: number;

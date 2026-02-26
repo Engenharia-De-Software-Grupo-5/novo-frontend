@@ -42,7 +42,7 @@ export interface ImovelSummary {
 export interface ImovelResponse {
   items: ImovelSummary[];
   meta: {
-    total: number;
+    totalItems: number;
     page: number;
     limit: number;
     totalPages: number;

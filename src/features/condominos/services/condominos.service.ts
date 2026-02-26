@@ -46,7 +46,7 @@ export const getCondominos = async (
     console.error('Error fetching users:', error);
     return {
       items: [],
-      meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
+      meta: { totalItems: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }
 };

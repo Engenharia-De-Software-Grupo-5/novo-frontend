@@ -30,7 +30,7 @@ export interface UserSummary {
 export interface UsersResponse {
   items: User[];
   meta: {
-    total: number;
+    totalItems: number;
     page: number;
     limit: number;
     totalPages: number;

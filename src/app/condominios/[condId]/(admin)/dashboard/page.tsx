@@ -44,7 +44,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
       cobrancas={cobrancasResponse.items}
       funcionarios={funcionariosResponse.items}
       imoveis={imoveisResponse.items}
-      condominosTotal={condominosResponse.meta.total}
+      condominosTotal={condominosResponse.meta.totalItems}
     />
   );
 }

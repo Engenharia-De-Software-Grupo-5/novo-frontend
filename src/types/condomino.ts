@@ -98,13 +98,9 @@ export interface CondominoSummary {
 export interface CondominosResponse {
   items: CondominoSummary[];
   meta: {
-    total: number;
+    totalItems: number;
     page: number;
     limit: number;
     totalPages: number;
   };
-  // totalItems: number;
-  // totalPages: number;
-  // page: number;
-  // limit: number;
 }

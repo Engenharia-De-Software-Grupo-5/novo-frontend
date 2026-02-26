@@ -34,7 +34,7 @@ export interface PaymentDetail extends PaymentSummary {
 export interface PaymentResponse {
   items: PaymentSummary[];
   meta: {
-    total: number;
+    totalItems: number;
     page: number;
     limit: number;
     totalPages: number;

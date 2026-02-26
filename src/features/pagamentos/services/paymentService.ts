@@ -41,7 +41,7 @@ export const getPayments = async (
     console.error('Error fetching payments:', error);
     return {
       items: [],
-      meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
+      meta: { totalItems: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }
 };

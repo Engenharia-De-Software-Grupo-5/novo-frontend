@@ -20,6 +20,6 @@ export interface DespesaResponse {
   meta: {
     pageIndex: number;
     pageCount: number;
-    total: number;
+    totalItems: number;
   };
 }

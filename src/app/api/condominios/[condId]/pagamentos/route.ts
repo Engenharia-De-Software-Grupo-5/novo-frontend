@@ -73,7 +73,7 @@ import { secureRandom } from '@/lib/secure-random';
  *                 meta:
  *                   type: object
  *                   properties:
- *                     total:
+ *                     totalItems:
  *                       type: integer
  *                     page:
  *                       type: integer
@@ -170,7 +170,7 @@ export async function GET(
   return NextResponse.json({
     items: paginatedPayments,
     meta: {
-      total: totalItems,
+      totalItems: totalItems,
       page: safePage,
       limit,
       totalPages,

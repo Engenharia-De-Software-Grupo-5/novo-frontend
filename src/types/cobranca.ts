@@ -43,7 +43,7 @@ export interface CobrancaDetail extends CobrancaSummary {
 export interface CobrancaResponse {
   items: CobrancaSummary[];
   meta: {
-    total: number;
+    totalItems: number;
     page: number;
     limit: number;
     totalPages: number;

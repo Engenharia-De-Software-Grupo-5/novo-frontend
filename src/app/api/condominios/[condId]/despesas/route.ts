@@ -51,13 +51,13 @@ export async function GET(
     });
   }
 
-  const total = data.length;
-  const pageCount = Math.ceil(total / limit);
+  const totalItems = data.length;
+  const pageCount = Math.ceil(totalItems / limit);
   const paginatedData = data.slice((page - 1) * limit, page * limit);
 
   return NextResponse.json({
     items: paginatedData,
-    meta: { pageIndex: page, pageCount, total },
+    meta: { pageIndex: page, pageCount, totalItems },
   });
 }
 
