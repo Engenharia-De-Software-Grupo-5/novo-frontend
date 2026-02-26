@@ -236,17 +236,19 @@ export function CondominiumSwitcher({ condId }: { readonly condId?: string }) {
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => handleOpenDialog()}
-                className="gap-2 p-2"
-              >
-                <div className="bg-background flex size-6 items-center justify-center rounded-md border">
-                  <Plus className="size-4" />
-                </div>
-                <div className="text-muted-foreground font-medium">
-                  Add Condomínio
-                </div>
-              </DropdownMenuItem>
+              <RoleGuard roles={[]}>
+                <DropdownMenuItem
+                  onClick={() => handleOpenDialog()}
+                  className="gap-2 p-2"
+                >
+                  <div className="bg-background flex size-6 items-center justify-center rounded-md border">
+                    <Plus className="size-4" />
+                  </div>
+                  <div className="text-muted-foreground font-medium">
+                    Add Condomínio
+                  </div>
+                </DropdownMenuItem>
+              </RoleGuard>
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarMenuItem>

@@ -151,7 +151,8 @@ export default function CondominiosPage() {
             Condomínios
           </CardTitle>
           <CardDescription>
-            Selecione um condomínio para acessar ou crie um novo.
+            {'Selecione um condomínio para acessar'}
+            <RoleGuard roles={[]}>{'ou crie um novo.'}</RoleGuard>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -170,7 +171,7 @@ export default function CondominiosPage() {
                   <span className="text-sm font-medium">{condo.name}</span>
                 </div>
 
-                <RoleGuard roles={['Admin']}>
+                <RoleGuard roles={['Admin']} condoId={condo.id}>
                   <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     <Button
                       variant="ghost"
@@ -202,15 +203,16 @@ export default function CondominiosPage() {
               </div>
             )}
           </div>
-
-          <Button
-            variant="outline"
-            className="mt-2 w-full gap-2 border-dashed"
-            onClick={() => handleOpenDialog()}
-          >
-            <Plus className="size-4" />
-            Adicionar Condomínio
-          </Button>
+          <RoleGuard roles={[]}>
+            <Button
+              variant="outline"
+              className="mt-2 w-full gap-2 border-dashed"
+              onClick={() => handleOpenDialog()}
+            >
+              <Plus className="size-4" />
+              Adicionar Condomínio
+            </Button>
+          </RoleGuard>
         </CardContent>
       </Card>
 
