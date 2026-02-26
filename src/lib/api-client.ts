@@ -67,7 +67,7 @@ export function buildQueryString(
 
   for (const [key, value] of Object.entries(params)) {
     if (value === undefined || value === '') continue;
-
+    // if (key === 'columns') key = 'columnNames';
     if (Array.isArray(value)) {
       value.forEach((v) => query.append(key, v));
     } else {
