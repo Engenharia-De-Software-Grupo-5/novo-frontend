@@ -1,4 +1,12 @@
-import { ContratoDetail, ContratoPostDTO, ContratoResponse } from '@/types/contrato';
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
+import {
+  ContratoDetail,
+  ContratoPostDTO,
+  ContratoResponse,
+} from '@/types/contrato';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 
 const basePath = (condId: string) => `/api/condominios/${condId}/contratos`;

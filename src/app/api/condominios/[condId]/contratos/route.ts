@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { contractModelsDb, contractsDb } from '@/mocks/in-memory-db';
-
 import { condominos } from '@/mocks/condominos';
-import { contractsDb, contractModelsDb, imoveisDb } from '@/mocks/in-memory-db';
+import { contractModelsDb, contractsDb, imoveisDb } from '@/mocks/in-memory-db';
+
 import { ContratoDetail, ContratoPostDTO } from '@/types/contrato';
+import { secureRandom } from '@/lib/secure-random';
 
 const normalizeValue = (value: FormDataEntryValue | null) =>
   typeof value === 'string' ? value : '';
@@ -17,7 +17,8 @@ const getLegacyValue = <T extends object, K extends string>(
 };
 
 const normalizeContract = (contract: ContratoDetail): ContratoDetail => {
-  const propertyName = contract.propertyName || getLegacyValue(contract, 'property');
+  const propertyName =
+    contract.propertyName || getLegacyValue(contract, 'property');
   const startDate = contract.startDate || getLegacyValue(contract, 'createdAt');
   const content =
     contract.content ||
@@ -104,7 +105,11 @@ export async function GET(
 
   for (const [col, values] of filterMap.entries()) {
     const normalizedCol =
-      col === 'property' ? 'propertyName' : col === 'createdAt' ? 'startDate' : col;
+      col === 'property'
+        ? 'propertyName'
+        : col === 'createdAt'
+          ? 'startDate'
+          : col;
 
     if (normalizedCol === 'tenantName') {
       const term = values[0].toLowerCase();
@@ -220,7 +225,10 @@ export async function POST(
       );
 
       if (!selectedModel) {
-        return NextResponse.json({ error: 'Modelo não encontrado.' }, { status: 404 });
+        return NextResponse.json(
+          { error: 'Modelo não encontrado.' },
+          { status: 404 }
+        );
       }
 
       modelId = selectedModel.id;
@@ -238,7 +246,10 @@ export async function POST(
     !payload.dueDate
   ) {
     return NextResponse.json(
-      { error: 'PostDTO inválido. Campos obrigatórios: tenantId, propertyId, content, startDate, dueDate.' },
+      {
+        error:
+          'PostDTO inválido. Campos obrigatórios: tenantId, propertyId, content, startDate, dueDate.',
+      },
       { status: 400 }
     );
   }
@@ -248,20 +259,28 @@ export async function POST(
   );
 
   if (!tenant) {
-    return NextResponse.json({ error: 'Locatário não encontrado.' }, { status: 404 });
+    return NextResponse.json(
+      { error: 'Locatário não encontrado.' },
+      { status: 404 }
+    );
   }
 
   const property = imoveisDb.find(
-    (item) => item.idCondominio === condId && item.idImovel === payload.propertyId
+    (item) =>
+      item.idCondominio === condId && item.idImovel === payload.propertyId
   );
 
   if (!property) {
-    return NextResponse.json({ error: 'Imóvel não encontrado.' }, { status: 404 });
+    return NextResponse.json(
+      { error: 'Imóvel não encontrado.' },
+      { status: 404 }
+    );
   }
 
   const tenantName = tenant.name;
   const propertyName =
-    property.nome?.trim() || `${payload.propertyId} / ${property.tipo.toUpperCase()}`;
+    property.nome?.trim() ||
+    `${payload.propertyId} / ${property.tipo.toUpperCase()}`;
   const pdfFileName = buildPdfFileName(tenantName);
   const pdfFileUrl = uploadedFile
     ? `/mock-files/contracts/${Date.now()}-${pdfFileName}`

@@ -57,10 +57,12 @@ export async function getCondominoById(
   condominioId: string,
   condominoId: string
 ): Promise<CondominoFull> {
-  return apiRequest<CondominoFull>(
+  const response = await apiRequest<CondominoFull>(
     `/api/condominios/${condominioId}/condominos/${condominoId}`,
     { method: 'GET' }
   );
+  console.log('RESPONSE BYID ', response);
+  return response;
 }
 
 export async function createCondomino(

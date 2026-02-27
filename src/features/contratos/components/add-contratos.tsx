@@ -1,23 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  Calendar,
-  Check,
-  ChevronsUpDown,
-  FilePlus2,
-  FileText,
-  RefreshCcw,
-  Upload,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { PDFViewer } from '@embedpdf/react-pdf-viewer';
-
-import { CONTRACT_STATUSES } from '@/features/contratos/constants';
-import { postContrato } from '@/features/contratos/services/contratoService';
-import { getCondominoById } from '@/features/condominos/services/condominos.service';
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/features/components/ui/accordion';
 import { Button } from '@/features/components/ui/button';
 import {
   Card,
@@ -67,6 +58,7 @@ import {
   getModeloContratoById,
   getModelosContrato,
 } from '@/features/modelos-contrato/services/modeloContratoService';
+import { PDFViewer } from '@embedpdf/react-pdf-viewer';
 import {
   Calendar,
   Check,
@@ -216,7 +208,11 @@ const isMonetaryModelInput = (input: ModeloContratoInput) => {
   );
 };
 
-export default function AddContratos({ condId, properties, tenants }: AddContratoProps) {
+export default function AddContratos({
+  condId,
+  properties,
+  tenants,
+}: AddContratoProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSubmitAttempt, setHasSubmitAttempt] = useState(false);
@@ -312,33 +308,41 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
     creationMode === 'model' && secondProposerInputs.length > 0;
 
   const listPath = `/condominios/${condId}/contratos`;
-
+  const loadingTenantsRef = useRef<Set<string>>(new Set());
+  const tenantCacheRef = useRef<Record<string, TenantViewModel>>({});
   const loadTenantDetails = useCallback(
     async (tenantId: string, kind: 'tenant' | 'secondProposer') => {
-      if (!tenantId || tenantDetailsById[tenantId]) return;
-
-      if (kind === 'tenant') {
-        setIsLoadingTenant(true);
-      } else {
-        setIsLoadingSecondProposer(true);
+      if (!tenantId) return;
+      if (tenantCacheRef.current[tenantId]) {
+        setTenantDetailsById(tenantCacheRef.current);
+        return;
       }
+      if (loadingTenantsRef.current.has(tenantId)) return;
+      loadingTenantsRef.current.add(tenantId);
+
+      kind === 'tenant'
+        ? setIsLoadingTenant(true)
+        : setIsLoadingSecondProposer(true);
 
       try {
         const condomino = await getCondominoById(condId, tenantId);
         const mapped = mapCondominoToTenant(condomino);
-        setTenantDetailsById((current) => ({ ...current, [tenantId]: mapped }));
-      } catch (error) {
-        console.error('Error fetching condomino details:', error);
+        tenantCacheRef.current = {
+          ...tenantCacheRef.current,
+          [tenantId]: mapped,
+        };
+        setTenantDetailsById({ ...tenantCacheRef.current });
+      } catch (err) {
+        console.error('Erro ao carregar condômino:', err);
         toast.error('Erro ao carregar os dados completos do condômino.');
       } finally {
-        if (kind === 'tenant') {
-          setIsLoadingTenant(false);
-        } else {
-          setIsLoadingSecondProposer(false);
-        }
+        loadingTenantsRef.current.delete(tenantId);
+        kind === 'tenant'
+          ? setIsLoadingTenant(false)
+          : setIsLoadingSecondProposer(false);
       }
     },
-    [condId, tenantDetailsById]
+    [condId]
   );
 
   useEffect(() => {
@@ -366,7 +370,7 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
           page: 1,
           limit: 100,
         });
-        setModels(response.data);
+        setModels(response.items);
       } catch (error) {
         console.error('Error fetching models:', error);
         toast.error('Não foi possível carregar os modelos de contrato.');
@@ -549,7 +553,8 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
   );
 
   const isMissingModelToken = useCallback(
-    (token: string) => missingModelInputs.some((input) => inputKeyMatches(input, token)),
+    (token: string) =>
+      missingModelInputs.some((input) => inputKeyMatches(input, token)),
     [missingModelInputs]
   );
 
@@ -638,14 +643,24 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
     locadorInputs.some((i) => inputKeyMatches(i, 'locador.telefone')) &&
     !renterPhone.trim();
   const isRenterEmailInvalid =
-    hasSubmitAttempt && hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.email')) && !renterEmail.trim();
-  const isRentValueInvalid = hasSubmitAttempt && showRentField && !rentValue.trim();
+    hasSubmitAttempt &&
+    hasLocadorSection &&
+    locadorInputs.some((i) => inputKeyMatches(i, 'locador.email')) &&
+    !renterEmail.trim();
+  const isRentValueInvalid =
+    hasSubmitAttempt && showRentField && !rentValue.trim();
   const isCondoFeeInvalid =
-    hasSubmitAttempt && showCondoField && isMissingModelToken('financeiro.valor_condominio');
+    hasSubmitAttempt &&
+    showCondoField &&
+    isMissingModelToken('financeiro.valor_condominio');
   const isIptuValueInvalid =
-    hasSubmitAttempt && showIptuField && isMissingModelToken('financeiro.valor_iptu');
+    hasSubmitAttempt &&
+    showIptuField &&
+    isMissingModelToken('financeiro.valor_iptu');
   const isTcrValueInvalid =
-    hasSubmitAttempt && showTcrField && isMissingModelToken('financeiro.valor_tcr');
+    hasSubmitAttempt &&
+    showTcrField &&
+    isMissingModelToken('financeiro.valor_tcr');
   const isStartDateInvalid = hasSubmitAttempt && !startDate;
   const isEndDateInvalid = hasSubmitAttempt && !endDate;
   const isStatusInvalid = hasSubmitAttempt && showStatusField && !status;
@@ -742,9 +757,7 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
     );
     await postContrato(condId, {
       sourceType: 'model',
-      tenantName: selectedTenant.name,
       tenantId: selectedTenant.id,
-      property: formatPropertyLabel(selectedProperty),
       propertyId: selectedProperty.idImovel,
       createdAt: startDate,
       dueDate: endDate,
@@ -843,7 +856,7 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
             <CardContent className="flex h-[calc(100%-5rem)] flex-col">
               {shouldShowPreview ? (
                 <>
-                  <div className="flex-1 min-h-0">
+                  <div className="min-h-0 flex-1">
                     <PDFViewer
                       config={{
                         src: 'https://snippet.embedpdf.com/ebook.pdf',
@@ -879,7 +892,8 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                   <FileText className="mb-3 h-9 w-9" />
                   <p className="font-medium">Preview em preparação</p>
                   <p className="mt-1 text-sm">
-                    O PDF será disponibilizado aqui conforme os dados forem preenchidos.
+                    O PDF será disponibilizado aqui conforme os dados forem
+                    preenchidos.
                   </p>
                 </div>
               )}
@@ -1548,9 +1562,13 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                                   placeholder="R$ 0,00"
                                   value={rentValue}
                                   onChange={(event) =>
-                                    setRentValue(sanitizeCurrencyInput(event.target.value))
+                                    setRentValue(
+                                      sanitizeCurrencyInput(event.target.value)
+                                    )
                                   }
-                                  className={cn(isRentValueInvalid && 'border-destructive')}
+                                  className={cn(
+                                    isRentValueInvalid && 'border-destructive'
+                                  )}
                                   inputMode="decimal"
                                 />
                               </Field>
@@ -1558,15 +1576,21 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
 
                             {showCondoField && (
                               <Field>
-                                <FieldLabel htmlFor="condo-fee">Taxa de Condomínio *</FieldLabel>
+                                <FieldLabel htmlFor="condo-fee">
+                                  Taxa de Condomínio *
+                                </FieldLabel>
                                 <Input
                                   id="condo-fee"
                                   placeholder="R$ 0,00"
                                   value={condoFee}
                                   onChange={(event) =>
-                                    setCondoFee(sanitizeCurrencyInput(event.target.value))
+                                    setCondoFee(
+                                      sanitizeCurrencyInput(event.target.value)
+                                    )
                                   }
-                                  className={cn(isCondoFeeInvalid && 'border-destructive')}
+                                  className={cn(
+                                    isCondoFeeInvalid && 'border-destructive'
+                                  )}
                                   inputMode="decimal"
                                 />
                               </Field>
@@ -1574,15 +1598,21 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
 
                             {showIptuField && (
                               <Field>
-                                <FieldLabel htmlFor="iptu-value">Valor IPTU *</FieldLabel>
+                                <FieldLabel htmlFor="iptu-value">
+                                  Valor IPTU *
+                                </FieldLabel>
                                 <Input
                                   id="iptu-value"
                                   placeholder="R$ 0,00"
                                   value={iptuValue}
                                   onChange={(event) =>
-                                    setIptuValue(sanitizeCurrencyInput(event.target.value))
+                                    setIptuValue(
+                                      sanitizeCurrencyInput(event.target.value)
+                                    )
                                   }
-                                  className={cn(isIptuValueInvalid && 'border-destructive')}
+                                  className={cn(
+                                    isIptuValueInvalid && 'border-destructive'
+                                  )}
                                   inputMode="decimal"
                                 />
                               </Field>
@@ -1590,15 +1620,21 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
 
                             {showTcrField && (
                               <Field>
-                                <FieldLabel htmlFor="tcr-value">Valor TCR *</FieldLabel>
+                                <FieldLabel htmlFor="tcr-value">
+                                  Valor TCR *
+                                </FieldLabel>
                                 <Input
                                   id="tcr-value"
                                   placeholder="R$ 0,00"
                                   value={tcrValue}
                                   onChange={(event) =>
-                                    setTcrValue(sanitizeCurrencyInput(event.target.value))
+                                    setTcrValue(
+                                      sanitizeCurrencyInput(event.target.value)
+                                    )
                                   }
-                                  className={cn(isTcrValueInvalid && 'border-destructive')}
+                                  className={cn(
+                                    isTcrValueInvalid && 'border-destructive'
+                                  )}
                                   inputMode="decimal"
                                 />
                               </Field>
@@ -1682,7 +1718,11 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                                   missingModelInputKeys.has(input.key) &&
                                   'border-destructive'
                               )}
-                              inputMode={isMonetaryModelInput(input) ? 'decimal' : undefined}
+                              inputMode={
+                                isMonetaryModelInput(input)
+                                  ? 'decimal'
+                                  : undefined
+                              }
                             />
                             <FieldDescription>
                               Placeholder: {'{{'}
@@ -1821,7 +1861,11 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                                 missingModelInputKeys.has(input.key) &&
                                 'border-destructive'
                             )}
-                            inputMode={isMonetaryModelInput(input) ? 'decimal' : undefined}
+                            inputMode={
+                              isMonetaryModelInput(input)
+                                ? 'decimal'
+                                : undefined
+                            }
                           />
                           <FieldDescription>
                             Placeholder: {'{{'}
@@ -2137,7 +2181,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                                   setModelInputValues((current) => ({
                                     ...current,
                                     [input.key]: isMonetaryModelInput(input)
-                                      ? sanitizeCurrencyInput(event.target.value)
+                                      ? sanitizeCurrencyInput(
+                                          event.target.value
+                                        )
                                       : event.target.value,
                                   }))
                                 }
@@ -2146,7 +2192,11 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                                     missingModelInputKeys.has(input.key) &&
                                     'border-destructive'
                                 )}
-                                inputMode={isMonetaryModelInput(input) ? 'decimal' : undefined}
+                                inputMode={
+                                  isMonetaryModelInput(input)
+                                    ? 'decimal'
+                                    : undefined
+                                }
                               />
                               <FieldDescription>
                                 Placeholder: {'{{'}
