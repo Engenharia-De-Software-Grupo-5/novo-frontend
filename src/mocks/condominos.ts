@@ -3,7 +3,7 @@ import { CondominoFull } from '@/types/condomino';
 export const condominos: CondominoFull[] = [
   {
     id: '1',
-    condominiumId: '1',
+    condominiumId: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
 
     name: 'João Silva',
     birthDate: '1990-05-10',
@@ -76,7 +76,7 @@ export const condominos: CondominoFull[] = [
 
   {
     id: '2',
-    condominiumId: '1',
+    condominiumId: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
 
     name: 'Ana Costa',
     birthDate: '1985-09-22',

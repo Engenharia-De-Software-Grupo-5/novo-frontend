@@ -1,10 +1,8 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Trash2 } from "lucide-react"
-import { toast } from "sonner"
-import { Button } from "@/features/components/ui/button"
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/features/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -12,48 +10,49 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/features/components/ui/dialog"
+} from '@/features/components/ui/dialog';
+import { Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
+import { CondominoSummary } from '@/types/condomino';
 
-import { deleteCondomino } from "../services/condominos.service"
-import { CondominoSummary } from "@/types/condomino"
+import { deleteCondomino } from '../services/condominos.service';
 
 interface DeleteCondominoDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  condomino: CondominoSummary | null 
-  condominioId: string
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly condomino: CondominoSummary | null;
+  readonly condominioId: string;
 }
 
 export function DeleteCondominoDialog({
   open,
   onOpenChange,
   condomino,
-  condominioId
+  condominioId,
 }: DeleteCondominoDialogProps) {
-  const [isPending, setIsPending] = useState(false)
-  const router = useRouter()
+  const [isPending, setIsPending] = useState(false);
+  const router = useRouter();
 
-  if (!condomino) return null
+  if (!condomino) return null;
 
   const handleConfirm = async () => {
-    setIsPending(true)
+    setIsPending(true);
     try {
-    
-      await deleteCondomino(condominioId, condomino.id)
-      
-      onOpenChange(false)
-      toast.success('Condômino excluído com sucesso!')
-      
+      await deleteCondomino(condominioId, condomino.id);
+
+      onOpenChange(false);
+      toast.success('Condômino excluído com sucesso!');
+
       await new Promise((resolve) => setTimeout(resolve, 300));
-      
-      router.refresh()
-    } catch (error) {
-      toast.error('Erro ao excluir condômino')
+
+      router.refresh();
+    } catch {
+      toast.error('Erro ao excluir condômino');
     } finally {
-      setIsPending(false)
+      setIsPending(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -67,7 +66,8 @@ export function DeleteCondominoDialog({
 
           <DialogDescription className="text-sm">
             Essa ação é irreversível e impede que o condômino <br />
-            <strong>{condomino.name}</strong> acesse qualquer conteúdo do sistema <br />
+            <strong>{condomino.name}</strong> acesse qualquer conteúdo do
+            sistema <br />
             para sempre.
           </DialogDescription>
         </DialogHeader>
@@ -86,10 +86,10 @@ export function DeleteCondominoDialog({
             onClick={handleConfirm}
             disabled={isPending}
           >
-            {isPending ? "Excluindo..." : "Excluir condômino"}
+            {isPending ? 'Excluindo...' : 'Excluir condômino'}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

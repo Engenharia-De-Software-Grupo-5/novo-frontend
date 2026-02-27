@@ -96,15 +96,11 @@ export interface CondominoSummary {
  * Resposta da API para listagem paginada
  */
 export interface CondominosResponse {
-  data: CondominoSummary[];
+  items: CondominoSummary[];
   meta: {
-    total: number;
+    totalItems: number;
     page: number;
     limit: number;
     totalPages: number;
   };
-  // totalItems: number;
-  // totalPages: number;
-  // page: number;
-  // limit: number;
 }

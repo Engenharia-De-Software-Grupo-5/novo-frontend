@@ -3,6 +3,7 @@ import { getEmployeesDb } from '@/mocks/in-memory-db';
 
 import { EmployeeDetail } from '@/types/employee';
 import { FileAttachment } from '@/types/file';
+import { secureRandom } from '@/lib/secure-random';
 
 /**
  * @swagger
@@ -72,7 +73,7 @@ import { FileAttachment } from '@/types/file';
  *                 meta:
  *                   type: object
  *                   properties:
- *                     total:
+ *                     totalItems:
  *                       type: integer
  *                     page:
  *                       type: integer
@@ -91,8 +92,8 @@ export async function GET(
 
   const searchParams = request.nextUrl.searchParams;
 
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '20');
+  const page = Number.parseInt(searchParams.get('page') || '1');
+  const limit = Number.parseInt(searchParams.get('limit') || '20');
   const sortParam = searchParams.get('sort');
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';
@@ -168,9 +169,9 @@ export async function GET(
   const paginatedEmployees = sortedEmployees.slice(startIndex, endIndex);
 
   return NextResponse.json({
-    data: paginatedEmployees,
+    items: paginatedEmployees,
     meta: {
-      total: totalItems,
+      totalItems: totalItems,
       page: safePage,
       limit,
       totalPages,
@@ -231,11 +232,11 @@ export async function POST(
     uploadedContracts = uploadedFiles
       .filter((f): f is File => f instanceof File)
       .map((file) => ({
-        id: `file-${Math.random().toString(36).substr(2, 9)}`,
+        id: `file-${secureRandom(9)}`,
         name: file.name,
         type: file.type,
         size: file.size,
-        url: `/uploads/contracts/${Math.random().toString(36).substr(2, 9)}_${file.name}`,
+        url: `/uploads/contracts/${secureRandom(9)}_${file.name}`,
       }));
 
     console.log(
@@ -252,7 +253,7 @@ export async function POST(
 
   const newEmployee: EmployeeDetail = {
     ...body,
-    id: Math.random().toString(36).substr(2, 9),
+    id: secureRandom(9),
     status: allContracts.length > 0 ? 'ativo' : 'pendente',
     role: body.role || 'porteiro',
     Contracts: allContracts,
@@ -265,7 +266,7 @@ export async function POST(
   employeesDb.push(newEmployee);
 
   return NextResponse.json(
-    { message: 'Employee created successfully', data: newEmployee },
+    { message: 'Employee created successfully', items: newEmployee },
     { status: 201 }
   );
 }

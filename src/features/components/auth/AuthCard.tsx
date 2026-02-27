@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/features/components/ui/card"
 export default function AuthCard({
   children,
 }: {
-  children: React.ReactNode
+  readonly children: React.ReactNode
 }) {
   return (
     <main className="min-h-screen bg-muted flex flex-col items-center justify-center px-4">

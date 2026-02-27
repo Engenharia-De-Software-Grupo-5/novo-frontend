@@ -25,7 +25,7 @@ import { EditUserDialog } from './EditUserDialog';
 import { ViewUserDialog } from './ViewUserDialog';
 
 interface UserTableRowActionsProps {
-  user: User;
+  readonly user: User;
 }
 
 export function UserTableRowActions({ user }: UserTableRowActionsProps) {

@@ -1,9 +1,10 @@
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 import { NextRequest, NextResponse } from 'next/server';
 import { getUsersDb } from '@/mocks/in-memory-db';
 
 import { User } from '@/types/user';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 /**
  * @swagger
@@ -103,7 +104,7 @@ export async function PUT(
   const { condId, id } = await params;
   const usersDb = getUsersDb(condId);
   let body: Partial<User>;
-  
+
   const contentType = request.headers.get('content-type') || '';
 
   // Seguindo o exemplo de funcionários para tratar multipart (FormData) ou JSON
@@ -122,11 +123,11 @@ export async function PUT(
   }
 
   // Atualização robusta conforme sua interface User
-  usersDb[index] = { 
-    ...usersDb[index], 
+  usersDb[index] = {
+    ...usersDb[index],
     ...body,
-   
-    id: usersDb[index].id
+
+    id: usersDb[index].id,
   };
 
   console.log(`PUT: Usuário ${id} editado com sucesso:`, body);
@@ -177,22 +178,19 @@ export async function PATCH(
   const usersDb = getUsersDb(condId);
   const body = await request.json();
 
-
   const user = usersDb.find((u) => u.id === id);
 
   if (!user) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  
   const dataToUpdate = typeof body === 'string' ? JSON.parse(body) : body;
 
-  
   Object.assign(user, dataToUpdate);
 
   console.log('Dados atualizados corretamente no Mock:', user);
 
-  return NextResponse.json(user);;
+  return NextResponse.json(user);
 }
 
 /**
@@ -232,7 +230,7 @@ export async function DELETE(
 
   if (index === -1) {
     return NextResponse.json(
-      { error: "Usuário não encontrado" }, 
+      { error: 'Usuário não encontrado' },
       { status: 404 }
     );
   }
@@ -241,8 +239,8 @@ export async function DELETE(
   usersDb.splice(index, 1);
 
   console.log(`Usuário com id ${id} foi apagado`);
-  
-  return NextResponse.json({ 
-    message: `Usuário com id ${id} foi apagado` 
+
+  return NextResponse.json({
+    message: `Usuário com id ${id} foi apagado`,
   });
 }

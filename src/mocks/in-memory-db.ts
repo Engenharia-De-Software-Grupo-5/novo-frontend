@@ -1,17 +1,18 @@
-import { mockCondominiums } from './condominiums';
-import { mockCobrancaDetails, mockCobrancaTenants } from './cobrancas';
-import { mockContractDetails } from './contratos';
-import { mockContractModelDetails } from './modelos-contrato';
-import { mockEmployeeDetails } from './employees';
-import { mockImoveis } from './imoveis';
-import { mockPaymentDetails } from './payments';
-import { mockDespesas } from './despesas';
-import { users } from './users';
 import { CobrancaDetail, CobrancaTenant } from '@/types/cobranca';
 import { DespesaDetail } from '@/types/despesa';
 import { EmployeeDetail } from '@/types/employee';
 import { PaymentDetail } from '@/types/payment';
 import { User } from '@/types/user';
+
+import { mockCobrancaDetails, mockCobrancaTenants } from './cobrancas';
+import { mockCondominiums } from './condominiums';
+import { mockContractDetails } from './contratos';
+import { mockDespesas } from './despesas';
+import { mockEmployeeDetails } from './employees';
+import { mockImoveis } from './imoveis';
+import { mockContractModelDetails } from './modelos-contrato';
+import { mockPaymentDetails } from './payments';
+import { users } from './users';
 
 // "Database" in memory.
 // This allows persistence while the server is running.
@@ -21,7 +22,7 @@ export const condominiumsDb = [...mockCondominiums];
 export const paymentsDb = [...mockPaymentDetails];
 export const contractsDb = [...mockContractDetails];
 export const contractModelsDb = [...mockContractModelDetails];
-export const despesasDb  = [...mockDespesas];
+export const despesasDb = [...mockDespesas];
 export const cobrancasDb = [...mockCobrancaDetails];
 export const cobrancaTenantsDb = [...mockCobrancaTenants];
 
@@ -41,21 +42,25 @@ function buildEmployeesByCondominium() {
   const byCondo: Record<string, EmployeeDetail[]> = {};
 
   condominiumIds.forEach((condId, condoIndex) => {
-    byCondo[condId] = mockEmployeeDetails.map((employee, employeeIndex) => ({
-      ...employee,
-      id: `${condId}-${employee.id}`,
-      // Pequena variação determinística para não repetir exatamente os mesmos dados em todos os condomínios
-      status:
-        condoIndex === 0
-          ? employee.status
-          : condoIndex === 1
-            ? (employeeIndex + 1) % 5 === 0
-              ? 'pendente'
-              : employee.status
-            : employeeIndex % 7 === 0
-              ? 'inativo'
-              : employee.status,
-    }));
+    byCondo[condId] = mockEmployeeDetails.map((employee, employeeIndex) => {
+      let localStatus = employee.status;
+      if (condoIndex !== 0) {
+        if (condoIndex === 1) {
+          if ((employeeIndex + 1) % 5 === 0) {
+            localStatus = 'pendente';
+          }
+        } else if (employeeIndex % 7 === 0) {
+          localStatus = 'inativo';
+        }
+      }
+
+      return {
+        ...employee,
+        id: `${condId}-${employee.id}`,
+        // Pequena variação determinística para não repetir exatamente os mesmos dados em todos os condomínios
+        status: localStatus,
+      };
+    });
   });
 
   return byCondo;
@@ -152,7 +157,10 @@ function buildCobrancasByCondominium() {
     const dayOffset = condoIndex * 7;
     const condoTenants = tenantsByCondo[condId];
     const tenantIdMap = new Map(
-      condoTenants.map((tenant) => [tenant.id.replace(`${condId}-`, ''), tenant])
+      condoTenants.map((tenant) => [
+        tenant.id.replace(`${condId}-`, ''),
+        tenant,
+      ])
     );
 
     byCondo[condId] = mockCobrancaDetails
@@ -191,7 +199,8 @@ export const despesasDbByCondominium = buildDespesasByCondominium();
 export const usersDbByCondominium = buildUsersByCondominium();
 const cobrancasByCondominium = buildCobrancasByCondominium();
 export const cobrancasDbByCondominium = cobrancasByCondominium.byCondo;
-export const cobrancaTenantsDbByCondominium = cobrancasByCondominium.tenantsByCondo;
+export const cobrancaTenantsDbByCondominium =
+  cobrancasByCondominium.tenantsByCondo;
 
 export function getEmployeesDb(condId: string): EmployeeDetail[] {
   if (!employeesDbByCondominium[condId]) {

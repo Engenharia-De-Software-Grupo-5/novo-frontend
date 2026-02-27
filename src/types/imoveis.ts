@@ -1,10 +1,6 @@
 export type ImovelTipo = 'casa' | 'apartamento';
 
-export type ImovelSituacao =
-  | 'ativo'
-  | 'inativo'
-  | 'manutenção'
-  | 'na planta';
+export type ImovelSituacao = 'ativo' | 'inativo' | 'manutenção' | 'na planta';
 
 export interface Endereco {
   rua: string;
@@ -44,9 +40,9 @@ export interface ImovelSummary {
 }
 
 export interface ImovelResponse {
-  data: ImovelSummary[];
+  items: ImovelSummary[];
   meta: {
-    total: number;
+    totalItems: number;
     page: number;
     limit: number;
     totalPages: number;

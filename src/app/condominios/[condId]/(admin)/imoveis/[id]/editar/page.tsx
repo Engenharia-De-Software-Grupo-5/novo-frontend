@@ -44,7 +44,7 @@ function mapStatusToSituacao(status: string): ImovelSituacao {
 export default function EditarImovelAdminPage({
   params,
 }: {
-  params: Promise<{ condId: string; id: string }>;
+  readonly params: Promise<{ condId: string; id: string }>;
 }) {
   const { condId, id } = use(params);
   const router = useRouter();
@@ -131,15 +131,24 @@ export default function EditarImovelAdminPage({
 
   return (
     <div className="flex flex-col space-y-6 p-8 pt-6 pb-20">
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="outline" size="icon" className="border-border hover:bg-accent" asChild>
+      <div className="mb-8 flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          className="border-border hover:bg-accent"
+          asChild
+        >
           <Link href={`/condominios/${condId}/imoveis/${id}`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Editar Imóvel</h1>
-          <p className="text-muted-foreground">Atualize as informações da unidade.</p>
+          <h1 className="text-foreground text-3xl font-bold tracking-tight">
+            Editar Imóvel
+          </h1>
+          <p className="text-muted-foreground">
+            Atualize as informações da unidade.
+          </p>
         </div>
       </div>
 

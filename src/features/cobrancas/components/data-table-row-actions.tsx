@@ -33,7 +33,7 @@ import { CobrancaDialog } from './add-cobranca-dialog';
 import { ViewCobrancaDialog } from './view-cobranca-dialog';
 
 interface DataTableRowActionsProps {
-  cobranca: CobrancaSummary;
+  readonly cobranca: CobrancaSummary;
 }
 
 export function DataTableRowActions({ cobranca }: DataTableRowActionsProps) {

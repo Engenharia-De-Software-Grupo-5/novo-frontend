@@ -3,23 +3,23 @@ import { FileAttachment } from './file';
 export interface DespesaSummary {
   id: string;
   nome: string;
-  idImovel?: string | null; 
+  idImovel?: string | null;
   tipo: string;
-  data: string; 
+  data: string;
   valor: number;
   formaPagamento: string;
   status: 'pendente' | 'pago' | 'atrasado';
 }
 
 export interface DespesaDetail extends DespesaSummary {
-  anexos: FileAttachment[]; 
+  anexos: FileAttachment[];
 }
 
 export interface DespesaResponse {
-  data: DespesaSummary[];
+  items: DespesaSummary[];
   meta: {
     pageIndex: number;
     pageCount: number;
-    total: number;
+    totalItems: number;
   };
 }

@@ -20,8 +20,8 @@ import { DEFAULT_COND_ID } from '@/features/imoveis/constants';
 import { deleteImovel } from '@/features/imoveis/services/imovelService';
 
 interface DeleteImovelButtonProps {
-  id: string;
-  condId?: string;
+  readonly id: string;
+  readonly condId?: string;
 }
 
 export function DeleteImovelButton({ id, condId }: DeleteImovelButtonProps) {

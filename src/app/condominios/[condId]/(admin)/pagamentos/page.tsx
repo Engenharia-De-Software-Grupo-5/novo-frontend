@@ -8,24 +8,23 @@ export const metadata: Metadata = {
 };
 
 interface PagamentosPageProps {
-  params: {
+  readonly params: Promise<{
     condId: string;
-  };
-  searchParams: {
+  }>;
+  readonly searchParams: Promise<{
     page?: string;
     limit?: string;
     sort?: string;
     columns?: string | string[];
     content?: string | string[];
-  };
+  }>;
 }
 
 export default async function PagamentosPage({
   params,
   searchParams,
 }: PagamentosPageProps) {
-  const resolvedParams = await params;
-  const { condId } = resolvedParams;
+  const { condId } = await params;
 
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page) || 1;
@@ -33,19 +32,21 @@ export default async function PagamentosPage({
   const sort = resolvedSearchParams.sort;
 
   // Normalize columns and content to arrays
-  const columns = Array.isArray(resolvedSearchParams.columns)
-    ? resolvedSearchParams.columns
-    : resolvedSearchParams.columns
-      ? [resolvedSearchParams.columns]
-      : undefined;
+  let columns: string[] | undefined = undefined;
+  if (resolvedSearchParams.columns) {
+    columns = Array.isArray(resolvedSearchParams.columns)
+      ? resolvedSearchParams.columns
+      : [resolvedSearchParams.columns];
+  }
 
-  const content = Array.isArray(resolvedSearchParams.content)
-    ? resolvedSearchParams.content
-    : resolvedSearchParams.content
-      ? [resolvedSearchParams.content]
-      : undefined;
+  let content: string[] | undefined = undefined;
+  if (resolvedSearchParams.content) {
+    content = Array.isArray(resolvedSearchParams.content)
+      ? resolvedSearchParams.content
+      : [resolvedSearchParams.content];
+  }
 
-  const { data: pagamentos, meta } = await getPayments(condId, {
+  const { items: pagamentos, meta } = await getPayments(condId, {
     page,
     limit,
     sort,

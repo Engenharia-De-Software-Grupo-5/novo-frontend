@@ -1,5 +1,9 @@
-import { apiRequest, buildQueryString } from '@/lib/api-client';
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
 import { ImovelDetail, ImovelResponse } from '@/types/imoveis';
+import { apiRequest, buildQueryString } from '@/lib/api-client';
 
 const basePath = (condId: string) => `/api/condominios/${condId}/imoveis`;
 
@@ -34,8 +38,8 @@ export const getImoveis = async (
   } catch (error) {
     console.error('Error fetching imoveis:', error);
     return {
-      data: [],
-      meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
+      items: [],
+      meta: { totalItems: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }
 };
@@ -57,6 +61,9 @@ export const postImovel = async (
     method: 'POST',
     body: data,
   });
+
+  revalidatePath(`/condominios/${condId}/imoveis`);
+
   return response.data;
 };
 
@@ -65,10 +72,17 @@ export const putImovel = async (
   imovelId: string,
   data: Partial<ImovelDetail>
 ): Promise<ImovelDetail> => {
-  return apiRequest<ImovelDetail>(`${basePath(condId)}/${imovelId}`, {
-    method: 'PUT',
-    body: data,
-  });
+  const result = await apiRequest<ImovelDetail>(
+    `${basePath(condId)}/${imovelId}`,
+    {
+      method: 'PUT',
+      body: data,
+    }
+  );
+
+  revalidatePath(`/condominios/${condId}/imoveis`);
+
+  return result;
 };
 
 export const patchImovel = async (
@@ -80,6 +94,8 @@ export const patchImovel = async (
     method: 'PATCH',
     body: data,
   });
+
+  revalidatePath(`/condominios/${condId}/imoveis`);
 };
 
 export const deleteImovel = async (
@@ -89,4 +105,6 @@ export const deleteImovel = async (
   await apiRequest(`${basePath(condId)}/${imovelId}`, {
     method: 'DELETE',
   });
+
+  revalidatePath(`/condominios/${condId}/imoveis`);
 };

@@ -34,8 +34,8 @@ export const getContratos = async (
   } catch (error) {
     console.error('Error fetching contracts:', error);
     return {
-      data: [],
-      meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
+      items: [],
+      meta: { totalItems: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }
 };
@@ -64,6 +64,8 @@ export const postContrato = async (
     method: 'POST',
     body: data,
   });
+
+  revalidatePath(`/condominios/${condId}/contratos`);
 };
 
 export const deleteContrato = async (
@@ -73,4 +75,6 @@ export const deleteContrato = async (
   await apiRequest(`${basePath(condId)}/${contractId}`, {
     method: 'DELETE',
   });
+
+  revalidatePath(`/condominios/${condId}/contratos`);
 };

@@ -3,14 +3,18 @@ import { ModeloContratoInput } from '@/types/modelo-contrato';
 const PLACEHOLDER_REGEX = /\{\{\s*([^{}]+?)\s*\}\}/g;
 
 const normalizeLabel = (value: string) => {
-  return value
-    .split('.')
-    .pop()
-    ?.replaceAll('_', ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase()) || value;
+  return (
+    value
+      .split('.')
+      .pop()
+      ?.replaceAll('_', ' ')
+      .replaceAll(/\b\w/g, (char) => char.toUpperCase()) || value
+  );
 };
 
-export const extractTemplateInputs = (rawText: string): ModeloContratoInput[] => {
+export const extractTemplateInputs = (
+  rawText: string
+): ModeloContratoInput[] => {
   const unique = new Set<string>();
   const inputs: ModeloContratoInput[] = [];
   const matches = rawText.matchAll(PLACEHOLDER_REGEX);

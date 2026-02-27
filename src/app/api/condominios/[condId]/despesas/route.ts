@@ -3,6 +3,7 @@ import { getDespesasDb } from '@/mocks/in-memory-db';
 
 import { DespesaDetail } from '@/types/despesa';
 import { FileAttachment } from '@/types/file';
+import { secureRandom } from '@/lib/secure-random';
 
 export async function GET(
   request: Request,
@@ -11,8 +12,8 @@ export async function GET(
   const { condId } = await params;
   const despesasDb = getDespesasDb(condId);
   const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '10');
+  const page = Number.parseInt(searchParams.get('page') || '1');
+  const limit = Number.parseInt(searchParams.get('limit') || '10');
   const columns =
     searchParams.getAll('columns').length > 0
       ? searchParams.getAll('columns')
@@ -50,13 +51,13 @@ export async function GET(
     });
   }
 
-  const total = data.length;
-  const pageCount = Math.ceil(total / limit);
+  const totalItems = data.length;
+  const pageCount = Math.ceil(totalItems / limit);
   const paginatedData = data.slice((page - 1) * limit, page * limit);
 
   return NextResponse.json({
-    data: paginatedData,
-    meta: { pageIndex: page, pageCount, total },
+    items: paginatedData,
+    meta: { pageIndex: page, pageCount, totalItems },
   });
 }
 
@@ -78,11 +79,11 @@ export async function POST(
       .getAll('anexos')
       .filter((f): f is File => f instanceof File)
       .map((file) => ({
-        id: `file-${Math.random().toString(36).substr(2, 9)}`,
+        id: `file-${secureRandom(9)}`,
         name: file.name,
         type: file.type,
         size: file.size,
-        url: `/uploads/${Math.random().toString(36).substr(2, 9)}_${file.name}`,
+        url: `/uploads/${secureRandom(9)}_${file.name}`,
       }));
   } else {
     data = await request.json();

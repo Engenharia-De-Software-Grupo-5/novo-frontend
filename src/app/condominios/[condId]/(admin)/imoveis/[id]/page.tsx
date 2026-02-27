@@ -9,7 +9,7 @@ import { getImovelById } from '@/features/imoveis/services/imovelService';
 export default async function DetalhesImovelAdminPage({
   params,
 }: {
-  params: Promise<{ condId: string; id: string }>;
+  readonly params: Promise<{ condId: string; id: string }>;
 }) {
   const { condId, id } = await params;
 

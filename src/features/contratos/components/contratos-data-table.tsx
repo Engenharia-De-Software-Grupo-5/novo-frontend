@@ -9,8 +9,8 @@ import { AddContractButton } from './add-contract-button';
 import { columns } from './columns';
 
 interface ContratosDataTableProps {
-  data: ContratoSummary[];
-  pageCount: number;
+  readonly data: ContratoSummary[];
+  readonly pageCount: number;
 }
 
 export function ContratosDataTable({ data, pageCount }: ContratosDataTableProps) {

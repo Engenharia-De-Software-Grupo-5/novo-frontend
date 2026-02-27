@@ -1,10 +1,13 @@
-import { ModeloContratoDetail, ModeloContratoSummary } from '@/types/modelo-contrato';
+import {
+  ModeloContratoDetail,
+  ModeloContratoSummary,
+} from '@/types/modelo-contrato';
 import { extractTemplateInputs } from '@/lib/contratos-template-inputs';
 
 export const mockContractModelDetails: ModeloContratoDetail[] = [
   {
     id: 'model-2',
-    condId: '1',
+    condId: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     name: 'Locacao com Segundo Proponente',
     purpose: 'Modelo com exigencia de dados do segundo proponente.',
     createdAt: '2026-02-21',
@@ -65,7 +68,7 @@ Informacoes adicionais: {{contrato.informacoes_adicionais}}
   },
   {
     id: 'model-3',
-    condId: '1',
+    condId: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     name: 'Locacao Contratual Simplificada',
     purpose: 'Modelo apenas com campos contratuais e financeiros.',
     createdAt: '2026-02-21',

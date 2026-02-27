@@ -54,31 +54,42 @@ import {
 } from '@/features/components/ui/select';
 import { Separator } from '@/features/components/ui/separator';
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/features/components/ui/accordion';
-import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from '@/features/components/ui/tabs';
 import { Textarea } from '@/features/components/ui/textarea';
+import { getCondominoById } from '@/features/condominos/services/condominos.service';
+import { CONTRACT_STATUSES } from '@/features/contratos/constants';
+import { postContrato } from '@/features/contratos/services/contratoService';
 import {
   getModeloContratoById,
   getModelosContrato,
 } from '@/features/modelos-contrato/services/modeloContratoService';
+import {
+  Calendar,
+  Check,
+  ChevronsUpDown,
+  FilePlus2,
+  FileText,
+  RefreshCcw,
+  Upload,
+} from 'lucide-react';
+import { toast } from 'sonner';
+
 import { CondominoFull, CondominoSummary } from '@/types/condomino';
 import { ImovelSummary } from '@/types/imoveis';
-import { ModeloContratoInput, ModeloContratoSummary } from '@/types/modelo-contrato';
+import {
+  ModeloContratoInput,
+  ModeloContratoSummary,
+} from '@/types/modelo-contrato';
 import { cn } from '@/lib/utils';
 
 interface AddContratoProps {
-  condId: string;
-  properties: ImovelSummary[];
-  tenants: CondominoSummary[];
+  readonly condId: string;
+  readonly properties: ImovelSummary[];
+  readonly tenants: CondominoSummary[];
 }
 
 interface TenantViewModel {
@@ -173,7 +184,8 @@ const inputKeyMatches = (input: ModeloContratoInput, token: string) => {
   const normalizedToken = token.toLowerCase();
   return (
     input.key.toLowerCase() === normalizedToken ||
-    `${normalizeGroup(input.group)}.${input.field}`.toLowerCase() === normalizedToken
+    `${normalizeGroup(input.group)}.${input.field}`.toLowerCase() ===
+      normalizedToken
   );
 };
 
@@ -221,7 +233,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
   const [openModel, setOpenModel] = useState(false);
   const [modelId, setModelId] = useState('');
   const [modelInputs, setModelInputs] = useState<ModeloContratoInput[]>([]);
-  const [modelInputValues, setModelInputValues] = useState<Record<string, string>>({});
+  const [modelInputValues, setModelInputValues] = useState<
+    Record<string, string>
+  >({});
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [isLoadingModelInputs, setIsLoadingModelInputs] = useState(false);
 
@@ -274,12 +288,15 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
   );
 
   const modelInputsByGroup = useMemo(() => {
-    return modelInputs.reduce<Record<string, ModeloContratoInput[]>>((acc, input) => {
-      const group = normalizeGroup(input.group || input.key.split('.')[0]);
-      if (!acc[group]) acc[group] = [];
-      acc[group].push(input);
-      return acc;
-    }, {});
+    return modelInputs.reduce<Record<string, ModeloContratoInput[]>>(
+      (acc, input) => {
+        const group = normalizeGroup(input.group || input.key.split('.')[0]);
+        if (!acc[group]) acc[group] = [];
+        acc[group].push(input);
+        return acc;
+      },
+      {}
+    );
   }, [modelInputs]);
 
   const locadorInputs = modelInputsByGroup.locador || [];
@@ -289,7 +306,8 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
   ];
   const secondProposerInputs = modelInputsByGroup.segundo_proponente || [];
 
-  const hasLocadorSection = creationMode === 'model' && locadorInputs.length > 0;
+  const hasLocadorSection =
+    creationMode === 'model' && locadorInputs.length > 0;
   const hasSecondProposerSection =
     creationMode === 'model' && secondProposerInputs.length > 0;
 
@@ -344,7 +362,10 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
     const loadModels = async () => {
       setIsLoadingModels(true);
       try {
-        const response = await getModelosContrato(condId, { page: 1, limit: 100 });
+        const response = await getModelosContrato(condId, {
+          page: 1,
+          limit: 100,
+        });
         setModels(response.data);
       } catch (error) {
         console.error('Error fetching models:', error);
@@ -399,108 +420,122 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
     if (!endDate) setEndDate(new Date().toISOString().slice(0, 10));
   }, [startDate, endDate]);
 
+  const locadorTokenMap = useMemo<Record<string, string>>(
+    () => ({
+      'locador.nome': renterName,
+      'locador.cpf': renterCpf,
+      'locador.telefone': renterPhone,
+      'locador.email': renterEmail,
+    }),
+    [renterName, renterCpf, renterPhone, renterEmail]
+  );
+
+  const contratoTokenMap = useMemo<Record<string, string>>(
+    () => ({
+      'financeiro.valor_aluguel': rentValue,
+      'financeiro.valor_condominio': condoFee,
+      'financeiro.valor_iptu': iptuValue,
+      'financeiro.valor_tcr': tcrValue,
+      'contrato.informacoes_adicionais': additionalInfo,
+      'contrato.status': status,
+      'contrato.data_inicio': startDate,
+      'contrato.data_fim': endDate,
+    }),
+    [
+      rentValue,
+      condoFee,
+      iptuValue,
+      tcrValue,
+      additionalInfo,
+      status,
+      startDate,
+      endDate,
+    ]
+  );
+
+  const locatarioTokenMap = useMemo<Record<string, string>>(
+    () => ({
+      'locatario.nome': selectedTenant?.personalData.fullName ?? '',
+      'locatario.data_nascimento': selectedTenant?.personalData.birthDate ?? '',
+      'locatario.rg': selectedTenant?.personalData.rg ?? '',
+      'locatario.cpf': selectedTenant?.personalData.cpf ?? '',
+      'locatario.profissao': selectedTenant?.personalData.profession ?? '',
+      'locatario.estado_civil':
+        selectedTenant?.personalData.maritalStatus ?? '',
+      'locatario.orgao_expedidor': selectedTenant?.personalData.rgIssuer ?? '',
+      'locatario.renda_mensal':
+        selectedTenant?.personalData.monthlyIncome ?? '',
+      'locatario.email': selectedTenant?.contact.email ?? '',
+      'locatario.telefone_principal': selectedTenant?.contact.mainPhone ?? '',
+      'locatario.telefone_secundario':
+        selectedTenant?.contact.secondaryPhone ?? '',
+      'locatario.agencia': selectedTenant?.bankData.agency ?? '',
+      'locatario.conta': selectedTenant?.bankData.accountNumber ?? '',
+      'locatario.tipo': selectedTenant?.bankData.accountType ?? '',
+    }),
+    [selectedTenant]
+  );
+
+  const segundoProponenteTokenMap = useMemo<Record<string, string>>(
+    () => ({
+      'segundo_proponente.nome':
+        selectedSecondProposer?.personalData.fullName ?? '',
+      'segundo_proponente.data_nascimento':
+        selectedSecondProposer?.personalData.birthDate ?? '',
+      'segundo_proponente.rg': selectedSecondProposer?.personalData.rg ?? '',
+      'segundo_proponente.cpf': selectedSecondProposer?.personalData.cpf ?? '',
+      'segundo_proponente.profissao':
+        selectedSecondProposer?.personalData.profession ?? '',
+      'segundo_proponente.estado_civil':
+        selectedSecondProposer?.personalData.maritalStatus ?? '',
+      'segundo_proponente.orgao_expedidor':
+        selectedSecondProposer?.personalData.rgIssuer ?? '',
+      'segundo_proponente.renda_mensal':
+        selectedSecondProposer?.personalData.monthlyIncome ?? '',
+      'segundo_proponente.email': selectedSecondProposer?.contact.email ?? '',
+      'segundo_proponente.telefone_principal':
+        selectedSecondProposer?.contact.mainPhone ?? '',
+      'segundo_proponente.telefone_secundario':
+        selectedSecondProposer?.contact.secondaryPhone ?? '',
+      'segundo_proponente.agencia':
+        selectedSecondProposer?.bankData.agency ?? '',
+      'segundo_proponente.conta':
+        selectedSecondProposer?.bankData.accountNumber ?? '',
+      'segundo_proponente.tipo':
+        selectedSecondProposer?.bankData.accountType ?? '',
+    }),
+    [selectedSecondProposer]
+  );
+
   const getModelValueForInput = useCallback(
     (input: ModeloContratoInput) => {
-      const normalized = input.key.toLowerCase();
+      const token = getTokenFromInput(input).toLowerCase();
 
-      if (inputKeyMatches(input, 'locador.nome')) return renterName;
-      if (inputKeyMatches(input, 'locador.cpf')) return renterCpf;
-      if (inputKeyMatches(input, 'locador.telefone')) return renterPhone;
-      if (inputKeyMatches(input, 'locador.email')) return renterEmail;
+      const fromLocador = locadorTokenMap[token];
+      if (fromLocador !== undefined) return fromLocador;
 
-      if (inputKeyMatches(input, 'financeiro.valor_aluguel')) return rentValue;
-      if (inputKeyMatches(input, 'financeiro.valor_condominio')) return condoFee;
-      if (inputKeyMatches(input, 'financeiro.valor_iptu')) return iptuValue;
-      if (inputKeyMatches(input, 'financeiro.valor_tcr')) return tcrValue;
-      if (inputKeyMatches(input, 'contrato.informacoes_adicionais')) return additionalInfo;
-      if (inputKeyMatches(input, 'contrato.status')) return status;
-      if (inputKeyMatches(input, 'contrato.data_inicio')) return startDate;
-      if (inputKeyMatches(input, 'contrato.data_fim')) return endDate;
+      const fromContrato = contratoTokenMap[token];
+      if (fromContrato !== undefined) return fromContrato;
 
-      if (inputKeyMatches(input, 'imovel.endereco') && selectedProperty) {
+      if (token === 'imovel.endereco' && selectedProperty) {
         return `${selectedProperty.endereco} - ${selectedProperty.bairro}, ${selectedProperty.cidade}`;
       }
 
-      if (inputKeyMatches(input, 'locatario.nome')) return selectedTenant?.personalData.fullName || '';
-      if (inputKeyMatches(input, 'locatario.data_nascimento')) return selectedTenant?.personalData.birthDate || '';
-      if (inputKeyMatches(input, 'locatario.rg')) return selectedTenant?.personalData.rg || '';
-      if (inputKeyMatches(input, 'locatario.cpf')) return selectedTenant?.personalData.cpf || '';
-      if (inputKeyMatches(input, 'locatario.profissao')) return selectedTenant?.personalData.profession || '';
-      if (inputKeyMatches(input, 'locatario.estado_civil')) return selectedTenant?.personalData.maritalStatus || '';
-      if (inputKeyMatches(input, 'locatario.orgao_expedidor')) return selectedTenant?.personalData.rgIssuer || '';
-      if (inputKeyMatches(input, 'locatario.renda_mensal')) return selectedTenant?.personalData.monthlyIncome || '';
-      if (inputKeyMatches(input, 'locatario.email')) return selectedTenant?.contact.email || '';
-      if (inputKeyMatches(input, 'locatario.telefone_principal')) return selectedTenant?.contact.mainPhone || '';
-      if (inputKeyMatches(input, 'locatario.telefone_secundario')) return selectedTenant?.contact.secondaryPhone || '';
-      if (inputKeyMatches(input, 'locatario.nome') && normalized.endsWith('.nome')) {
-        return selectedTenant?.bankData.bank || '';
-      }
-      if (inputKeyMatches(input, 'locatario.agencia')) return selectedTenant?.bankData.agency || '';
-      if (inputKeyMatches(input, 'locatario.conta')) return selectedTenant?.bankData.accountNumber || '';
-      if (inputKeyMatches(input, 'locatario.tipo')) return selectedTenant?.bankData.accountType || '';
+      const fromLocatario = locatarioTokenMap[token];
+      if (fromLocatario !== undefined) return fromLocatario;
 
-      if (inputKeyMatches(input, 'segundo_proponente.nome')) {
-        return selectedSecondProposer?.personalData.fullName || '';
-      }
-      if (inputKeyMatches(input, 'segundo_proponente.data_nascimento')) {
-        return selectedSecondProposer?.personalData.birthDate || '';
-      }
-      if (inputKeyMatches(input, 'segundo_proponente.rg')) {
-        return selectedSecondProposer?.personalData.rg || '';
-      }
-      if (inputKeyMatches(input, 'segundo_proponente.cpf')) {
-        return selectedSecondProposer?.personalData.cpf || '';
-      }
-      if (inputKeyMatches(input, 'segundo_proponente.profissao')) {
-        return selectedSecondProposer?.personalData.profession || '';
-      }
-      if (inputKeyMatches(input, 'segundo_proponente.estado_civil')) {
-        return selectedSecondProposer?.personalData.maritalStatus || '';
-      }
-      if (inputKeyMatches(input, 'segundo_proponente.orgao_expedidor')) {
-        return selectedSecondProposer?.personalData.rgIssuer || '';
-      }
-      if (inputKeyMatches(input, 'segundo_proponente.renda_mensal')) {
-        return selectedSecondProposer?.personalData.monthlyIncome || '';
-      }
-      if (inputKeyMatches(input, 'segundo_proponente.email')) {
-        return selectedSecondProposer?.contact.email || '';
-      }
-      if (inputKeyMatches(input, 'segundo_proponente.telefone_principal')) {
-        return selectedSecondProposer?.contact.mainPhone || '';
-      }
-      if (inputKeyMatches(input, 'segundo_proponente.telefone_secundario')) {
-        return selectedSecondProposer?.contact.secondaryPhone || '';
-      }
-      if (inputKeyMatches(input, 'segundo_proponente.agencia')) {
-        return selectedSecondProposer?.bankData.agency || '';
-      }
-      if (inputKeyMatches(input, 'segundo_proponente.conta')) {
-        return selectedSecondProposer?.bankData.accountNumber || '';
-      }
-      if (inputKeyMatches(input, 'segundo_proponente.tipo')) {
-        return selectedSecondProposer?.bankData.accountType || '';
-      }
+      const fromSegundoProponente = segundoProponenteTokenMap[token];
+      if (fromSegundoProponente !== undefined) return fromSegundoProponente;
 
-      return modelInputValues[input.key] || '';
+      return modelInputValues[input.key] ?? '';
     },
     [
-      additionalInfo,
-      condoFee,
-      endDate,
-      iptuValue,
-      modelInputValues,
-      rentValue,
-      renterCpf,
-      renterEmail,
-      renterName,
-      renterPhone,
+      locadorTokenMap,
+      contratoTokenMap,
       selectedProperty,
-      selectedSecondProposer,
-      selectedTenant,
-      startDate,
-      status,
-      tcrValue,
+      locatarioTokenMap,
+      segundoProponenteTokenMap,
+      modelInputValues,
     ]
   );
 
@@ -563,7 +598,8 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
   );
 
   const customSecondProposerInputs = secondProposerInputs.filter(
-    (input) => !knownSecondProposerTokens.has(getTokenFromInput(input).toLowerCase())
+    (input) =>
+      !knownSecondProposerTokens.has(getTokenFromInput(input).toLowerCase())
   );
 
   const showRentField = contractInputs.some((input) =>
@@ -588,11 +624,20 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
   const isPropertyInvalid = hasSubmitAttempt && !selectedPropertyId;
   const isTenantInvalid = hasSubmitAttempt && !selectedTenantId;
   const isRenterNameInvalid =
-    hasSubmitAttempt && hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.nome')) && !renterName.trim();
+    hasSubmitAttempt &&
+    hasLocadorSection &&
+    locadorInputs.some((i) => inputKeyMatches(i, 'locador.nome')) &&
+    !renterName.trim();
   const isRenterCpfInvalid =
-    hasSubmitAttempt && hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.cpf')) && !renterCpf.trim();
+    hasSubmitAttempt &&
+    hasLocadorSection &&
+    locadorInputs.some((i) => inputKeyMatches(i, 'locador.cpf')) &&
+    !renterCpf.trim();
   const isRenterPhoneInvalid =
-    hasSubmitAttempt && hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.telefone')) && !renterPhone.trim();
+    hasSubmitAttempt &&
+    hasLocadorSection &&
+    locadorInputs.some((i) => inputKeyMatches(i, 'locador.telefone')) &&
+    !renterPhone.trim();
   const isRenterEmailInvalid =
     hasSubmitAttempt && hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.email')) && !renterEmail.trim();
   const isRentValueInvalid = hasSubmitAttempt && showRentField && !rentValue.trim();
@@ -611,9 +656,30 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
     isMissingModelToken('contrato.informacoes_adicionais');
   const isSecondProposerInvalid =
     hasSubmitAttempt && hasSecondProposerSection && !selectedSecondProposerId;
-  const isUploadInvalid = hasSubmitAttempt && creationMode === 'upload' && !contractPdf;
+  const isUploadInvalid =
+    hasSubmitAttempt && creationMode === 'upload' && !contractPdf;
   const isModeInvalid = hasSubmitAttempt && !creationMode;
-  const isModelInvalid = hasSubmitAttempt && creationMode === 'model' && !modelId;
+  const isModelInvalid =
+    hasSubmitAttempt && creationMode === 'model' && !modelId;
+
+  const hasLocadorFieldsMissing =
+    hasLocadorSection &&
+    ((locadorInputs.some((i) => inputKeyMatches(i, 'locador.nome')) &&
+      !renterName.trim()) ||
+      (locadorInputs.some((i) => inputKeyMatches(i, 'locador.cpf')) &&
+        !renterCpf.trim()) ||
+      (locadorInputs.some((i) => inputKeyMatches(i, 'locador.telefone')) &&
+        !renterPhone.trim()) ||
+      (locadorInputs.some((i) => inputKeyMatches(i, 'locador.email')) &&
+        !renterEmail.trim()));
+
+  const hasModelFieldsMissing =
+    creationMode === 'model' &&
+    (!modelId ||
+      hasLocadorFieldsMissing ||
+      (showRentField && !rentValue.trim()) ||
+      (hasSecondProposerSection && !selectedSecondProposerId) ||
+      missingModelInputs.length > 0);
 
   const hasRequiredFieldsMissing =
     !selectedPropertyId ||
@@ -622,15 +688,7 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
     !endDate ||
     !creationMode ||
     (creationMode === 'upload' && !contractPdf) ||
-    (creationMode === 'model' &&
-      (!modelId ||
-        (hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.nome')) && !renterName.trim()) ||
-        (hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.cpf')) && !renterCpf.trim()) ||
-        (hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.telefone')) && !renterPhone.trim()) ||
-        (hasLocadorSection && locadorInputs.some((i) => inputKeyMatches(i, 'locador.email')) && !renterEmail.trim()) ||
-        (showRentField && !rentValue.trim()) ||
-        (hasSecondProposerSection && !selectedSecondProposerId) ||
-        missingModelInputs.length > 0));
+    hasModelFieldsMissing;
 
   const canShowPreview = !hasRequiredFieldsMissing;
   const shouldShowPreview = isPreviewRequested && canShowPreview;
@@ -664,11 +722,46 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
     return new Date(endDate) >= new Date(startDate);
   };
 
+  const postUploadContract = async () => {
+    if (!contractPdf || !selectedProperty || !selectedTenant) return;
+    const formData = new FormData();
+    formData.append('sourceType', 'upload');
+    formData.append('propertyId', selectedProperty.idImovel);
+    formData.append('property', formatPropertyLabel(selectedProperty));
+    formData.append('tenantId', selectedTenant.id);
+    formData.append('tenantName', selectedTenant.name);
+    formData.append('createdAt', startDate);
+    formData.append('dueDate', endDate);
+    formData.append('contractPdf', contractPdf);
+    await postContrato(condId, formData);
+  };
+
+  const postModelContract = async () => {
+    if (!selectedProperty || !selectedTenant) return;
+    const normalizedModelValues = Object.fromEntries(
+      modelInputs.map((input) => [input.key, getModelValueForInput(input)])
+    );
+    await postContrato(condId, {
+      sourceType: 'model',
+      tenantName: selectedTenant.name,
+      tenantId: selectedTenant.id,
+      property: formatPropertyLabel(selectedProperty),
+      propertyId: selectedProperty.idImovel,
+      createdAt: startDate,
+      dueDate: endDate,
+      modelId,
+      modelName: selectedModel?.name,
+      modelInputValues: normalizedModelValues,
+    });
+  };
+
   const handleSubmit = async () => {
     setHasSubmitAttempt(true);
 
     if (hasRequiredFieldsMissing) {
-      toast.error('Preencha todos os campos obrigatórios (*) antes de adicionar o contrato.');
+      toast.error(
+        'Preencha todos os campos obrigatórios (*) antes de adicionar o contrato.'
+      );
       return;
     }
 
@@ -678,7 +771,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
     }
 
     if (!validateDates()) {
-      toast.error('A data de vencimento deve ser maior ou igual à data de início.');
+      toast.error(
+        'A data de vencimento deve ser maior ou igual à data de início.'
+      );
       return;
     }
 
@@ -728,9 +823,12 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
   return (
     <div className="flex flex-col space-y-6 p-4 sm:p-6 lg:p-8">
       <div>
-        <h1 className="text-xl font-semibold sm:text-2xl">Adicionar Contrato</h1>
+        <h1 className="text-xl font-semibold sm:text-2xl">
+          Adicionar Contrato
+        </h1>
         <p className="text-muted-foreground text-sm sm:text-base">
-          Selecione um condômino e um imóvel já cadastrados para iniciar o novo contrato.
+          Selecione um condômino e um imóvel já cadastrados para iniciar o novo
+          contrato.
         </p>
       </div>
 
@@ -812,7 +910,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                 <CardHeader className="pb-3">
                   <AccordionTrigger className="py-0 hover:no-underline">
                     <div>
-                      <CardTitle className="text-left">Dados do Imóvel</CardTitle>
+                      <CardTitle className="text-left">
+                        Dados do Imóvel
+                      </CardTitle>
                       <CardDescription className="text-left">
                         Selecione um imóvel já cadastrado.
                       </CardDescription>
@@ -823,7 +923,10 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                   <CardContent className="space-y-4">
                     <Field>
                       <FieldLabel htmlFor="property">Imóvel *</FieldLabel>
-                      <Popover open={openProperty} onOpenChange={setOpenProperty}>
+                      <Popover
+                        open={openProperty}
+                        onOpenChange={setOpenProperty}
+                      >
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
@@ -832,7 +935,8 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                             className={cn(
                               'w-full justify-between',
                               !selectedPropertyId && 'text-muted-foreground',
-                              isPropertyInvalid && 'border-destructive text-destructive'
+                              isPropertyInvalid &&
+                                'border-destructive text-destructive'
                             )}
                           >
                             {selectedProperty
@@ -845,7 +949,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                           <Command>
                             <CommandInput placeholder="Procurar imóvel..." />
                             <CommandList>
-                              <CommandEmpty>Nenhum imóvel encontrado.</CommandEmpty>
+                              <CommandEmpty>
+                                Nenhum imóvel encontrado.
+                              </CommandEmpty>
                               <CommandGroup>
                                 {properties.map((property) => (
                                   <CommandItem
@@ -892,19 +998,33 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                           <div className="space-y-4 rounded-lg border p-4">
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <p className="text-muted-foreground text-sm">Identificação</p>
-                                <p className="text-sm font-medium">{selectedProperty.idImovel}</p>
+                                <p className="text-muted-foreground text-sm">
+                                  Identificação
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedProperty.idImovel}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground text-sm">Nome</p>
-                                <p className="text-sm font-medium">{selectedProperty.name}</p>
+                                <p className="text-muted-foreground text-sm">
+                                  Nome
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedProperty.name}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground text-sm">Tipo</p>
-                                <p className="text-sm font-medium">{selectedProperty.tipo}</p>
+                                <p className="text-muted-foreground text-sm">
+                                  Tipo
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedProperty.tipo}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground text-sm">Situação</p>
+                                <p className="text-muted-foreground text-sm">
+                                  Situação
+                                </p>
                                 <p className="text-sm font-medium capitalize">
                                   {selectedProperty.situacao}
                                 </p>
@@ -915,9 +1035,12 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
 
                         <TabsContent value="endereco" className="mt-4">
                           <div className="space-y-4 rounded-lg border p-4">
-                            <p className="text-sm font-medium">{selectedProperty.endereco}</p>
+                            <p className="text-sm font-medium">
+                              {selectedProperty.endereco}
+                            </p>
                             <p className="text-muted-foreground text-sm">
-                              {selectedProperty.bairro}, {selectedProperty.cidade}
+                              {selectedProperty.bairro},{' '}
+                              {selectedProperty.cidade}
                             </p>
                           </div>
                         </TabsContent>
@@ -933,7 +1056,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                 <CardHeader className="pb-3">
                   <AccordionTrigger className="py-0 hover:no-underline">
                     <div>
-                      <CardTitle className="text-left">Dados do Locatário</CardTitle>
+                      <CardTitle className="text-left">
+                        Dados do Locatário
+                      </CardTitle>
                       <CardDescription className="text-left">
                         Informações contratuais do locatário.
                       </CardDescription>
@@ -953,12 +1078,14 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                             className={cn(
                               'w-full justify-between',
                               !selectedTenantId && 'text-muted-foreground',
-                              isTenantInvalid && 'border-destructive text-destructive'
+                              isTenantInvalid &&
+                                'border-destructive text-destructive'
                             )}
                           >
                             {selectedTenantId
-                              ? tenants.find((tenant) => tenant.id === selectedTenantId)
-                                  ?.name || 'Selecionar condômino'
+                              ? tenants.find(
+                                  (tenant) => tenant.id === selectedTenantId
+                                )?.name || 'Selecionar condômino'
                               : 'Selecionar condômino'}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -967,7 +1094,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                           <Command>
                             <CommandInput placeholder="Procurar condômino..." />
                             <CommandList>
-                              <CommandEmpty>Nenhum condômino encontrado.</CommandEmpty>
+                              <CommandEmpty>
+                                Nenhum condômino encontrado.
+                              </CommandEmpty>
                               <CommandGroup>
                                 {tenants.map((tenant) => (
                                   <CommandItem
@@ -995,7 +1124,8 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                         </PopoverContent>
                       </Popover>
                       <FieldDescription>
-                        É preciso que o locatário tenha preenchido o formulário de pré-cadastro devidamente.
+                        É preciso que o locatário tenha preenchido o formulário
+                        de pré-cadastro devidamente.
                       </FieldDescription>
                     </Field>
 
@@ -1010,45 +1140,81 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                     {selectedTenant && (
                       <Tabs defaultValue="pessoais" className="mt-6">
                         <TabsList className="grid w-full grid-cols-3">
-                          <TabsTrigger value="pessoais">Dados Pessoais</TabsTrigger>
+                          <TabsTrigger value="pessoais">
+                            Dados Pessoais
+                          </TabsTrigger>
                           <TabsTrigger value="contato">Contato</TabsTrigger>
-                          <TabsTrigger value="bancarios">Dados Bancários</TabsTrigger>
+                          <TabsTrigger value="bancarios">
+                            Dados Bancários
+                          </TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="pessoais" className="mt-6">
                           <div className="space-y-4 rounded-lg border p-6">
                             <div className="grid grid-cols-2 gap-4">
                               <div className="col-span-2">
-                                <p className="text-muted-foreground mb-1 text-sm">Nome Completo</p>
-                                <p className="text-sm font-medium">{selectedTenant.personalData.fullName}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Nome Completo
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.personalData.fullName}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground mb-1 text-sm">Data de Nascimento</p>
-                                <p className="text-sm font-medium">{selectedTenant.personalData.birthDate}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Data de Nascimento
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.personalData.birthDate}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground mb-1 text-sm">Estado Civil</p>
-                                <p className="text-sm font-medium">{selectedTenant.personalData.maritalStatus}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Estado Civil
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.personalData.maritalStatus}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground mb-1 text-sm">RG</p>
-                                <p className="text-sm font-medium">{selectedTenant.personalData.rg}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  RG
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.personalData.rg}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground mb-1 text-sm">Órgão Expedidor</p>
-                                <p className="text-sm font-medium">{selectedTenant.personalData.rgIssuer}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Órgão Expedidor
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.personalData.rgIssuer}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground mb-1 text-sm">CPF</p>
-                                <p className="text-sm font-medium">{selectedTenant.personalData.cpf}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  CPF
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.personalData.cpf}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground mb-1 text-sm">Renda Mensal</p>
-                                <p className="text-sm font-medium">{selectedTenant.personalData.monthlyIncome}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Renda Mensal
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.personalData.monthlyIncome}
+                                </p>
                               </div>
                               <div className="col-span-2">
-                                <p className="text-muted-foreground mb-1 text-sm">Profissão</p>
-                                <p className="text-sm font-medium">{selectedTenant.personalData.profession}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Profissão
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.personalData.profession}
+                                </p>
                               </div>
                             </div>
                           </div>
@@ -1058,20 +1224,36 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                           <div className="space-y-4 rounded-lg border p-6">
                             <div className="grid grid-cols-2 gap-4">
                               <div className="col-span-2">
-                                <p className="text-muted-foreground mb-1 text-sm">Email</p>
-                                <p className="text-sm font-medium">{selectedTenant.contact.email}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Email
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.contact.email}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground mb-1 text-sm">Telefone Principal</p>
-                                <p className="text-sm font-medium">{selectedTenant.contact.mainPhone}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Telefone Principal
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.contact.mainPhone}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground mb-1 text-sm">Telefone Secundário</p>
-                                <p className="text-sm font-medium">{selectedTenant.contact.secondaryPhone}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Telefone Secundário
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.contact.secondaryPhone}
+                                </p>
                               </div>
                               <div className="col-span-2">
-                                <p className="text-muted-foreground mb-1 text-sm">Endereço</p>
-                                <p className="text-sm font-medium">{selectedTenant.contact.address}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Endereço
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.contact.address}
+                                </p>
                               </div>
 
                               {selectedTenant.emergencyContacts.length > 0 && (
@@ -1080,24 +1262,43 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                                     <Separator />
                                   </div>
                                   <div className="col-span-2">
-                                    <p className="mb-3 text-sm font-semibold">Contatos de Emergência</p>
+                                    <p className="mb-3 text-sm font-semibold">
+                                      Contatos de Emergência
+                                    </p>
                                   </div>
-                                  {selectedTenant.emergencyContacts.map((contact, index) => (
-                                    <div key={index} className="col-span-2 grid grid-cols-3 gap-4">
-                                      <div>
-                                        <p className="text-muted-foreground mb-1 text-sm">Nome</p>
-                                        <p className="text-sm font-medium">{contact.name}</p>
+                                  {selectedTenant.emergencyContacts.map(
+                                    (contact, index) => (
+                                      <div
+                                        key={index}
+                                        className="col-span-2 grid grid-cols-3 gap-4"
+                                      >
+                                        <div>
+                                          <p className="text-muted-foreground mb-1 text-sm">
+                                            Nome
+                                          </p>
+                                          <p className="text-sm font-medium">
+                                            {contact.name}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-muted-foreground mb-1 text-sm">
+                                            Parentesco
+                                          </p>
+                                          <p className="text-sm font-medium">
+                                            {contact.relationship}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-muted-foreground mb-1 text-sm">
+                                            Telefone
+                                          </p>
+                                          <p className="text-sm font-medium">
+                                            {contact.phone}
+                                          </p>
+                                        </div>
                                       </div>
-                                      <div>
-                                        <p className="text-muted-foreground mb-1 text-sm">Parentesco</p>
-                                        <p className="text-sm font-medium">{contact.relationship}</p>
-                                      </div>
-                                      <div>
-                                        <p className="text-muted-foreground mb-1 text-sm">Telefone</p>
-                                        <p className="text-sm font-medium">{contact.phone}</p>
-                                      </div>
-                                    </div>
-                                  ))}
+                                    )
+                                  )}
                                 </>
                               )}
                             </div>
@@ -1108,20 +1309,36 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                           <div className="space-y-4 rounded-lg border p-6">
                             <div className="grid grid-cols-2 gap-4">
                               <div className="col-span-2">
-                                <p className="text-muted-foreground mb-1 text-sm">Banco</p>
-                                <p className="text-sm font-medium">{selectedTenant.bankData.bank}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Banco
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.bankData.bank}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground mb-1 text-sm">Tipo de Conta</p>
-                                <p className="text-sm font-medium">{selectedTenant.bankData.accountType}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Tipo de Conta
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.bankData.accountType}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground mb-1 text-sm">Agência</p>
-                                <p className="text-sm font-medium">{selectedTenant.bankData.agency}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Agência
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.bankData.agency}
+                                </p>
                               </div>
                               <div className="col-span-2">
-                                <p className="text-muted-foreground mb-1 text-sm">Número da Conta</p>
-                                <p className="text-sm font-medium">{selectedTenant.bankData.accountNumber}</p>
+                                <p className="text-muted-foreground mb-1 text-sm">
+                                  Número da Conta
+                                </p>
+                                <p className="text-sm font-medium">
+                                  {selectedTenant.bankData.accountNumber}
+                                </p>
                               </div>
                             </div>
                           </div>
@@ -1138,7 +1355,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                 <CardHeader className="pb-3">
                   <AccordionTrigger className="py-0 hover:no-underline">
                     <div>
-                      <CardTitle className="text-left">Dados Contratuais</CardTitle>
+                      <CardTitle className="text-left">
+                        Dados Contratuais
+                      </CardTitle>
                       <CardDescription className="text-left">
                         Informações financeiras e contratuais.
                       </CardDescription>
@@ -1149,27 +1368,39 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <Field>
-                        <FieldLabel htmlFor="start-date">Data Início *</FieldLabel>
+                        <FieldLabel htmlFor="start-date">
+                          Data Início *
+                        </FieldLabel>
                         <div className="relative">
                           <Calendar className="text-muted-foreground pointer-events-none absolute top-2.5 left-3 h-4 w-4" />
                           <Input
                             id="start-date"
                             type="date"
-                            className={cn('pl-9', isStartDateInvalid && 'border-destructive')}
+                            className={cn(
+                              'pl-9',
+                              isStartDateInvalid && 'border-destructive'
+                            )}
                             value={startDate}
-                            onChange={(event) => setStartDate(event.target.value)}
+                            onChange={(event) =>
+                              setStartDate(event.target.value)
+                            }
                           />
                         </div>
                       </Field>
 
                       <Field>
-                        <FieldLabel htmlFor="end-date">Data Vencimento *</FieldLabel>
+                        <FieldLabel htmlFor="end-date">
+                          Data Vencimento *
+                        </FieldLabel>
                         <div className="relative">
                           <Calendar className="text-muted-foreground pointer-events-none absolute top-2.5 left-3 h-4 w-4" />
                           <Input
                             id="end-date"
                             type="date"
-                            className={cn('pl-9', isEndDateInvalid && 'border-destructive')}
+                            className={cn(
+                              'pl-9',
+                              isEndDateInvalid && 'border-destructive'
+                            )}
                             value={endDate}
                             onChange={(event) => setEndDate(event.target.value)}
                           />
@@ -1178,7 +1409,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                     </div>
 
                     <Field>
-                      <FieldLabel htmlFor="creation-mode">Modo de criação *</FieldLabel>
+                      <FieldLabel htmlFor="creation-mode">
+                        Modo de criação *
+                      </FieldLabel>
                       <Select
                         value={creationMode}
                         onValueChange={(value) => {
@@ -1226,7 +1459,8 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                               className={cn(
                                 'w-full justify-between',
                                 !modelId && 'text-muted-foreground',
-                                isModelInvalid && 'border-destructive text-destructive'
+                                isModelInvalid &&
+                                  'border-destructive text-destructive'
                               )}
                               disabled={isLoadingModels}
                             >
@@ -1238,7 +1472,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                             <Command>
                               <CommandInput placeholder="Procurar modelo..." />
                               <CommandList>
-                                <CommandEmpty>Nenhum modelo encontrado.</CommandEmpty>
+                                <CommandEmpty>
+                                  Nenhum modelo encontrado.
+                                </CommandEmpty>
                                 <CommandGroup>
                                   {models.map((model) => (
                                     <CommandItem
@@ -1252,7 +1488,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                                       <Check
                                         className={cn(
                                           'mr-2 h-4 w-4',
-                                          model.id === modelId ? 'opacity-100' : 'opacity-0'
+                                          model.id === modelId
+                                            ? 'opacity-100'
+                                            : 'opacity-0'
                                         )}
                                       />
                                       {model.name}
@@ -1268,29 +1506,44 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
 
                     {creationMode === 'upload' && (
                       <Field>
-                        <FieldLabel htmlFor="contractPdf">Arquivo PDF *</FieldLabel>
+                        <FieldLabel htmlFor="contractPdf">
+                          Arquivo PDF *
+                        </FieldLabel>
                         <Input
                           id="contractPdf"
                           type="file"
                           accept="application/pdf"
-                          onChange={(event) => setContractPdf(event.target.files?.[0] || null)}
-                          className={cn(isUploadInvalid && 'border-destructive')}
+                          onChange={(event) =>
+                            setContractPdf(event.target.files?.[0] || null)
+                          }
+                          className={cn(
+                            isUploadInvalid && 'border-destructive'
+                          )}
                         />
-                        <FieldDescription>Somente arquivos PDF são aceitos.</FieldDescription>
+                        <FieldDescription>
+                          Somente arquivos PDF são aceitos.
+                        </FieldDescription>
                       </Field>
                     )}
 
                     {creationMode === 'model' && isLoadingModelInputs && (
-                      <p className="text-muted-foreground text-sm">Carregando campos do modelo...</p>
+                      <p className="text-muted-foreground text-sm">
+                        Carregando campos do modelo...
+                      </p>
                     )}
 
                     {creationMode === 'model' && !isLoadingModelInputs && (
                       <>
-                        {(showRentField || showCondoField || showIptuField || showTcrField) && (
+                        {(showRentField ||
+                          showCondoField ||
+                          showIptuField ||
+                          showTcrField) && (
                           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             {showRentField && (
                               <Field>
-                                <FieldLabel htmlFor="rent-value">Valor do Aluguel *</FieldLabel>
+                                <FieldLabel htmlFor="rent-value">
+                                  Valor do Aluguel *
+                                </FieldLabel>
                                 <Input
                                   id="rent-value"
                                   placeholder="R$ 0,00"
@@ -1356,20 +1609,27 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
 
                         {showStatusField && (
                           <Field>
-                            <FieldLabel htmlFor="contract-status">Status *</FieldLabel>
+                            <FieldLabel htmlFor="contract-status">
+                              Status *
+                            </FieldLabel>
                             <Select
                               value={status}
                               onValueChange={(value) => setStatus(value)}
                             >
                               <SelectTrigger
                                 id="contract-status"
-                                className={cn(isStatusInvalid && 'border-destructive')}
+                                className={cn(
+                                  isStatusInvalid && 'border-destructive'
+                                )}
                               >
                                 <SelectValue placeholder="Selecionar status" />
                               </SelectTrigger>
                               <SelectContent>
                                 {CONTRACT_STATUSES.map((option) => (
-                                  <SelectItem key={option.value} value={option.value}>
+                                  <SelectItem
+                                    key={option.value}
+                                    value={option.value}
+                                  >
                                     {option.label}
                                   </SelectItem>
                                 ))}
@@ -1391,17 +1651,22 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                                 isAdditionalInfoInvalid && 'border-destructive'
                               )}
                               value={additionalInfo}
-                              onChange={(event) => setAdditionalInfo(event.target.value)}
+                              onChange={(event) =>
+                                setAdditionalInfo(event.target.value)
+                              }
                             />
                             <FieldDescription>
-                              Inclua quaisquer observações ou cláusulas especiais do contrato.
+                              Inclua quaisquer observações ou cláusulas
+                              especiais do contrato.
                             </FieldDescription>
                           </Field>
                         )}
 
                         {customContractInputs.map((input) => (
                           <Field key={input.key}>
-                            <FieldLabel htmlFor={`model-${input.key}`}>{input.label} *</FieldLabel>
+                            <FieldLabel htmlFor={`model-${input.key}`}>
+                              {input.label} *
+                            </FieldLabel>
                             <Input
                               id={`model-${input.key}`}
                               value={modelInputValues[input.key] || ''}
@@ -1421,7 +1686,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                               inputMode={isMonetaryModelInput(input) ? 'decimal' : undefined}
                             />
                             <FieldDescription>
-                              Placeholder: {'{{'}{getTokenFromInput(input)}{'}}'}
+                              Placeholder: {'{{'}
+                              {getTokenFromInput(input)}
+                              {'}}'}
                             </FieldDescription>
                           </Field>
                         ))}
@@ -1438,7 +1705,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                   <CardHeader className="pb-3">
                     <AccordionTrigger className="py-0 hover:no-underline">
                       <div>
-                        <CardTitle className="text-left">Dados do Locador</CardTitle>
+                        <CardTitle className="text-left">
+                          Dados do Locador
+                        </CardTitle>
                         <CardDescription className="text-left">
                           Informações do locador conforme exigência do modelo.
                         </CardDescription>
@@ -1447,64 +1716,96 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                   </CardHeader>
                   <AccordionContent>
                     <CardContent className="space-y-4">
-                      {locadorInputs.some((i) => inputKeyMatches(i, 'locador.nome')) && (
+                      {locadorInputs.some((i) =>
+                        inputKeyMatches(i, 'locador.nome')
+                      ) && (
                         <Field>
-                          <FieldLabel htmlFor="renter-name">Nome Completo *</FieldLabel>
+                          <FieldLabel htmlFor="renter-name">
+                            Nome Completo *
+                          </FieldLabel>
                           <Input
                             id="renter-name"
                             placeholder="Ex.: João da Silva"
                             value={renterName}
-                            onChange={(event) => setRenterName(event.target.value)}
-                            className={cn(isRenterNameInvalid && 'border-destructive')}
+                            onChange={(event) =>
+                              setRenterName(event.target.value)
+                            }
+                            className={cn(
+                              isRenterNameInvalid && 'border-destructive'
+                            )}
                           />
                         </Field>
                       )}
 
                       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        {locadorInputs.some((i) => inputKeyMatches(i, 'locador.cpf')) && (
+                        {locadorInputs.some((i) =>
+                          inputKeyMatches(i, 'locador.cpf')
+                        ) && (
                           <Field>
                             <FieldLabel htmlFor="renter-cpf">CPF *</FieldLabel>
                             <Input
                               id="renter-cpf"
                               placeholder="000.000.000-00"
                               value={renterCpf}
-                              onChange={(event) => setRenterCpf(event.target.value)}
-                              className={cn(isRenterCpfInvalid && 'border-destructive')}
+                              onChange={(event) =>
+                                setRenterCpf(event.target.value)
+                              }
+                              className={cn(
+                                isRenterCpfInvalid && 'border-destructive'
+                              )}
                             />
                           </Field>
                         )}
 
-                        {locadorInputs.some((i) => inputKeyMatches(i, 'locador.telefone')) && (
+                        {locadorInputs.some((i) =>
+                          inputKeyMatches(i, 'locador.telefone')
+                        ) && (
                           <Field>
-                            <FieldLabel htmlFor="renter-phone">Telefone Principal *</FieldLabel>
+                            <FieldLabel htmlFor="renter-phone">
+                              Telefone Principal *
+                            </FieldLabel>
                             <Input
                               id="renter-phone"
                               placeholder="(00) 90000-0000"
                               value={renterPhone}
-                              onChange={(event) => setRenterPhone(event.target.value)}
-                              className={cn(isRenterPhoneInvalid && 'border-destructive')}
+                              onChange={(event) =>
+                                setRenterPhone(event.target.value)
+                              }
+                              className={cn(
+                                isRenterPhoneInvalid && 'border-destructive'
+                              )}
                             />
                           </Field>
                         )}
                       </div>
 
-                      {locadorInputs.some((i) => inputKeyMatches(i, 'locador.email')) && (
+                      {locadorInputs.some((i) =>
+                        inputKeyMatches(i, 'locador.email')
+                      ) && (
                         <Field>
-                          <FieldLabel htmlFor="renter-email">Email *</FieldLabel>
+                          <FieldLabel htmlFor="renter-email">
+                            Email *
+                          </FieldLabel>
                           <Input
                             id="renter-email"
                             type="email"
                             placeholder="nome@email.com"
                             value={renterEmail}
-                            onChange={(event) => setRenterEmail(event.target.value)}
-                            className={cn(isRenterEmailInvalid && 'border-destructive')}
+                            onChange={(event) =>
+                              setRenterEmail(event.target.value)
+                            }
+                            className={cn(
+                              isRenterEmailInvalid && 'border-destructive'
+                            )}
                           />
                         </Field>
                       )}
 
                       {customLocadorInputs.map((input) => (
                         <Field key={input.key}>
-                          <FieldLabel htmlFor={`model-${input.key}`}>{input.label} *</FieldLabel>
+                          <FieldLabel htmlFor={`model-${input.key}`}>
+                            {input.label} *
+                          </FieldLabel>
                           <Input
                             id={`model-${input.key}`}
                             value={modelInputValues[input.key] || ''}
@@ -1524,7 +1825,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                             inputMode={isMonetaryModelInput(input) ? 'decimal' : undefined}
                           />
                           <FieldDescription>
-                            Placeholder: {'{{'}{getTokenFromInput(input)}{'}}'}
+                            Placeholder: {'{{'}
+                            {getTokenFromInput(input)}
+                            {'}}'}
                           </FieldDescription>
                         </Field>
                       ))}
@@ -1540,7 +1843,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                   <CardHeader className="pb-3">
                     <AccordionTrigger className="py-0 hover:no-underline">
                       <div>
-                        <CardTitle className="text-left">Segundo Proponente</CardTitle>
+                        <CardTitle className="text-left">
+                          Segundo Proponente
+                        </CardTitle>
                         <CardDescription className="text-left">
                           Informações caso o modelo exija outro proponente.
                         </CardDescription>
@@ -1550,8 +1855,13 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                   <AccordionContent>
                     <CardContent>
                       <Field>
-                        <FieldLabel htmlFor="second-proposer-select">Selecionar Condomínio *</FieldLabel>
-                        <Popover open={openSecondProposer} onOpenChange={setOpenSecondProposer}>
+                        <FieldLabel htmlFor="second-proposer-select">
+                          Selecionar Condomínio *
+                        </FieldLabel>
+                        <Popover
+                          open={openSecondProposer}
+                          onOpenChange={setOpenSecondProposer}
+                        >
                           <PopoverTrigger asChild>
                             <Button
                               variant="outline"
@@ -1559,13 +1869,16 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                               aria-expanded={openSecondProposer}
                               className={cn(
                                 'w-full justify-between',
-                                !selectedSecondProposerId && 'text-muted-foreground',
-                                isSecondProposerInvalid && 'border-destructive text-destructive'
+                                !selectedSecondProposerId &&
+                                  'text-muted-foreground',
+                                isSecondProposerInvalid &&
+                                  'border-destructive text-destructive'
                               )}
                             >
                               {selectedSecondProposerId
                                 ? secondProposerOptions.find(
-                                    (tenant) => tenant.id === selectedSecondProposerId
+                                    (tenant) =>
+                                      tenant.id === selectedSecondProposerId
                                   )?.name || 'Selecionar condômino'
                                 : 'Selecionar condômino'}
                               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -1575,7 +1888,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                             <Command>
                               <CommandInput placeholder="Procurar condômino..." />
                               <CommandList>
-                                <CommandEmpty>Nenhum condômino encontrado.</CommandEmpty>
+                                <CommandEmpty>
+                                  Nenhum condômino encontrado.
+                                </CommandEmpty>
                                 <CommandGroup>
                                   {secondProposerOptions.map((tenant) => (
                                     <CommandItem
@@ -1603,71 +1918,117 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                           </PopoverContent>
                         </Popover>
                         <FieldDescription>
-                          É preciso que o segundo proponente tenha preenchido o formulário de pré-cadastro devidamente.
+                          É preciso que o segundo proponente tenha preenchido o
+                          formulário de pré-cadastro devidamente.
                         </FieldDescription>
                       </Field>
 
-                      {selectedSecondProposerId && !selectedSecondProposer && isLoadingSecondProposer && (
-                        <div className="mt-6 rounded-lg border p-4">
-                          <p className="text-muted-foreground text-sm">
-                            Carregando dados completos do segundo proponente...
-                          </p>
-                        </div>
-                      )}
+                      {selectedSecondProposerId &&
+                        !selectedSecondProposer &&
+                        isLoadingSecondProposer && (
+                          <div className="mt-6 rounded-lg border p-4">
+                            <p className="text-muted-foreground text-sm">
+                              Carregando dados completos do segundo
+                              proponente...
+                            </p>
+                          </div>
+                        )}
 
                       {selectedSecondProposer && (
                         <Tabs defaultValue="pessoais" className="mt-6">
                           <TabsList className="grid w-full grid-cols-3">
-                            <TabsTrigger value="pessoais">Dados Pessoais</TabsTrigger>
+                            <TabsTrigger value="pessoais">
+                              Dados Pessoais
+                            </TabsTrigger>
                             <TabsTrigger value="contato">Contato</TabsTrigger>
-                            <TabsTrigger value="bancarios">Dados Bancários</TabsTrigger>
+                            <TabsTrigger value="bancarios">
+                              Dados Bancários
+                            </TabsTrigger>
                           </TabsList>
 
                           <TabsContent value="pessoais" className="mt-6">
                             <div className="space-y-4 rounded-lg border p-6">
                               <div className="grid grid-cols-2 gap-4">
                                 <div className="col-span-2">
-                                  <p className="text-muted-foreground mb-1 text-sm">Nome Completo</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Nome Completo
+                                  </p>
                                   <p className="text-sm font-medium">
-                                    {selectedSecondProposer.personalData.fullName}
+                                    {
+                                      selectedSecondProposer.personalData
+                                        .fullName
+                                    }
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="text-muted-foreground mb-1 text-sm">Data de Nascimento</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Data de Nascimento
+                                  </p>
                                   <p className="text-sm font-medium">
-                                    {selectedSecondProposer.personalData.birthDate}
+                                    {
+                                      selectedSecondProposer.personalData
+                                        .birthDate
+                                    }
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="text-muted-foreground mb-1 text-sm">Estado Civil</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Estado Civil
+                                  </p>
                                   <p className="text-sm font-medium">
-                                    {selectedSecondProposer.personalData.maritalStatus}
+                                    {
+                                      selectedSecondProposer.personalData
+                                        .maritalStatus
+                                    }
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="text-muted-foreground mb-1 text-sm">RG</p>
-                                  <p className="text-sm font-medium">{selectedSecondProposer.personalData.rg}</p>
-                                </div>
-                                <div>
-                                  <p className="text-muted-foreground mb-1 text-sm">Órgão Expedidor</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    RG
+                                  </p>
                                   <p className="text-sm font-medium">
-                                    {selectedSecondProposer.personalData.rgIssuer}
+                                    {selectedSecondProposer.personalData.rg}
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="text-muted-foreground mb-1 text-sm">CPF</p>
-                                  <p className="text-sm font-medium">{selectedSecondProposer.personalData.cpf}</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Órgão Expedidor
+                                  </p>
+                                  <p className="text-sm font-medium">
+                                    {
+                                      selectedSecondProposer.personalData
+                                        .rgIssuer
+                                    }
+                                  </p>
                                 </div>
                                 <div>
-                                  <p className="text-muted-foreground mb-1 text-sm">Renda Mensal</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    CPF
+                                  </p>
                                   <p className="text-sm font-medium">
-                                    {selectedSecondProposer.personalData.monthlyIncome}
+                                    {selectedSecondProposer.personalData.cpf}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Renda Mensal
+                                  </p>
+                                  <p className="text-sm font-medium">
+                                    {
+                                      selectedSecondProposer.personalData
+                                        .monthlyIncome
+                                    }
                                   </p>
                                 </div>
                                 <div className="col-span-2">
-                                  <p className="text-muted-foreground mb-1 text-sm">Profissão</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Profissão
+                                  </p>
                                   <p className="text-sm font-medium">
-                                    {selectedSecondProposer.personalData.profession}
+                                    {
+                                      selectedSecondProposer.personalData
+                                        .profession
+                                    }
                                   </p>
                                 </div>
                               </div>
@@ -1678,24 +2039,39 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                             <div className="space-y-4 rounded-lg border p-6">
                               <div className="grid grid-cols-2 gap-4">
                                 <div className="col-span-2">
-                                  <p className="text-muted-foreground mb-1 text-sm">Email</p>
-                                  <p className="text-sm font-medium">{selectedSecondProposer.contact.email}</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Email
+                                  </p>
+                                  <p className="text-sm font-medium">
+                                    {selectedSecondProposer.contact.email}
+                                  </p>
                                 </div>
                                 <div>
-                                  <p className="text-muted-foreground mb-1 text-sm">Telefone Principal</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Telefone Principal
+                                  </p>
                                   <p className="text-sm font-medium">
                                     {selectedSecondProposer.contact.mainPhone}
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="text-muted-foreground mb-1 text-sm">Telefone Secundário</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Telefone Secundário
+                                  </p>
                                   <p className="text-sm font-medium">
-                                    {selectedSecondProposer.contact.secondaryPhone}
+                                    {
+                                      selectedSecondProposer.contact
+                                        .secondaryPhone
+                                    }
                                   </p>
                                 </div>
                                 <div className="col-span-2">
-                                  <p className="text-muted-foreground mb-1 text-sm">Endereço</p>
-                                  <p className="text-sm font-medium">{selectedSecondProposer.contact.address}</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Endereço
+                                  </p>
+                                  <p className="text-sm font-medium">
+                                    {selectedSecondProposer.contact.address}
+                                  </p>
                                 </div>
                               </div>
                             </div>
@@ -1705,23 +2081,41 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                             <div className="space-y-4 rounded-lg border p-6">
                               <div className="grid grid-cols-2 gap-4">
                                 <div className="col-span-2">
-                                  <p className="text-muted-foreground mb-1 text-sm">Banco</p>
-                                  <p className="text-sm font-medium">{selectedSecondProposer.bankData.bank}</p>
-                                </div>
-                                <div>
-                                  <p className="text-muted-foreground mb-1 text-sm">Tipo de Conta</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Banco
+                                  </p>
                                   <p className="text-sm font-medium">
-                                    {selectedSecondProposer.bankData.accountType}
+                                    {selectedSecondProposer.bankData.bank}
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="text-muted-foreground mb-1 text-sm">Agência</p>
-                                  <p className="text-sm font-medium">{selectedSecondProposer.bankData.agency}</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Tipo de Conta
+                                  </p>
+                                  <p className="text-sm font-medium">
+                                    {
+                                      selectedSecondProposer.bankData
+                                        .accountType
+                                    }
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Agência
+                                  </p>
+                                  <p className="text-sm font-medium">
+                                    {selectedSecondProposer.bankData.agency}
+                                  </p>
                                 </div>
                                 <div className="col-span-2">
-                                  <p className="text-muted-foreground mb-1 text-sm">Número da Conta</p>
+                                  <p className="text-muted-foreground mb-1 text-sm">
+                                    Número da Conta
+                                  </p>
                                   <p className="text-sm font-medium">
-                                    {selectedSecondProposer.bankData.accountNumber}
+                                    {
+                                      selectedSecondProposer.bankData
+                                        .accountNumber
+                                    }
                                   </p>
                                 </div>
                               </div>
@@ -1734,7 +2128,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                           {customSecondProposerInputs.map((input) => (
                             <Field key={input.key}>
-                              <FieldLabel htmlFor={`model-${input.key}`}>{input.label} *</FieldLabel>
+                              <FieldLabel htmlFor={`model-${input.key}`}>
+                                {input.label} *
+                              </FieldLabel>
                               <Input
                                 id={`model-${input.key}`}
                                 value={modelInputValues[input.key] || ''}
@@ -1754,7 +2150,9 @@ export default function AddContratos({ condId, properties, tenants }: AddContrat
                                 inputMode={isMonetaryModelInput(input) ? 'decimal' : undefined}
                               />
                               <FieldDescription>
-                                Placeholder: {'{{'}{getTokenFromInput(input)}{'}}'}
+                                Placeholder: {'{{'}
+                                {getTokenFromInput(input)}
+                                {'}}'}
                               </FieldDescription>
                             </Field>
                           ))}

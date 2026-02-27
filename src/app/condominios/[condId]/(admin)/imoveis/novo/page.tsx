@@ -9,7 +9,7 @@ import { postImovel } from '@/features/imoveis/services/imovelService';
 import { ArrowLeft, Building2, MapPin, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { ImovelSituacao, ImovelTipo } from '@/types/imoveis';
+import { ImovelSituacao } from '@/types/imoveis';
 
 interface ImovelFormState {
   nome: string;
@@ -133,8 +133,8 @@ export default function NovoImovelAdminPage() {
             <div className="bg-muted flex h-40 items-center justify-center">
               <Building2 className="text-muted-foreground/60 h-14 w-14" />
             </div>
-            <div className="p-4 space-y-3">
-              <h4 className="font-semibold text-2xl leading-tight text-foreground">
+            <div className="space-y-3 p-4">
+              <h4 className="text-foreground text-2xl leading-tight font-semibold">
                 {formData.nome || 'Nome interno do imóvel'}
               </h4>
               <p className="text-muted-foreground flex items-center gap-1.5 text-sm">

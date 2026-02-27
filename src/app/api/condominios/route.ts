@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { condominiumsDb } from '@/mocks/in-memory-db';
 
 import { Condominium } from '@/types/condominium';
+import { secureRandom } from '@/lib/secure-random';
 
 /**
  * @swagger
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
   const body = (await request.json()) as Partial<Condominium>;
 
   const newCondominium: Condominium = {
-    id: Math.random().toString(36).substr(2, 9),
+    id: secureRandom(9),
     name: body.name || 'Novo Condomínio',
   };
 

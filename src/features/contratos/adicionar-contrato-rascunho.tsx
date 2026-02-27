@@ -7,12 +7,12 @@ import { Input } from "@/features/components/ui/input"
 import { Textarea } from "@/features/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/features/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/features/components/ui/tabs"
-import { Field, FieldContent, FieldLabel, FieldDescription } from "@/features/components/ui/field"
+import { Field, FieldLabel, FieldDescription } from "@/features/components/ui/field"
 import { Checkbox } from "@/features/components/ui/checkbox"
 import { Separator } from "@/features/components/ui/separator"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/features/components/ui/accordion"
 import { PDFViewer } from '@/featuresembedpdf/react-pdf-viewer';
-import { RefreshCcw, FileText, User, Menu, Calendar } from "lucide-react"
+import { RefreshCcw, Menu } from "lucide-react"
 
 // Mock Data
 const mockProperties = [

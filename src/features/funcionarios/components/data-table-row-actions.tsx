@@ -42,7 +42,7 @@ import { EmployeeDialog } from './add-employee-dialog';
 import { ViewEmployeeDialog } from './view-employee-dialog';
 
 interface DataTableRowActionsProps {
-  employee: EmployeeSummary;
+  readonly employee: EmployeeSummary;
 }
 
 export function DataTableRowActions({ employee }: DataTableRowActionsProps) {
@@ -116,6 +116,13 @@ export function DataTableRowActions({ employee }: DataTableRowActionsProps) {
       setIsTogglingStatus(false);
       setShowToggleStatusDialog(false);
     }
+  }
+
+  let toggleButtonLabel = 'Desativar';
+  if (isTogglingStatus) {
+    toggleButtonLabel = isInactive ? 'Ativando...' : 'Desativando...';
+  } else if (isInactive) {
+    toggleButtonLabel = 'Ativar';
   }
 
   return (
@@ -247,13 +254,7 @@ export function DataTableRowActions({ employee }: DataTableRowActionsProps) {
               onClick={handleToggleStatus}
               disabled={isTogglingStatus}
             >
-              {isTogglingStatus
-                ? isInactive
-                  ? 'Ativando...'
-                  : 'Desativando...'
-                : isInactive
-                  ? 'Ativar'
-                  : 'Desativar'}
+              {toggleButtonLabel}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

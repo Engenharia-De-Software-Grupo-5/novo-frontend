@@ -2,11 +2,9 @@ import { NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
 
-import { Role } from './types/user';
-
 interface routerMap {
   match: (path: string) => boolean;
-  allowedRoles: Role[];
+  allowedRoles: string[];
 }
 
 export default auth((req) => {
@@ -27,11 +25,11 @@ export default auth((req) => {
   }
 
   // Autorização por role e status (Rotas Privadas)
-  const userRole = req.auth?.user.role as Role;
   const userStatus = req.auth?.user.status as string;
+  const isAdminMaster = req.auth?.user?.isAdminMaster as boolean | undefined;
 
-  if (!userRole || !userStatus) {
-    // Se não tem role ou status, redireciona ou nega o acesso
+  if (!userStatus) {
+    // Se não tem status, redireciona ou nega o acesso
     return Response.redirect(new URL('/auth/login', req.url));
   }
 
@@ -42,11 +40,27 @@ export default auth((req) => {
     return NextResponse.redirect(redirectUrl);
   }
 
+  // Se for Admin Master, dá bypass em todas as rotas
+  if (isAdminMaster) {
+    return NextResponse.next();
+  }
+
+  // Tenta extrair o condId (ID do condomínio) da URL atual
+  const matchCondId = pathname.match(/^\/condominios\/([^\/]+)/);
+  const condId = matchCondId ? matchCondId[1] : undefined;
+
+  // Encontra a permissão (Role) do usuário no condomínio em questão baseado no Token
+  const permissions = req.auth?.permission || [];
+  const currentRoleMatch = permissions.find((p) => p.id === condId);
+  const userRole = currentRoleMatch?.name;
+
   // Definição das regras de acesso baseadas na rota
   const routeAccessMap: routerMap[] = [
     {
       match: (path: string) =>
-        path.includes('/pagamentos') || path.includes('/financeiro') || path.includes('/cobrancas'),
+        path.includes('/pagamentos') ||
+        path.includes('/financeiro') ||
+        path.includes('/cobrancas'),
       allowedRoles: ['Financeiro', 'Admin'],
     },
     {
@@ -54,21 +68,23 @@ export default auth((req) => {
       allowedRoles: ['RH', 'Admin'],
     },
     {
-      match: (path: string) => path.startsWith('/admin'),
+      match: (path: string) => path.includes('/usuarios'),
       allowedRoles: ['Admin'],
     },
   ];
-
   for (const route of routeAccessMap) {
     if (route.match(pathname)) {
-      if (!route.allowedRoles.includes(userRole)) {
-        // Tenta extrair o condId (ID do condomínio) da URL atual
-        const matchCondId = pathname.match(/^\/condominios\/([^\/]+)/);
-        const condId = matchCondId ? matchCondId[1] : '0'; // Se não tiver, cai no 0 (padrão)
-
+      if (
+        !userRole ||
+        !route.allowedRoles.find(
+          (role) => role.toLowerCase() === userRole.toLowerCase()
+        )
+      ) {
         // Redireciona para o condomínio atual se não tiver permissão
+        const fallbackCondId = condId || '0';
+        console.error(`BLOQUEADO ${userRole} ${condId}`);
         return NextResponse.redirect(
-          new URL(`/condominios/${condId}`, req.url)
+          new URL(`/condominios/${fallbackCondId}`, req.url)
         );
       }
     }

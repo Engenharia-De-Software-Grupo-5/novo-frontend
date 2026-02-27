@@ -13,8 +13,8 @@ export default async function AdminLayout({
   children,
   params,
 }: {
-  children: React.ReactNode;
-  params: Promise<{ condId: string }>;
+  readonly children: React.ReactNode;
+  readonly params: Promise<{ condId: string }>;
 }) {
   const { condId } = await params;
   const session = await auth();

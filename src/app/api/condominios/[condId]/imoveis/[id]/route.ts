@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 import { imoveisDb } from '@/mocks/in-memory-db';
+
 import { ImovelDetail } from '@/types/imoveis';
 
 function getImovelIndex(condId: string, id: string) {
@@ -23,7 +23,10 @@ export async function GET(
   );
 
   if (!imovel) {
-    return NextResponse.json({ error: 'Imóvel não encontrado' }, { status: 404 });
+    return NextResponse.json(
+      { error: 'Imóvel não encontrado' },
+      { status: 404 }
+    );
   }
 
   return NextResponse.json(imovel);
@@ -42,12 +45,30 @@ export async function PUT(
   const index = getImovelIndex(condId, id);
 
   if (index === -1) {
-    return NextResponse.json({ error: 'Imóvel não encontrado' }, { status: 404 });
+    return NextResponse.json(
+      { error: 'Imóvel não encontrado' },
+      { status: 404 }
+    );
   }
 
   const current = imoveisDb[index];
   const hasLocatario =
-    !!body.locatario?.nome || !!body.locatario?.cpf || !!body.locatario?.telefone;
+    !!body.locatario?.nome ||
+    !!body.locatario?.cpf ||
+    !!body.locatario?.telefone;
+
+  let updatedLocatario = current.locatario;
+  if (body.locatario !== undefined) {
+    if (hasLocatario) {
+      updatedLocatario = {
+        nome: body.locatario?.nome || '',
+        cpf: body.locatario?.cpf || '',
+        telefone: body.locatario?.telefone || '',
+      };
+    } else {
+      updatedLocatario = null;
+    }
+  }
 
   const updated: ImovelDetail = {
     ...current,
@@ -58,16 +79,7 @@ export async function PUT(
       ...current.endereco,
       ...body.endereco,
     },
-    locatario:
-      body.locatario === undefined
-        ? current.locatario
-        : hasLocatario
-          ? {
-              nome: body.locatario?.nome || '',
-              cpf: body.locatario?.cpf || '',
-              telefone: body.locatario?.telefone || '',
-            }
-          : null,
+    locatario: updatedLocatario,
   };
 
   imoveisDb[index] = updated;
@@ -88,10 +100,28 @@ export async function PATCH(
   const index = getImovelIndex(condId, id);
 
   if (index === -1) {
-    return NextResponse.json({ error: 'Imóvel não encontrado' }, { status: 404 });
+    return NextResponse.json(
+      { error: 'Imóvel não encontrado' },
+      { status: 404 }
+    );
   }
 
   const current = imoveisDb[index];
+  let patchedLocatario = current.locatario;
+  if (body.locatario !== undefined) {
+    const hasPatchedLocatario =
+      body.locatario?.nome || body.locatario?.cpf || body.locatario?.telefone;
+    if (hasPatchedLocatario) {
+      patchedLocatario = {
+        nome: body.locatario?.nome || '',
+        cpf: body.locatario?.cpf || '',
+        telefone: body.locatario?.telefone || '',
+      };
+    } else {
+      patchedLocatario = null;
+    }
+  }
+
   const patched: ImovelDetail = {
     ...current,
     ...body,
@@ -99,16 +129,7 @@ export async function PATCH(
       ...current.endereco,
       ...body.endereco,
     },
-    locatario:
-      body.locatario === undefined
-        ? current.locatario
-        : body.locatario?.nome || body.locatario?.cpf || body.locatario?.telefone
-          ? {
-              nome: body.locatario?.nome || '',
-              cpf: body.locatario?.cpf || '',
-              telefone: body.locatario?.telefone || '',
-            }
-          : null,
+    locatario: patchedLocatario,
   };
 
   imoveisDb[index] = patched;
@@ -128,7 +149,10 @@ export async function DELETE(
   const index = getImovelIndex(condId, id);
 
   if (index === -1) {
-    return NextResponse.json({ error: 'Imóvel não encontrado' }, { status: 404 });
+    return NextResponse.json(
+      { error: 'Imóvel não encontrado' },
+      { status: 404 }
+    );
   }
 
   imoveisDb.splice(index, 1);

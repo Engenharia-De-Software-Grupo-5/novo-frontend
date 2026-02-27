@@ -5,8 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 interface ErrorPageProps {
-  error: Error & { digest?: string };
-  reset: () => void;
+  readonly error: Error & { digest?: string };
+  readonly reset: () => void;
 }
 
 export default function GlobalError({ error, reset }: ErrorPageProps) {

@@ -31,9 +31,9 @@ export interface ContratoDetail extends ContratoSummary {
 }
 
 export interface ContratoResponse {
-  data: ContratoSummary[];
+  items: ContratoSummary[];
   meta: {
-    total: number;
+    totalItems: number;
     page: number;
     limit: number;
     totalPages: number;

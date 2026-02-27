@@ -2,7 +2,7 @@ import { Imovel } from '@/types/imoveis';
 
 export const mockImoveis: Imovel[] = [
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-001',
     nome: 'Apartamento 101 - Bloco A',
     tipo: 'apartamento',
@@ -22,7 +22,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-002',
     nome: 'Apartamento 202 - Bloco A',
     tipo: 'apartamento',
@@ -42,7 +42,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-003',
     nome: 'Casa 45',
     tipo: 'casa',
@@ -212,7 +212,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-013',
     nome: 'Apartamento 303 - Bloco B',
     tipo: 'apartamento',
@@ -232,7 +232,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-014',
     nome: 'Cobertura 1202 - Torre Leste',
     tipo: 'apartamento',
@@ -248,7 +248,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-015',
     nome: 'Casa 88',
     tipo: 'casa',
@@ -369,7 +369,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-022',
     nome: 'Apartamento 404 - Bloco C',
     tipo: 'apartamento',
@@ -389,7 +389,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-023',
     nome: 'Apartamento 505 - Bloco C',
     tipo: 'apartamento',
@@ -405,7 +405,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-024',
     nome: 'Casa 149',
     tipo: 'casa',
@@ -424,7 +424,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-025',
     nome: 'Apartamento 808 - Torre Norte',
     tipo: 'apartamento',
@@ -440,7 +440,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-026',
     nome: 'Apartamento 102 - Bloco D',
     tipo: 'apartamento',
@@ -456,7 +456,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-027',
     nome: 'Casa 211',
     tipo: 'casa',
@@ -471,7 +471,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-028',
     nome: 'Apartamento 1206 - Torre Leste',
     tipo: 'apartamento',
@@ -491,7 +491,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-029',
     nome: 'Apartamento 702 - Bloco B',
     tipo: 'apartamento',
@@ -511,7 +511,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-030',
     nome: 'Casa 19',
     tipo: 'casa',
@@ -526,7 +526,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-031',
     nome: 'Apartamento 909 - Torre Sul',
     tipo: 'apartamento',

@@ -2,7 +2,7 @@ import { Badge } from '@/features/components/ui/badge';
 import { ImovelSituacao } from '@/types/imoveis';
 
 interface StatusBadgeProps {
-  status: ImovelSituacao;
+  readonly status: ImovelSituacao;
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {

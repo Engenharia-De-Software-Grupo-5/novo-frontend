@@ -1,4 +1,9 @@
+import { redirect } from 'next/navigation';
+
+import { auth } from '@/lib/auth';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_URL_REAL = 'https://api.bemconnect.com.br/api/v1';
 
 interface ApiRequestOptions extends Omit<RequestInit, 'body'> {
   body?: unknown;
@@ -6,22 +11,45 @@ interface ApiRequestOptions extends Omit<RequestInit, 'body'> {
 
 export async function apiRequest<T>(
   path: string,
-  options: ApiRequestOptions = {}
+  options: ApiRequestOptions = {},
+  isReal: boolean = false
 ): Promise<T> {
   const { body, headers, ...rest } = options;
 
   const isFormData = body instanceof FormData;
 
-  const response = await fetch(`${API_URL}${path}`, {
+  let requestBody: BodyInit | null | undefined;
+  if (isFormData) {
+    requestBody = body as FormData;
+  } else if (body) {
+    requestBody = JSON.stringify(body);
+  } else {
+    requestBody = undefined;
+  }
+
+  const session = await auth();
+  const token = session?.user?.accessToken;
+
+  const authHeaders: Record<string, string> = {};
+  if (token) {
+    authHeaders['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${isReal ? API_URL_REAL : API_URL}${path}`, {
     headers: {
       // Don't set Content-Type for FormData — the browser sets it
       // automatically with the correct multipart boundary
       ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+      ...authHeaders,
       ...headers,
     },
-    body: isFormData ? body : body ? JSON.stringify(body) : undefined,
+    body: requestBody,
     ...rest,
   });
+
+  if (response.status === 401) {
+    redirect('/login');
+  }
 
   if (!response.ok) {
     throw new Error(`API error ${response.status}: ${response.statusText}`);

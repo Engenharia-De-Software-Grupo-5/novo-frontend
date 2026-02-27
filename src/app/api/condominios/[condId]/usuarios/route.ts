@@ -60,7 +60,7 @@ export const fetchCache = 'force-no-store';
  *                 meta:
  *                   type: object
  *                   properties:
- *                     total:
+ *                     totalItems:
  *                       type: integer
  *                     page:
  *                       type: integer
@@ -83,8 +83,8 @@ export async function GET(
 
   const searchParams = request.nextUrl.searchParams;
 
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '20');
+  const page = Number.parseInt(searchParams.get('page') || '1');
+  const limit = Number.parseInt(searchParams.get('limit') || '20');
 
   const sortParam = searchParams.get('sort');
   let sortField = sortParam;
@@ -171,9 +171,9 @@ export async function GET(
   const paginatedUsers = sortedUsers.slice(startIndex, endIndex);
 
   return NextResponse.json({
-    data: paginatedUsers,
+    items: paginatedUsers,
     meta: {
-      total: totalItems,
+      totalItems: totalItems,
       page: safePage,
       limit,
       totalPages,
@@ -266,7 +266,7 @@ export async function POST(
   usersDb.unshift(newUser);
 
   return NextResponse.json(
-    { message: 'User created successfully', data: newUser },
+    { message: 'User created successfully', items: newUser },
     { status: 201 }
   );
 }

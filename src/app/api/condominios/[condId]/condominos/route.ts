@@ -3,6 +3,7 @@ import { condominos } from '@/mocks/condominos';
 
 import { CondominoFull, CondominoSummary } from '@/types/condomino';
 import { FileAttachment } from '@/types/file';
+import { secureRandom } from '@/lib/secure-random';
 
 /**
  * @swagger
@@ -44,7 +45,7 @@ import { FileAttachment } from '@/types/file';
  *                 meta:
  *                   type: object
  *                   properties:
- *                     total:
+ *                     totalItems:
  *                       type: integer
  *                     page:
  *                       type: integer
@@ -53,6 +54,76 @@ import { FileAttachment } from '@/types/file';
  *                     totalPages:
  *                       type: integer
  */
+
+type Condomino = (typeof condominos)[number];
+
+function buildFilterMap(
+  columnsArr: string[],
+  contentArr: string[]
+): Map<string, string[]> {
+  const filterMap = new Map<string, string[]>();
+
+  for (let i = 0; i < columnsArr.length; i++) {
+    const col = columnsArr[i];
+    const val = contentArr[i];
+
+    if (col && val !== undefined) {
+      if (!filterMap.has(col)) filterMap.set(col, []);
+      filterMap.get(col)!.push(val);
+    }
+  }
+
+  return filterMap;
+}
+
+function applyFilters(
+  list: Condomino[],
+  filterMap: Map<string, string[]>
+): Condomino[] {
+  let filtered = list;
+
+  for (const [col, values] of filterMap.entries()) {
+    const searchLower = values[0].toLowerCase();
+
+    if (col === 'name' || col === 'cpf') {
+      filtered = filtered.filter((c) =>
+        (c[col] as string).toLowerCase().includes(searchLower)
+      );
+    } else {
+      filtered = filtered.filter((c) => {
+        const fieldValue = c[col as keyof typeof c];
+        if (fieldValue === undefined) return false;
+        return values.some(
+          (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
+        );
+      });
+    }
+  }
+
+  return filtered;
+}
+
+function sortCondominos(
+  list: Condomino[],
+  sortField: string | null,
+  sortOrder: string
+): Condomino[] {
+  if (!sortField) return list;
+
+  return [...list].sort((a, b) => {
+    const fieldA = a[sortField as keyof typeof a];
+    const fieldB = b[sortField as keyof typeof b];
+
+    if (fieldA === undefined && fieldB === undefined) return 0;
+    if (fieldA === undefined) return 1;
+    if (fieldB === undefined) return -1;
+
+    if (fieldA < fieldB) return sortOrder === 'asc' ? -1 : 1;
+    if (fieldA > fieldB) return sortOrder === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ condId: string }> }
@@ -72,75 +143,21 @@ export async function GET(
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';
 
-  if (sortParam && sortParam.includes('.')) {
+  if (sortParam?.includes('.')) {
     const [field, order] = sortParam.split('.');
     sortField = field;
     sortOrder = order;
   }
 
-  const columnsArr = searchParams.getAll('columns');
-  const contentArr = searchParams.getAll('content');
+  const filterMap = buildFilterMap(
+    searchParams.getAll('columns'),
+    searchParams.getAll('content')
+  );
 
-  const filterMap = new Map<string, string[]>();
+  const byCondominium = condominos.filter((c) => c.condominiumId === condId);
+  const filtered = applyFilters(byCondominium, filterMap);
+  const sorted = sortCondominos(filtered, sortField, sortOrder);
 
-  for (let i = 0; i < columnsArr.length; i++) {
-    const col = columnsArr[i];
-    const val = contentArr[i];
-
-    if (col && val !== undefined) {
-      if (!filterMap.has(col)) {
-        filterMap.set(col, []);
-      }
-      filterMap.get(col)!.push(val);
-    }
-  }
-
-  // primeiro filtra pelo condomínio
-  let filtered = condominos.filter((c) => c.condominiumId === condId);
-
-  // aplica filtros dinamicamente
-  for (const [col, values] of filterMap.entries()) {
-    if (col === 'name') {
-      const searchLower = values[0].toLowerCase();
-      filtered = filtered.filter((c) =>
-        c.name.toLowerCase().includes(searchLower)
-      );
-    } else if (col === 'cpf') {
-      const searchLower = values[0].toLowerCase();
-      filtered = filtered.filter((c) =>
-        c.cpf.toLowerCase().includes(searchLower)
-      );
-    } else {
-      filtered = filtered.filter((c) => {
-        const fieldValue = c[col as keyof typeof c];
-        if (fieldValue === undefined) return false;
-
-        return values.some(
-          (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
-        );
-      });
-    }
-  }
-
-  // 🔹 ordenação
-  const sorted = [...filtered];
-
-  if (sortField) {
-    sorted.sort((a, b) => {
-      const fieldA = a[sortField as keyof typeof a];
-      const fieldB = b[sortField as keyof typeof b];
-
-      if (fieldA === undefined && fieldB === undefined) return 0;
-      if (fieldA === undefined) return 1;
-      if (fieldB === undefined) return -1;
-
-      if (fieldA < fieldB) return sortOrder === 'asc' ? -1 : 1;
-      if (fieldA > fieldB) return sortOrder === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }
-
-  // map para summary
   const mapped: CondominoSummary[] = sorted.map((m) => ({
     id: m.id,
     name: m.name,
@@ -153,9 +170,9 @@ export async function GET(
   const paginated = mapped.slice(start, start + limit);
 
   return NextResponse.json({
-    data: paginated,
+    items: paginated,
     meta: {
-      total: filtered.length,
+      totalItems: filtered.length,
       page,
       limit,
       totalPages: Math.ceil(filtered.length / limit),
@@ -246,36 +263,42 @@ export async function GET(
  *       500:
  *         description: Erro interno do servidor
  */
-export async function POST(request: NextRequest) {
-  let body: Partial<CondominoFull>;
 
-  const contentType = request.headers.get('content-type') || '';
-  let uploadedFiles: FileAttachment[] = [];
+async function parseCondominoBody(
+  request: NextRequest
+): Promise<{ body: Partial<CondominoFull>; uploadedFiles: FileAttachment[] }> {
+  const contentType = request.headers.get('content-type') ?? '';
 
-  if (contentType.includes('multipart/form-data')) {
-    const formData = await request.formData();
-
-    const dataField = formData.get('data');
-    body = dataField ? JSON.parse(dataField as string) : {};
-
-    const files = formData.getAll('files');
-
-    uploadedFiles = files
-      .filter((f): f is File => f instanceof File)
-      .map((file) => ({
-        id: `file-${Math.random().toString(36).substr(2, 9)}`,
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        url: `/uploads/${Date.now()}_${file.name}`,
-      }));
-
-    console.log(`Received ${uploadedFiles.length} file(s)`, uploadedFiles);
-  } else {
-    body = await request.json();
+  if (!contentType.includes('multipart/form-data')) {
+    const body = (await request.json()) as Partial<CondominoFull>;
+    return { body, uploadedFiles: [] };
   }
 
-  // Associando arquivos corretamente
+  const formData = await request.formData();
+  const dataField = formData.get('data');
+  const body: Partial<CondominoFull> = dataField
+    ? JSON.parse(dataField as string)
+    : {};
+
+  const uploadedFiles = formData
+    .getAll('files')
+    .filter((f): f is File => f instanceof File)
+    .map((file) => ({
+      id: `file-${Math.random().toString(36).slice(2, 11)}`,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      url: `/uploads/${Date.now()}_${file.name}`,
+    }));
+
+  console.log(`Received ${uploadedFiles.length} file(s)`, uploadedFiles);
+
+  return { body, uploadedFiles };
+}
+
+export async function POST(request: NextRequest) {
+  const { body, uploadedFiles } = await parseCondominoBody(request);
+
   const documents = {
     rg: uploadedFiles[0],
     cpf: uploadedFiles[1],
@@ -284,7 +307,7 @@ export async function POST(request: NextRequest) {
 
   const newCondomino: CondominoFull = {
     ...body,
-    id: Math.random().toString(36).substr(2, 9),
+    id: secureRandom(9),
     status: 'pendente',
     documents,
   } as CondominoFull;

@@ -2,7 +2,7 @@
 
 import { DataTable } from '@/features/components/data-table';
 
-import { User, UserSummary } from '@/types/user';
+import { User } from '@/types/user';
 
 import {
   USER_COLUMN_LABELS,
@@ -13,8 +13,8 @@ import { AddUserDialog } from './AddUserDialog';
 import { columns } from './columns';
 
 interface UsersDataTableProps {
-  data: User[];
-  pageCount: number;
+  readonly data: User[];
+  readonly pageCount: number;
 }
 
 export function UsersDataTable({ data, pageCount }: UsersDataTableProps) {

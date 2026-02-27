@@ -1,4 +1,4 @@
-import { User, Role } from '@/types/user';
+import { User } from '@/types/user';
 
 export interface UsersResponse {
   items: User[];

@@ -1,9 +1,11 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
 import { UsersResponse } from '@/types/user';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 
 import { UpdateUserPayload } from './users';
-
-const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export const getUsers = async (
   condId: string,
@@ -16,11 +18,12 @@ export const getUsers = async (
   }
 ): Promise<UsersResponse> => {
   try {
-    const queryParams: Record<string, string | number | string[] | undefined> = {
-      page: params?.page,
-      limit: params?.limit,
-      sort: params?.sort,
-    };
+    const queryParams: Record<string, string | number | string[] | undefined> =
+      {
+        page: params?.page,
+        limit: params?.limit,
+        sort: params?.sort,
+      };
 
     if (params?.columns && params?.content && params.columns.length > 0) {
       queryParams.columns = params.columns;
@@ -30,29 +33,31 @@ export const getUsers = async (
     console.log(queryParams);
     const query = buildQueryString(queryParams);
 
-  
-
-    return await apiRequest<UsersResponse>(`/api/condominios/${condId}/usuarios${query}`, {
-      method: 'GET',
-    });
+    return await apiRequest<UsersResponse>(
+      `/api/condominios/${condId}/usuarios${query}`,
+      {
+        method: 'GET',
+      }
+    );
   } catch (error) {
     console.error('Error fetching users:', error);
     return {
-      data: [],
-      meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
+      items: [],
+      meta: { totalItems: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }
 };
-
 
 export async function inviteUser(
   condominioId: string,
   data: { name: string; email: string; role: string; message?: string }
 ) {
-  return apiRequest(`/api/condominios/${condominioId}/usuarios`, {
+  await apiRequest(`/api/condominios/${condominioId}/usuarios`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
+
+  revalidatePath(`/condominios/${condominioId}/usuarios`);
 }
 /**
  * ATUALIZAÇÃO (PUT ou PATCH)
@@ -62,10 +67,12 @@ export async function updateUser(
   userId: string,
   data: UpdateUserPayload
 ) {
-  return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
+  await apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
+
+  revalidatePath(`/condominios/${condominioId}/usuarios`);
 }
 
 export async function changeUserStatus(
@@ -73,17 +80,21 @@ export async function changeUserStatus(
   userId: string,
   status: 'ativo' | 'inativo'
 ) {
-  return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
+  await apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
     method: 'PATCH',
     body: JSON.stringify({ status }),
   });
+
+  revalidatePath(`/condominios/${condominioId}/usuarios`);
 }
 
 /**
  * EXCLUSÃO
  */
 export async function deleteUser(condominioId: string, userId: string) {
-  return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
+  await apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
     method: 'DELETE',
   });
+
+  revalidatePath(`/condominios/${condominioId}/usuarios`);
 }

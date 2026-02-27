@@ -1,4 +1,12 @@
-import { CobrancaDetail, CobrancaResponse, CobrancaTenant } from '@/types/cobranca';
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
+import {
+  CobrancaDetail,
+  CobrancaResponse,
+  CobrancaTenant,
+} from '@/types/cobranca';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 import { buildFormDataBody, FileUploadOptions } from '@/lib/form-data';
 
@@ -29,8 +37,8 @@ export const getCobrancas = async (
   } catch (error) {
     console.error('Error fetching charges:', error);
     return {
-      data: [],
-      meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
+      items: [],
+      meta: { totalItems: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }
 };
@@ -43,7 +51,9 @@ export const getCobrancaById = async (
     method: 'GET',
   });
 
-export const getCobrancaTenants = async (condId: string): Promise<CobrancaTenant[]> =>
+export const getCobrancaTenants = async (
+  condId: string
+): Promise<CobrancaTenant[]> =>
   apiRequest<CobrancaTenant[]>(`${basePath(condId)}/tenants`, {
     method: 'GET',
   });
@@ -52,35 +62,46 @@ export const postCobranca = async (
   condId: string,
   data: Partial<CobrancaDetail>,
   options?: FileUploadOptions
-) =>
+) => {
   apiRequest(basePath(condId), {
     method: 'POST',
     body: buildFormDataBody(data, options),
   });
+
+  revalidatePath(`/condominios/${condId}/cobrancas`);
+};
 
 export const putCobranca = async (
   condId: string,
   cobrancaId: string,
   data: Partial<CobrancaDetail>,
   options?: FileUploadOptions
-) =>
+) => {
   apiRequest(`${basePath(condId)}/${cobrancaId}`, {
     method: 'PUT',
     body: buildFormDataBody(data, options),
   });
 
+  revalidatePath(`/condominios/${condId}/cobrancas`);
+};
+
 export const patchCobranca = async (
   condId: string,
   cobrancaId: string,
   data: Record<string, unknown>
-) =>
+) => {
   apiRequest(`${basePath(condId)}/${cobrancaId}`, {
     method: 'PATCH',
     body: data,
   });
 
-export const deleteCobranca = async (condId: string, cobrancaId: string) =>
+  revalidatePath(`/condominios/${condId}/cobrancas`);
+};
+
+export const deleteCobranca = async (condId: string, cobrancaId: string) => {
   apiRequest(`${basePath(condId)}/${cobrancaId}`, {
     method: 'DELETE',
   });
 
+  revalidatePath(`/condominios/${condId}/cobrancas`);
+};

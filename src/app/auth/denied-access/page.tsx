@@ -2,7 +2,7 @@
 import Link from 'next/link';
 
 interface PageProps {
-  searchParams: Promise<{ motivo?: string }>;
+  readonly searchParams: Promise<{ motivo?: string }>;
 }
 
 export default async function AcessoNegadoPage({ searchParams }: PageProps) {

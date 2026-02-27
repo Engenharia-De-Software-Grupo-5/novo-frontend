@@ -13,8 +13,8 @@ import { ImovelDialog } from './add-imovel-dialog';
 import { columns } from './columns';
 
 interface ImoveisDataTableProps {
-  data: ImovelSummary[];
-  pageCount: number;
+  readonly data: ImovelSummary[];
+  readonly pageCount: number;
 }
 
 export function ImoveisDataTable({ data, pageCount }: ImoveisDataTableProps) {

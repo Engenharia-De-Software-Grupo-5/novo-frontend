@@ -13,8 +13,8 @@ import { Table } from '@tanstack/react-table';
 import { Settings2 } from 'lucide-react';
 
 interface DataTableViewOptionsProps<TData> {
-  table: Table<TData>;
-  columnLabels?: Record<string, string>;
+  readonly table: Table<TData>;
+  readonly columnLabels?: Record<string, string>;
 }
 
 export function DataTableViewOptions<TData>({

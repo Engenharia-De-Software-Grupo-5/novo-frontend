@@ -14,14 +14,14 @@ import {
 import { Label } from '@radix-ui/react-dropdown-menu';
 import { toast } from 'sonner';
 
-import { User, UserSummary } from '@/types/user';
+import { User } from '@/types/user';
 
 import { inviteUser } from '../services/users.service';
 
 interface ViewUserDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  user: User;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly user: User;
 }
 
 export function ViewUserDialog({
@@ -53,7 +53,7 @@ export function ViewUserDialog({
 
       toast.success('Convite reenviado com sucesso!');
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Erro ao reenviar convite. Tente novamente.');
     } finally {
       setIsPending(false);

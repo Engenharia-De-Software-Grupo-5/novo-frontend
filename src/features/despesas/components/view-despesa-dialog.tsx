@@ -1,30 +1,35 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { FileText, Download } from "lucide-react";
-
+import { useEffect, useState } from 'react';
+import { Badge } from '@/features/components/ui/badge';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/features/components/ui/dialog";
-import { Badge } from "@/features/components/ui/badge";
-import { Skeleton } from "@/features/components/ui/skeleton";
+} from '@/features/components/ui/dialog';
+import { Skeleton } from '@/features/components/ui/skeleton';
+import { Download, FileText } from 'lucide-react';
 
-import { despesaService } from "../services/despesaService";
-import { DespesaDetail } from "@/types/despesa";
-import { DESPESA_STATUS, DESPESA_TIPOS, FORMA_PAGAMENTO } from "../constants";
+import { DespesaDetail } from '@/types/despesa';
+
+import { DESPESA_TIPOS, FORMA_PAGAMENTO } from '../constants';
+import { getById } from '../services/despesaService';
 
 interface ViewDespesaDialogProps {
-  condId: string;
-  despesaId: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  readonly condId: string;
+  readonly despesaId: string;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
 }
 
-export function ViewDespesaDialog({ condId, despesaId, open, onOpenChange }: ViewDespesaDialogProps) {
+export function ViewDespesaDialog({
+  condId,
+  despesaId,
+  open,
+  onOpenChange,
+}: ViewDespesaDialogProps) {
   const [despesa, setDespesa] = useState<DespesaDetail | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -33,10 +38,10 @@ export function ViewDespesaDialog({ condId, despesaId, open, onOpenChange }: Vie
       const fetchDespesa = async () => {
         setLoading(true);
         try {
-          const data = await despesaService.getById(condId, despesaId);
+          const data = await getById(condId, despesaId);
           setDespesa(data);
         } catch (error) {
-          console.error("Erro ao buscar detalhes da despesa:", error);
+          console.error('Erro ao buscar detalhes da despesa:', error);
         } finally {
           setLoading(false);
         }
@@ -47,14 +52,18 @@ export function ViewDespesaDialog({ condId, despesaId, open, onOpenChange }: Vie
     }
   }, [open, despesaId, condId]);
 
-  const getLabel = (lista: any[], value: string) => lista.find(item => item.value === value)?.label || value;
-  
+  const getLabel = (lista: { value: string; label: string }[], value: string) =>
+    lista.find((item) => item.value === value)?.label || value;
+
   const formatarMoeda = (valor: number) => {
-    return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(valor);
   };
 
   const formatarData = (dataString: string) => {
-    if (!dataString) return "";
+    if (!dataString) return '';
     const [ano, mes, dia] = dataString.split('-');
     return `${dia}/${mes}/${ano}`;
   };
@@ -76,11 +85,11 @@ export function ViewDespesaDialog({ condId, despesaId, open, onOpenChange }: Vie
             <Skeleton className="h-20 w-full" />
           </div>
         ) : (
-          <div className="space-y-6 mt-4">
-            <div className="flex justify-between items-start">
+          <div className="mt-4 space-y-6">
+            <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-semibold">{despesa.nome}</h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   ID: {despesa.id}
                 </p>
               </div>
@@ -88,8 +97,12 @@ export function ViewDespesaDialog({ condId, despesaId, open, onOpenChange }: Vie
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="space-y-1">
-                <span className="text-muted-foreground font-medium">Valor:</span>
-                <p className="text-base font-semibold">{formatarMoeda(despesa.valor)}</p>
+                <span className="text-muted-foreground font-medium">
+                  Valor:
+                </span>
+                <p className="text-base font-semibold">
+                  {formatarMoeda(despesa.valor)}
+                </p>
               </div>
               <div className="space-y-1">
                 <span className="text-muted-foreground font-medium">Data:</span>
@@ -100,36 +113,49 @@ export function ViewDespesaDialog({ condId, despesaId, open, onOpenChange }: Vie
                 <p>{getLabel(DESPESA_TIPOS, despesa.tipo)}</p>
               </div>
               <div className="space-y-1">
-                <span className="text-muted-foreground font-medium">Pagamento:</span>
+                <span className="text-muted-foreground font-medium">
+                  Pagamento:
+                </span>
                 <p>{getLabel(FORMA_PAGAMENTO, despesa.formaPagamento)}</p>
               </div>
               <div className="col-span-2 space-y-1">
-                <span className="text-muted-foreground font-medium">Vínculo:</span>
+                <span className="text-muted-foreground font-medium">
+                  Vínculo:
+                </span>
                 <div>
                   {despesa.idImovel ? (
-                    <span className="font-medium">Imóvel {despesa.idImovel}</span>
+                    <span className="font-medium">
+                      Imóvel {despesa.idImovel}
+                    </span>
                   ) : (
-                    <Badge variant="secondary" className="font-normal text-xs">Despesa do condomínio</Badge>
+                    <Badge variant="secondary" className="text-xs font-normal">
+                      Despesa do condomínio
+                    </Badge>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="space-y-2 pt-4 border-t">
-              <span className="text-sm font-medium text-muted-foreground">Comprovantes / Anexos</span>
+            <div className="space-y-2 border-t pt-4">
+              <span className="text-muted-foreground text-sm font-medium">
+                Comprovantes / Anexos
+              </span>
               {despesa.anexos && despesa.anexos.length > 0 ? (
                 <ul className="space-y-2">
                   {despesa.anexos.map((anexo) => (
-                    <li key={anexo.id} className="flex items-center justify-between p-3 border rounded-md bg-muted/50">
+                    <li
+                      key={anexo.id}
+                      className="bg-muted/50 flex items-center justify-between rounded-md border p-3"
+                    >
                       <div className="flex items-center gap-2 overflow-hidden">
-                        <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                        <span className="text-sm truncate">{anexo.name}</span>
+                        <FileText className="text-muted-foreground h-4 w-4 shrink-0" />
+                        <span className="truncate text-sm">{anexo.name}</span>
                       </div>
-                      <a 
-                        href={anexo.url} 
-                        target="_blank" 
+                      <a
+                        href={anexo.url}
+                        target="_blank"
                         rel="noreferrer"
-                        className="text-primary hover:bg-primary/10 p-2 rounded-md transition-colors"
+                        className="text-primary hover:bg-primary/10 rounded-md p-2 transition-colors"
                         title="Baixar anexo"
                       >
                         <Download className="h-4 w-4" />
@@ -138,7 +164,9 @@ export function ViewDespesaDialog({ condId, despesaId, open, onOpenChange }: Vie
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-muted-foreground italic">Nenhum anexo vinculado a esta despesa.</p>
+                <p className="text-muted-foreground text-sm italic">
+                  Nenhum anexo vinculado a esta despesa.
+                </p>
               )}
             </div>
           </div>

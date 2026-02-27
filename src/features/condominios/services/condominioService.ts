@@ -1,3 +1,5 @@
+'use server';
+
 import { Condominium } from '@/types/condominium';
 import { apiRequest } from '@/lib/api-client';
 

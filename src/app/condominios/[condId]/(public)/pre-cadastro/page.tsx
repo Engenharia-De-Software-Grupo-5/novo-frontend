@@ -27,7 +27,7 @@ const formSchema = z.object({
     .string()
     .min(7, 'RG deve ter no mínimo 7 dígitos')
     .max(9, 'RG deve ter no máximo 9 dígitos')
-    .transform((val) => val.replace(/[^a-zA-Z0-9]/g, '')),
+    .transform((val) => val.replaceAll(/[^a-zA-Z0-9]/g, '')),
 
   issuingAuthority: z.string().min(1, 'Órgão expedidor é obrigatório'),
 
@@ -35,7 +35,7 @@ const formSchema = z.object({
   cpf: z
     .string()
     .min(1, 'CPF é obrigatório')
-    .transform((val) => val.replace(/\D/g, ''))
+    .transform((val) => val.replaceAll(/\D/g, ''))
     .pipe(
       z
         .string()
@@ -59,7 +59,7 @@ const formSchema = z.object({
     .string()
     .min(1, 'Telefone principal é obrigatório')
     // 1. Remove tudo que não for número antes de validar
-    .transform((val) => val.replace(/\D/g, ''))
+    .transform((val) => val.replaceAll(/\D/g, ''))
     .pipe(
       z
         .string()
@@ -73,7 +73,7 @@ const formSchema = z.object({
     .optional()
     // Se o usuário digitar algo, limpa. Se não, retorna undefined
     .transform((val) =>
-      val && val.trim() !== '' ? val.replace(/\D/g, '') : undefined
+      val && val.trim() !== '' ? val.replaceAll(/\D/g, '') : undefined
     )
     .pipe(
       z
@@ -95,7 +95,7 @@ const formSchema = z.object({
         phone: z
           .string()
           .min(1, 'Telefone é obrigatório')
-          .transform((val) => val.replace(/\D/g, '')),
+          .transform((val) => val.replaceAll(/\D/g, '')),
       })
     )
     .min(1, 'Adicione pelo menos um contato de emergência'),
@@ -106,7 +106,7 @@ const formSchema = z.object({
     companyPhone: z
       .string()
       .min(1, 'Telefone da empresa é obrigatório')
-      .transform((v) => v.replace(/\D/g, '')),
+      .transform((v) => v.replaceAll(/\D/g, '')),
     companyAddress: z.string().min(1, 'Endereço da empresa é obrigatório'),
     position: z.string().min(1, 'Cargo é obrigatório'),
     monthsWorking: z.coerce.number().min(0, 'Valor inválido'),
@@ -134,12 +134,12 @@ const formSchema = z.object({
         .string()
         .min(7, 'RG deve ter no mínimo 7 dígitos')
         .max(9, 'RG deve ter no máximo 9 dígitos')
-        .transform((val) => val.replace(/[^a-zA-Z0-9]/g, '')),
+        .transform((val) => val.replaceAll(/[^a-zA-Z0-9]/g, '')),
       cpf: z
         .string()
         .min(11, 'CPF deve ter no mínimo 11 dígitos')
         .max(14, 'CPF deve ter no máximo 14 dígitos')
-        .transform((v) => v?.replace(/\D/g, '') ?? ''),
+        .transform((v) => v?.replaceAll(/\D/g, '') ?? ''),
       profession: z
         .string()
         .min(1, 'Tem que informar a profissão do cônjuge')

@@ -22,8 +22,8 @@ export async function GET(
   const { condId } = await params;
   const searchParams = request.nextUrl.searchParams;
 
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || '20', 10);
+  const page = Number.parseInt(searchParams.get('page') || '1', 10);
+  const limit = Number.parseInt(searchParams.get('limit') || '20', 10);
   const sortParam = searchParams.get('sort');
 
   let sortField = sortParam;
@@ -101,9 +101,9 @@ export async function GET(
   console.log(paginatedImoveis);
 
   return NextResponse.json({
-    data: paginatedImoveis,
+    items: paginatedImoveis,
     meta: {
-      total: totalItems,
+      totalItems: totalItems,
       page: safePage,
       limit,
       totalPages,
@@ -119,7 +119,7 @@ export async function POST(
   const body = (await request.json()) as Partial<ImovelDetail>;
 
   const lastSequence = imoveisDb.reduce((max, imovel) => {
-    const numericPart = Number(imovel.idImovel.replace(/\D/g, ''));
+    const numericPart = Number(imovel.idImovel.replaceAll(/\D/g, ''));
     return Number.isNaN(numericPart) ? max : Math.max(max, numericPart);
   }, 0);
   const nextSequence = lastSequence + 1;
@@ -158,7 +158,7 @@ export async function POST(
   imoveisDb.unshift(newImovel);
 
   return NextResponse.json(
-    { message: 'Imóvel criado com sucesso', data: newImovel },
+    { message: 'Imóvel criado com sucesso', items: newImovel },
     { status: 201 }
   );
 }

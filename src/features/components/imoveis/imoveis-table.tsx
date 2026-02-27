@@ -31,7 +31,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Imovel } from "@/types/imoveis";
 
 interface ImoveisTableProps {
-  data: Imovel[];
+  readonly data: Imovel[];
 }
 
 type StatusConfig = {
@@ -45,9 +45,9 @@ function SortableRow({
   getStatusConfig,
   handleDelete,
 }: {
-  imovel: Imovel;
-  getStatusConfig: (status: string) => StatusConfig;
-  handleDelete: (id: string) => void;
+  readonly imovel: Imovel;
+  readonly getStatusConfig: (status: string) => StatusConfig;
+  readonly handleDelete: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: imovel.idImovel });
   

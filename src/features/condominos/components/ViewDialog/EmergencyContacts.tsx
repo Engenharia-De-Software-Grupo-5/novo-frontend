@@ -2,7 +2,7 @@ import { AlertCircle, Phone } from "lucide-react";
 import { SectionTitle } from "./Section";
 import { EmergencyContact } from "@/types/condomino";
 
-export function EmergencyContactsSection({ contacts }: { contacts: EmergencyContact[] }) {
+export function EmergencyContactsSection({ contacts }: { readonly contacts: EmergencyContact[] }) {
   if (!contacts || contacts.length === 0) return null;
 
   return (

@@ -151,16 +151,18 @@ export default function CondominiosPage() {
             Condomínios
           </CardTitle>
           <CardDescription>
-            Selecione um condomínio para acessar ou crie um novo.
+            {'Selecione um condomínio para acessar'}
+            <RoleGuard roles={[]}>{'ou crie um novo.'}</RoleGuard>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col gap-2">
             {condominiums.map((condo) => (
-              <div
+              <button
                 key={condo.id}
+                type="button"
                 onClick={() => handleSwitch(condo.id)}
-                className="group hover:bg-accent flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors"
+                className="group hover:bg-accent flex w-full cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <div className="bg-primary text-primary-foreground border-primary/20 flex size-10 items-center justify-center rounded-md border font-bold shadow-sm">
@@ -169,7 +171,7 @@ export default function CondominiosPage() {
                   <span className="text-sm font-medium">{condo.name}</span>
                 </div>
 
-                <RoleGuard roles={['Admin']}>
+                <RoleGuard roles={['Admin']} condoId={condo.id}>
                   <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     <Button
                       variant="ghost"
@@ -192,7 +194,7 @@ export default function CondominiosPage() {
                     </Button>
                   </div>
                 </RoleGuard>
-              </div>
+              </button>
             ))}
 
             {condominiums.length === 0 && (
@@ -201,15 +203,16 @@ export default function CondominiosPage() {
               </div>
             )}
           </div>
-
-          <Button
-            variant="outline"
-            className="mt-2 w-full gap-2 border-dashed"
-            onClick={() => handleOpenDialog()}
-          >
-            <Plus className="size-4" />
-            Adicionar Condomínio
-          </Button>
+          <RoleGuard roles={[]}>
+            <Button
+              variant="outline"
+              className="mt-2 w-full gap-2 border-dashed"
+              onClick={() => handleOpenDialog()}
+            >
+              <Plus className="size-4" />
+              Adicionar Condomínio
+            </Button>
+          </RoleGuard>
         </CardContent>
       </Card>
 

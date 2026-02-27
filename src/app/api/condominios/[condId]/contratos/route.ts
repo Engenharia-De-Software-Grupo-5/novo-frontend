@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { contractModelsDb, contractsDb } from '@/mocks/in-memory-db';
 
 import { condominos } from '@/mocks/condominos';
 import { contractsDb, contractModelsDb, imoveisDb } from '@/mocks/in-memory-db';
@@ -69,8 +70,8 @@ export async function GET(
   const { condId } = await params;
   const searchParams = request.nextUrl.searchParams;
 
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || '20', 10);
+  const page = Number.parseInt(searchParams.get('page') || '1', 10);
+  const limit = Number.parseInt(searchParams.get('limit') || '20', 10);
   const sortParam = searchParams.get('sort');
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';
@@ -114,7 +115,9 @@ export async function GET(
     contracts = contracts.filter((c) => {
       const fieldValue = c[normalizedCol as keyof typeof c];
       if (fieldValue === undefined) return false;
-      return values.some((v) => String(fieldValue).toLowerCase() === v.toLowerCase());
+      return values.some(
+        (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
+      );
     });
   }
 
@@ -142,9 +145,9 @@ export async function GET(
   const paginatedContracts = sortedContracts.slice(startIndex, endIndex);
 
   return NextResponse.json({
-    data: paginatedContracts,
+    items: paginatedContracts,
     meta: {
-      total: totalItems,
+      totalItems: totalItems,
       page: safePage,
       limit,
       totalPages,
@@ -261,7 +264,7 @@ export async function POST(
     : `/mock-files/contracts/gerado-${Date.now()}-${pdfFileName}`;
 
   const newContract: ContratoDetail = {
-    id: Math.random().toString(36).slice(2, 11),
+    id: secureRandom(9),
     condId,
     tenantId: payload.tenantId,
     propertyId: payload.propertyId,
@@ -281,7 +284,7 @@ export async function POST(
   contractsDb.unshift(newContract);
 
   return NextResponse.json(
-    { message: 'Contrato criado com sucesso', data: newContract },
+    { message: 'Contrato criado com sucesso', items: newContract },
     { status: 201 }
   );
 }
