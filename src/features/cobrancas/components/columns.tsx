@@ -74,7 +74,7 @@ export const columns: ColumnDef<CobrancaSummary>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Situação" />
     ),
-    cell: ({ row }) => <StatusBadge status={row.getValue('status') as CobrancaSummary['status']} />,
+    cell: ({ row }) => <StatusBadge status={row.getValue('status')} />,
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
@@ -84,7 +84,9 @@ export const columns: ColumnDef<CobrancaSummary>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Data de vencimento" />
     ),
-    cell: ({ row }) => <span>{formatDate(String(row.getValue('dueDate')))}</span>,
+    cell: ({ row }) => (
+      <span>{formatDate(String(row.getValue('dueDate')))}</span>
+    ),
   },
   {
     accessorKey: 'value',
@@ -92,7 +94,9 @@ export const columns: ColumnDef<CobrancaSummary>[] = [
       <DataTableColumnHeader column={column} title="Valor" />
     ),
     cell: ({ row }) => (
-      <span className="font-medium">{formatCurrency(Number(row.getValue('value')))}</span>
+      <span className="font-medium">
+        {formatCurrency(Number(row.getValue('value')))}
+      </span>
     ),
   },
   {

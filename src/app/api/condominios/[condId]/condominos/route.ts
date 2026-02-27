@@ -87,14 +87,18 @@ function applyFilters(
 
     if (col === 'name' || col === 'cpf') {
       filtered = filtered.filter((c) =>
-        (c[col] as string).toLowerCase().includes(searchLower)
+        c[col].toLowerCase().includes(searchLower)
       );
     } else {
       filtered = filtered.filter((c) => {
         const fieldValue = c[col as keyof typeof c];
         if (fieldValue === undefined) return false;
         return values.some(
-          (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
+          (v) =>
+            (typeof fieldValue === 'object'
+              ? JSON.stringify(fieldValue)
+              : String(fieldValue)
+            ).toLowerCase() === v.toLowerCase()
         );
       });
     }
@@ -284,7 +288,7 @@ async function parseCondominoBody(
     .getAll('files')
     .filter((f): f is File => f instanceof File)
     .map((file) => ({
-      id: `file-${Math.random().toString(36).slice(2, 11)}`,
+      id: `file-${secureRandom(9)}`,
       name: file.name,
       type: file.type,
       size: file.size,

@@ -20,7 +20,7 @@ export async function apiRequest<T>(
 
   let requestBody: BodyInit | null | undefined;
   if (isFormData) {
-    requestBody = body as FormData;
+    requestBody = body;
   } else if (body) {
     requestBody = JSON.stringify(body);
   } else {

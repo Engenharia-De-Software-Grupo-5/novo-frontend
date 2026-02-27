@@ -385,7 +385,6 @@ export default function AddContratos({
   useEffect(() => {
     if (!hasSecondProposerSection) {
       setSelectedSecondProposerId('');
-      return;
     }
   }, [hasSecondProposerSection]);
 
@@ -1139,9 +1138,9 @@ export default function AddContratos({
                                     </p>
                                   </div>
                                   {selectedTenant.emergencyContacts.map(
-                                    (contact, index) => (
+                                    (contact) => (
                                       <div
-                                        key={index}
+                                        key={contact.name}
                                         className="col-span-2 grid grid-cols-3 gap-4"
                                       >
                                         <div>

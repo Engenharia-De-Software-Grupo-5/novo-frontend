@@ -35,7 +35,11 @@ export async function GET(
 
     data = data.filter((item: DespesaDetail) => {
       for (const [col, values] of Array.from(filters.entries())) {
-        const itemValue = String(item[col as keyof DespesaDetail] || '');
+        const auxValue = item[col as keyof DespesaDetail];
+        const itemValue =
+          typeof auxValue === 'object' && auxValue !== null
+            ? JSON.stringify(auxValue)
+            : String(auxValue);
         if (col === 'nome') {
           if (
             !values.some((v) =>
@@ -43,8 +47,8 @@ export async function GET(
             )
           )
             return false;
-        } else {
-          if (!values.includes(itemValue)) return false;
+        } else if (!values.includes(itemValue)) {
+          return false;
         }
       }
       return true;
@@ -91,7 +95,7 @@ export async function POST(
 
   const novaDespesa = {
     ...data,
-    id: `DSP-${Math.floor(Math.random() * 10000)}`,
+    id: `DSP-${secureRandom(7)}`,
     anexos,
   };
 

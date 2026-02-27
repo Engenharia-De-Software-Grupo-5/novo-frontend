@@ -31,7 +31,7 @@ export const columns: ColumnDef<DespesaSummary>[] = [
       <DataTableColumnHeader column={column} title="Vínculo" />
     ),
     cell: ({ row }) => {
-      const idImovel = row.getValue('idImovel') as string | null;
+      const idImovel = row.getValue('idImovel');
 
       if (!idImovel) {
         return (
@@ -70,7 +70,7 @@ export const columns: ColumnDef<DespesaSummary>[] = [
       <DataTableColumnHeader column={column} title="Data" />
     ),
     cell: ({ row }) => {
-      const dateStr = row.getValue('data') as string;
+      const dateStr = row.getValue<string>('data');
       const [ano, mes, dia] = dateStr.split('-');
       return <span>{`${dia}/${mes}/${ano}`}</span>;
     },

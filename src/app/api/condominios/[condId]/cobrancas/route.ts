@@ -18,7 +18,7 @@ export async function GET(
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';
 
-  if (sortParam && sortParam.includes('.')) {
+  if (sortParam?.includes('.')) {
     const [field, order] = sortParam.split('.');
     sortField = field;
     sortOrder = order;
@@ -60,7 +60,11 @@ export async function GET(
       }
 
       return values.some(
-        (value) => String(current).toLowerCase() === value.toLowerCase()
+        (value) =>
+          (typeof current === 'object'
+            ? JSON.stringify(current)
+            : String(current)
+          ).toLowerCase() === value.toLowerCase()
       );
     });
   }
@@ -153,7 +157,7 @@ export async function POST(
   const status: CobrancaStatus = 'pendente';
 
   const created: CobrancaDetail = {
-    id: `cob-${Math.random().toString(36).slice(2, 9)}`,
+    id: `cob-${secureRandom(7)}`,
     tenantId: tenant.id,
     name: tenant.name,
     email: tenant.email,

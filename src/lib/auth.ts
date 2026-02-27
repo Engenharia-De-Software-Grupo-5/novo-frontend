@@ -88,7 +88,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         // Decodifica o JWT do backend para pegar a data de expiração
         try {
-          const decoded = jwtDecode(user.accessToken as string);
+          const decoded = jwtDecode(user.accessToken);
           token.exp = decoded.exp; // O NextAuth usará isso para invalidar a sessão
         } catch {
           // Usado para lidar com o token falso/mocado (24 horas pra expirar)

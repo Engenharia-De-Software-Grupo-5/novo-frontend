@@ -32,7 +32,7 @@ export async function GET(
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';
 
-  if (sortParam && sortParam.includes('.')) {
+  if (sortParam?.includes('.')) {
     const [field, order] = sortParam.split('.');
     sortField = field;
     sortOrder = order;
@@ -64,7 +64,11 @@ export async function GET(
       const fieldValue = c[col as keyof typeof c];
       if (fieldValue === undefined) return false;
       return values.some(
-        (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
+        (v) =>
+          (typeof fieldValue === 'object'
+            ? JSON.stringify(fieldValue)
+            : String(fieldValue)
+          ).toLowerCase() === v.toLowerCase()
       );
     });
   }

@@ -22,7 +22,7 @@ export const columns: ColumnDef<PaymentSummary>[] = [
       <DataTableColumnHeader column={column} title="Cargo" />
     ),
     cell: ({ row }) => {
-      const role = row.getValue('role') as string;
+      const role = row.getValue<string>('role');
       return (
         <Badge variant="muted" className="capitalize">
           {role}
@@ -53,7 +53,7 @@ export const columns: ColumnDef<PaymentSummary>[] = [
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
-      const status = row.getValue('status') as string;
+      const status = row.getValue<string>('status');
       return <StatusBadge status={status} />;
     },
     filterFn: (row, id, value) => {
@@ -66,7 +66,7 @@ export const columns: ColumnDef<PaymentSummary>[] = [
       <DataTableColumnHeader column={column} title="Data Pagamento" />
     ),
     cell: ({ row }) => {
-      const date = row.getValue('paymentDate') as string;
+      const date = row.getValue<string>('paymentDate');
       if (!date) return <span className="text-muted-foreground">-</span>;
       return <span>{new Date(date).toLocaleDateString('pt-BR')}</span>;
     },

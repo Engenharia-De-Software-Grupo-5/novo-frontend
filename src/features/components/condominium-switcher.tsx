@@ -303,7 +303,7 @@ export function CondominiumSwitcher({ condId }: { readonly condId?: string }) {
               <span className="text-foreground font-semibold">
                 {deletingCondo?.name}
               </span>
-              ? Esta ação não pode ser desfeita.
+              {'? Esta ação não pode ser desfeita.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

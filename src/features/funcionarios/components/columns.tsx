@@ -24,7 +24,7 @@ export const columns: ColumnDef<EmployeeSummary>[] = [
       <DataTableColumnHeader column={column} title="Cargo" />
     ),
     cell: ({ row }) => {
-      const role = row.getValue('role') as string;
+      const role = row.getValue<string>('role');
       return (
         <Badge variant="muted" className="capitalize">
           {role}
@@ -41,7 +41,7 @@ export const columns: ColumnDef<EmployeeSummary>[] = [
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
-      const status = row.getValue('status') as string;
+      const status = row.getValue<string>('status');
       return <StatusBadge status={status} />;
     },
     filterFn: (row, id, value) => {

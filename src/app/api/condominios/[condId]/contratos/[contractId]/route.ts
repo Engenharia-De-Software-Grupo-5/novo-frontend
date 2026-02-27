@@ -20,14 +20,14 @@ export async function GET(
 
 export async function PUT() {
   return NextResponse.json(
-    { error: 'Contrato não pode ser editado após criação.' },
+    { error: 'Contrato não pode ser editado após criação. PUT' },
     { status: 405 }
   );
 }
 
 export async function PATCH() {
   return NextResponse.json(
-    { error: 'Contrato não pode ser editado após criação.' },
+    { error: 'Contrato não pode ser editado após criação. PATCH' },
     { status: 405 }
   );
 }

@@ -18,10 +18,16 @@ export const columns: ColumnDef<ImovelSummary>[] = [
   },
   {
     accessorKey: 'tipo',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo" />,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Tipo" />
+    ),
     cell: ({ row }) => {
-      const tipo = row.getValue('tipo') as string;
-      return <Badge variant="muted" className="capitalize">{tipo}</Badge>;
+      const tipo = row.getValue<string>('tipo');
+      return (
+        <Badge variant="muted" className="capitalize">
+          {tipo}
+        </Badge>
+      );
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -33,7 +39,7 @@ export const columns: ColumnDef<ImovelSummary>[] = [
       <DataTableColumnHeader column={column} title="Situação" />
     ),
     cell: ({ row }) => {
-      const situacao = row.getValue('situacao') as ImovelSummary['situacao'];
+      const situacao = row.getValue<ImovelSummary['situacao']>('situacao');
       return <StatusBadge status={situacao} />;
     },
     filterFn: (row, id, value) => {

@@ -29,7 +29,7 @@ export async function GET(
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';
 
-  if (sortParam && sortParam.includes('.')) {
+  if (sortParam?.includes('.')) {
     const [field, order] = sortParam.split('.');
     sortField = field;
     sortOrder = order === 'desc' ? 'desc' : 'asc';

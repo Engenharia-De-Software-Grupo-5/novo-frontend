@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
 
-interface routerMap {
+interface RouterMap {
   match: (path: string) => boolean;
   allowedRoles: string[];
 }
@@ -16,7 +16,7 @@ export default auth((req) => {
   // Rotas públicas — passa direto
   const isPublicRoute =
     pathname.startsWith('/auth') ||
-    pathname.match(/^\/condominios\/[^\/]+\/form$/);
+    /^\/condominios\/[^/]+\/form$/.exec(pathname);
   if (isPublicRoute) return NextResponse.next();
 
   // Não autenticado — redireciona para login
@@ -55,7 +55,7 @@ export default auth((req) => {
   const userRole = currentRoleMatch?.name;
 
   // Definição das regras de acesso baseadas na rota
-  const routeAccessMap: routerMap[] = [
+  const routeAccessMap: RouterMap[] = [
     {
       match: (path: string) =>
         path.includes('/pagamentos') ||
