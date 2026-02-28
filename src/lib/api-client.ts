@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-const API_URL_REAL = 'https://api.bemconnect.com.br/api/v1';
+const API_URL_REAL = 'https://api.bemconnect.com.br';
 
 interface ApiRequestOptions extends Omit<RequestInit, 'body'> {
   body?: unknown;
@@ -30,11 +30,15 @@ export async function apiRequest<T>(
   const session = await auth();
   const token = session?.user?.accessToken;
 
+  console.log('token', token);
   const authHeaders: Record<string, string> = {};
   if (token) {
     authHeaders['Authorization'] = `Bearer ${token}`;
   }
-
+  console.log('REQUEST authHeaders', authHeaders);
+  console.log('REQUEST BODY', requestBody);
+  console.log('REQUEST METHOD', options.method);
+  console.log('REQUEST URL', `${isReal ? API_URL_REAL : API_URL}${path}`);
   const response = await fetch(`${isReal ? API_URL_REAL : API_URL}${path}`, {
     headers: {
       // Don't set Content-Type for FormData — the browser sets it
@@ -56,7 +60,9 @@ export async function apiRequest<T>(
   }
 
   // Some responses (e.g. DELETE 204) may have no body
+  console.log('response', response);
   const text = await response.text();
+  console.log('text da response', text);
   return text ? JSON.parse(text) : (undefined as T);
 }
 

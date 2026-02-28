@@ -1,15 +1,26 @@
 'use server';
 
-import { Condominium } from '@/types/condominium';
+import { Condominium, CondominiumResponse } from '@/types/condominium';
 import { apiRequest } from '@/lib/api-client';
 
+import {
+  condominiumDtoRequest,
+  condominiumDtoResponse,
+} from '../schema/condominiumDto';
+
 const basePath = '/api/condominios';
+const basePathReal = '/api/v1/condominiums';
 
 export const getCondominios = async (): Promise<Condominium[]> => {
   try {
-    return await apiRequest<Condominium[]>(basePath, {
-      method: 'GET',
-    });
+    const response = await apiRequest<CondominiumResponse[]>(
+      basePathReal,
+      {
+        method: 'GET',
+      },
+      true
+    );
+    return response.map(condominiumDtoResponse);
   } catch (error) {
     console.error('Error fetching condominios:', error);
     return [];
@@ -17,7 +28,7 @@ export const getCondominios = async (): Promise<Condominium[]> => {
 };
 
 export const getCondominioById = async (id: string): Promise<Condominium> => {
-  return await apiRequest<Condominium>(`${basePath}/${id}`, {
+  return await apiRequest<Condominium>(`${basePathReal}/${id}`, {
     method: 'GET',
   });
 };
@@ -25,34 +36,51 @@ export const getCondominioById = async (id: string): Promise<Condominium> => {
 export const postCondominio = async (
   data: Partial<Condominium>
 ): Promise<void> => {
-  await apiRequest(basePath, {
-    method: 'POST',
-    body: data,
-  });
+  console.log('POST CONDOMINIO', data);
+  data = condominiumDtoRequest(data);
+  await apiRequest(
+    basePathReal,
+    {
+      method: 'POST',
+      body: data,
+    },
+    true
+  );
 };
 
 export const putCondominio = async (
   id: string,
   data: Partial<Condominium>
 ): Promise<void> => {
-  await apiRequest(`${basePath}/${id}`, {
-    method: 'PUT',
-    body: data,
-  });
+  data = condominiumDtoRequest(data);
+  console.log('PUT CONDOMINIO', data);
+  await apiRequest(
+    `${basePathReal}/${id}`,
+    {
+      method: 'PUT',
+      body: data,
+    },
+    true
+  );
 };
 
 export const patchCondominio = async (
   id: string,
-  data: Record<string, unknown>
+  data: Partial<Condominium>
 ): Promise<void> => {
-  await apiRequest(`${basePath}/${id}`, {
+  data = condominiumDtoRequest(data);
+  await apiRequest(`${basePathReal}/${id}`, {
     method: 'PATCH',
     body: data,
   });
 };
 
 export const deleteCondominio = async (id: string): Promise<void> => {
-  await apiRequest(`${basePath}/${id}`, {
-    method: 'DELETE',
-  });
+  await apiRequest(
+    `${basePathReal}/${id}`,
+    {
+      method: 'DELETE',
+    },
+    true
+  );
 };

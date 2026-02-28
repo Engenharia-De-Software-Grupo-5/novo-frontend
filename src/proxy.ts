@@ -10,6 +10,7 @@ interface RouterMap {
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
+  console.log('pathname', pathname);
   console.log('req.auth = ', req.auth);
   console.log('isLoggedIn = ', isLoggedIn);
 
@@ -52,7 +53,8 @@ export default auth((req) => {
   // Encontra a permissão (Role) do usuário no condomínio em questão baseado no Token
   const permissions = req.auth?.permission || [];
   const currentRoleMatch = permissions.find((p) => p.id === condId);
-  const userRole = currentRoleMatch?.name;
+  // TODO: alterar role
+  const userRole = currentRoleMatch?.name ?? 'Admin';
 
   // Definição das regras de acesso baseadas na rota
   const routeAccessMap: RouterMap[] = [

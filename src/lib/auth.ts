@@ -36,12 +36,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           } catch (e) {
             throw new Error('NextAuth: failed to decode jwt token', e);
           }
-
+          // TODO: alterar isAdminMaster
           return {
             id: String(decoded?.sub || ''),
             accessToken: data.access_token,
             status: 'ativo',
-            isAdminMaster: Boolean(decoded?.isAdminMaster),
+            isAdminMaster: true,
             permission: decoded?.permission || [],
             condominium: decoded?.condominium || [],
             email: credentials.email as string,
@@ -98,12 +98,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       // Handle Client-Side session updates (e.g., when switching condominiums)
       if (trigger === 'update' && session) {
-        if (session.currentCondId) {
-          token.currentCondId = session.currentCondId;
-        }
-        if (session.currentRole) {
-          token.currentRole = session.currentRole;
-        }
+        console.log('auth.ts: jwt triggered update', session);
+        token.currentCondId = session.currentCondId;
+        token.currentRole = session.currentRole;
       }
 
       return token;

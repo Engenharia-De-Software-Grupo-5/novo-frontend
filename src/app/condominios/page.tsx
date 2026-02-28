@@ -60,6 +60,7 @@ export default function CondominiosPage() {
   const fetchCondominiums = React.useCallback(async () => {
     try {
       const data = await getCondominios();
+      console.log('DADOS DE CONDOMINIO', data);
       setCondominiums(data);
     } catch (error) {
       console.error('Failed to fetch condominiums', error);
@@ -152,7 +153,7 @@ export default function CondominiosPage() {
           </CardTitle>
           <CardDescription>
             {'Selecione um condomínio para acessar'}
-            <RoleGuard roles={[]}>{'ou crie um novo.'}</RoleGuard>
+            <RoleGuard roles={[]}>{' ou crie um novo'}</RoleGuard>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

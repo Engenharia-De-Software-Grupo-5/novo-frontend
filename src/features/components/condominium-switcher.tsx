@@ -73,6 +73,7 @@ export function CondominiumSwitcher({ condId }: { readonly condId?: string }) {
   const fetchCondominiums = React.useCallback(async () => {
     try {
       const data = await getCondominios();
+      console.log('SIDEBAR CONDOMINIOS', data);
       setCondominiums(data);
     } catch (error) {
       console.error('Failed to fetch condominiums', error);
@@ -145,7 +146,7 @@ export function CondominiumSwitcher({ condId }: { readonly condId?: string }) {
       toast.success('Condomínio excluído com sucesso');
       fetchCondominiums();
       if (condId === deletingCondo.id) {
-        router.push('/');
+        window.location.href = '/condominios';
       }
     } catch (error) {
       console.error('Error deleting condominio:', error);
@@ -157,7 +158,7 @@ export function CondominiumSwitcher({ condId }: { readonly condId?: string }) {
   };
 
   const handleSwitch = (id: string) => {
-    router.push(`/condominios/${id}/dashboard`);
+    router.push(`/condominios/${id}/funcionarios`);
   };
 
   return (

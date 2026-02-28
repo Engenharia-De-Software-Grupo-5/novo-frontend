@@ -21,7 +21,6 @@ export function CondominioSessionProvider({
   const hasUpdated = useRef(false);
 
   useEffect(() => {
-    // Only attempt to update if we have a resolved session
     if (status !== 'authenticated' || !session) return;
 
     const currentSessionCondId = session?.user?.currentCondId;
@@ -31,13 +30,14 @@ export function CondominioSessionProvider({
     if (currentSessionCondId !== condId || currentSessionRole !== role) {
       if (!hasUpdated.current) {
         hasUpdated.current = true;
-        update({ currentCondId: condId, currentRole: role }).finally(() => {
-          // Allow future updates if navigation happens while mounted
-          hasUpdated.current = false;
-        });
+        update({ currentCondId: condId, currentRole: role });
       }
     }
   }, [condId, role, session, status, update]);
 
-  return null; // This component is invisible, it just orchestrates state
+  useEffect(() => {
+    hasUpdated.current = false;
+  }, [condId, role]);
+
+  return null;
 }
