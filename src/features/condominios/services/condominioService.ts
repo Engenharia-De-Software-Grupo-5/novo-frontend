@@ -1,7 +1,9 @@
 'use server';
 
 import { Condominium, CondominiumResponse } from '@/types/condominium';
+import type { responseAuthApi } from '@/types/next-auth';
 import { apiRequest } from '@/lib/api-client';
+import { unstable_update } from '@/lib/auth';
 
 import {
   condominiumDtoRequest,
@@ -20,6 +22,26 @@ export const getCondominios = async (): Promise<Condominium[]> => {
       },
       true
     );
+
+    try {
+      const authData = await apiRequest<responseAuthApi>(
+        '/api/v1/me',
+        {
+          method: 'GET',
+        },
+        true
+      );
+
+      if (authData && authData.permission) {
+        await unstable_update({
+          permission: authData.permission,
+          condominium: authData.condominium,
+        });
+      }
+    } catch (authError) {
+      console.error('Error fetching /auth/me invisibly:', authError);
+    }
+
     return response.map(condominiumDtoResponse);
   } catch (error) {
     console.error('Error fetching condominios:', error);

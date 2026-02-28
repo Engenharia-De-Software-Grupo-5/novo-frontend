@@ -11,8 +11,8 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
   console.log('pathname', pathname);
-  console.log('req.auth = ', req.auth);
-  console.log('isLoggedIn = ', isLoggedIn);
+  // console.log('req.auth = ', req.auth);
+  // console.log('isLoggedIn = ', isLoggedIn);
 
   // Rotas públicas — passa direto
   const isPublicRoute =
@@ -52,7 +52,10 @@ export default auth((req) => {
 
   // Encontra a permissão (Role) do usuário no condomínio em questão baseado no Token
   const permissions = req.auth?.permission || [];
-  const currentRoleMatch = permissions.find((p) => p.id === condId);
+  const condominiums = req.auth?.condominium || [];
+  const currentRoleMatch = permissions.at(
+    condominiums.findIndex((c) => c.id === condId)
+  );
   // TODO: alterar role
   const userRole = currentRoleMatch?.name ?? 'Admin';
 

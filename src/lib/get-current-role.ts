@@ -21,5 +21,7 @@ export async function getCurrentRole(
   if (!session.permission || !Array.isArray(session.permission)) {
     return undefined;
   }
-  return session.permission.find((p) => p.id === condId)?.name;
+  return session.permission.at(
+    session.condominium.findIndex((c) => c.id === condId)
+  )?.name;
 }

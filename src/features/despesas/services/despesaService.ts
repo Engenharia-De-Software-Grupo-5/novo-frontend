@@ -39,7 +39,7 @@ export const create = async (
   data: Partial<DespesaDetail>,
   fileOptions?: FileUploadOptions
 ): Promise<DespesaDetail> => {
-  const body = buildFormDataBody(data, fileOptions, 'anexos');
+  const body = buildFormDataBody(data, fileOptions);
   const result = await apiRequest<DespesaDetail>(getBaseUrl(condId), {
     method: 'POST',
     body,
@@ -56,7 +56,7 @@ export const update = async (
   data: Partial<DespesaDetail>,
   fileOptions?: FileUploadOptions
 ): Promise<DespesaDetail> => {
-  const body = buildFormDataBody(data, fileOptions, 'anexos');
+  const body = buildFormDataBody(data, fileOptions);
   const result = await apiRequest<DespesaDetail>(
     `${getBaseUrl(condId)}/${id}`,
     {

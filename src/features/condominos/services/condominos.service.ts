@@ -70,7 +70,7 @@ export async function createCondomino(
   data: CondominoCreateDTO
 ) {
   const formData = new FormData();
-
+  // TODO: ajeitar para chamar a função buildFormDataBody
   const { documents, ...rest } = data;
   formData.append('data', JSON.stringify(rest));
 

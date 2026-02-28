@@ -5,7 +5,7 @@ import Credentials from 'next-auth/providers/credentials';
 
 import { responseAuthApi } from '@/types/next-auth';
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   secret: process.env.AUTH_SECRET,
   providers: [
     Credentials({
@@ -99,8 +99,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Handle Client-Side session updates (e.g., when switching condominiums)
       if (trigger === 'update' && session) {
         console.log('auth.ts: jwt triggered update', session);
-        token.currentCondId = session.currentCondId;
-        token.currentRole = session.currentRole;
+        if ('currentCondId' in session)
+          token.currentCondId = session.currentCondId;
+        if ('currentRole' in session) token.currentRole = session.currentRole;
+        if (session.permission) token.permission = session.permission;
+        if (session.condominium) token.condominium = session.condominium;
       }
 
       return token;

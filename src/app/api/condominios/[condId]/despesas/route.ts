@@ -77,7 +77,22 @@ export async function POST(
 
   if (contentType.includes('multipart/form-data')) {
     const formData = await request.formData();
-    data = JSON.parse((formData.get('data') as string) || '{}');
+
+    const parsedData: Record<string, unknown> = {};
+    formData.forEach((value, key) => {
+      if (key !== 'anexos' && key !== 'existingFileIds') {
+        if (typeof value === 'string') {
+          try {
+            parsedData[key] = JSON.parse(value);
+          } catch {
+            parsedData[key] = value;
+          }
+        } else {
+          parsedData[key] = value;
+        }
+      }
+    });
+    data = parsedData as unknown as DespesaDetail;
 
     anexos = formData
       .getAll('anexos')
