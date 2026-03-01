@@ -66,8 +66,10 @@ export async function apiRequest<T>(
     redirect('/login');
   }
   if (!response.ok) {
-    console.log('Response', await response.json());
-    throw new Error(`API error ${response.status}: ${response}`);
+    const errorBody = await response.text();
+  console.error('API error body:', errorBody);
+  throw new Error(`API error ${response.status}: ${response.statusText}`);
+    //throw new Error(`API error ${response.status}: ${response.statusText}`);
   }
 
   // Some responses (e.g. DELETE 204) may have no body
