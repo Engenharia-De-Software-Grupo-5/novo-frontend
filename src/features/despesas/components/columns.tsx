@@ -40,7 +40,7 @@ export const columns: ColumnDef<DespesaSummary>[] = [
           </Badge>
         );
       }
-      return <span className="font-medium">{idImovel}</span>;
+      return <span className="font-medium">{row.getValue('idImovel')}</span>;
     },
   },
   {
@@ -72,8 +72,7 @@ export const columns: ColumnDef<DespesaSummary>[] = [
     cell: ({ row }) => {
       const dateStr = row.getValue<string>('data');
       const [ano, mes, dia] = dateStr.split('-');
-      const diaFormatado = dia.split('T')[0];
-      return <span>{`${diaFormatado}/${mes}/${ano}`}</span>;
+      return <span>{`${dia}/${mes}/${ano}`}</span>;
     },
   },
   {

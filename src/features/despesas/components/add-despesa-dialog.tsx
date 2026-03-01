@@ -137,7 +137,7 @@ export function DespesaDialog({
       const existingFileIds = existingAttachments.map((a) => a.id);
 
       if (isEditing) {
-        await update(condId, despesa.id, payload, {
+        await update(condId, despesa.id, payload as DespesaDetail, {
           newFiles: files,
           existingFileIds,
         });

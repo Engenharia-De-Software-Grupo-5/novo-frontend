@@ -51,7 +51,7 @@ export function buildFormDataBody<T extends object>(
   });
 
   if (existingFileIds) {
-    formData.append('filesToKeep', JSON.stringify(existingFileIds));
+    existingFileIds.forEach((id) => formData.append('filesToKeep', id));
   }
 
   newFiles.forEach((file) => {

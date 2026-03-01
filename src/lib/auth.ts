@@ -36,12 +36,12 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
           } catch (e) {
             throw new Error('NextAuth: failed to decode jwt token', e);
           }
-          // TODO: alterar isAdminMaster
+
           return {
             id: String(decoded?.sub || ''),
             accessToken: data.access_token,
             status: 'ativo',
-            isAdminMaster: true,
+            isAdminMaster: data.isAdminMaster,
             permission: decoded?.permission || [],
             condominium: decoded?.condominium || [],
             email: credentials.email as string,

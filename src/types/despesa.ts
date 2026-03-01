@@ -8,7 +8,6 @@ export interface DespesaSummary {
   data: string;
   valor: number;
   formaPagamento: string;
-  status: 'pendente' | 'pago' | 'atrasado';
 }
 
 export interface DespesaResponseAPI {
@@ -19,7 +18,7 @@ export interface DespesaResponseAPI {
   expenseType: string;
   value: number;
   expenseDate: string;
-  files: FileAttachment[];
+  expenseFiles: FileAttachment[];
   paymentMethod: string;
 }
 export interface DespesaRequestAPI {

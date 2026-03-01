@@ -1,11 +1,13 @@
 'use client';
 
-import { useParams } from "next/navigation"; 
-import { DataTable } from "@/features/components/data-table/data-table";
-import { columns } from "./columns";
-import { DespesaSummary } from "@/types/despesa";
-import { DESPESA_TIPOS, FORMA_PAGAMENTO, COLUMN_LABELS } from "../constants";
-import { AddDespesaDialog } from "./add-despesa-dialog";
+import { useParams } from 'next/navigation';
+import { DataTable } from '@/features/components/data-table/data-table';
+
+import { DespesaSummary } from '@/types/despesa';
+
+import { COLUMN_LABELS, DESPESA_TIPOS, FORMA_PAGAMENTO } from '../constants';
+import { AddDespesaDialog } from './add-despesa-dialog';
+import { columns } from './columns';
 
 interface DespesasDataTableProps {
   readonly data: DespesaSummary[];
@@ -13,7 +15,7 @@ interface DespesasDataTableProps {
 }
 
 export function DespesasDataTable({ data, pageCount }: DespesasDataTableProps) {
-  const params = useParams(); 
+  const params = useParams();
   const condId = params.condId as string;
 
   return (
@@ -24,10 +26,15 @@ export function DespesasDataTable({ data, pageCount }: DespesasDataTableProps) {
       searchColumnId="nome"
       searchPlaceholder="Buscar despesa por nome..."
       columnLabels={COLUMN_LABELS}
-      actions={<AddDespesaDialog condId={condId} />} 
+      actions={<AddDespesaDialog />}
+      // TODO: talvez retirar forma pagamento
       facetedFilters={[
-        { columnId: "tipo", title: "Tipo", options: DESPESA_TIPOS },
-        { columnId: "formaPagamento", title: "Forma de Pagto", options: FORMA_PAGAMENTO },
+        { columnId: 'tipo', title: 'Tipo', options: DESPESA_TIPOS },
+        {
+          columnId: 'formaPagamento',
+          title: 'Forma de Pagto',
+          options: FORMA_PAGAMENTO,
+        },
       ]}
       filterMappings={[
         { columnId: 'nome' },
