@@ -3,9 +3,6 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FileText, RefreshCcw } from 'lucide-react';
-import { toast } from 'sonner';
-
 import { Button } from '@/features/components/ui/button';
 import {
   Card,
@@ -14,9 +11,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/features/components/ui/card';
-import { Field, FieldDescription, FieldLabel } from '@/features/components/ui/field';
+import {
+  Field,
+  FieldDescription,
+  FieldLabel,
+} from '@/features/components/ui/field';
 import { Input } from '@/features/components/ui/input';
 import { Textarea } from '@/features/components/ui/textarea';
+import { FileText, RefreshCcw } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { postModeloContrato } from '../services/modeloContratoService';
 import { RichTextEditor } from './rich-text-editor';
@@ -119,25 +122,28 @@ const escapeHtml = (value: string) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
 
-const textToHtml = (value: string) => escapeHtml(value).replaceAll('\n', '<br/>');
+const textToHtml = (value: string) =>
+  escapeHtml(value).replaceAll('\n', '<br/>');
 
 export default function AddModeloContrato({ condId }: AddModeloContratoProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('');
-  const [purpose, setPurpose] = useState('');
+  const [description, setDescription] = useState('');
   const [rawText, setRawText] = useState(textToHtml(DEFAULT_TEMPLATE));
   const [hasSubmitAttempt, setHasSubmitAttempt] = useState(false);
 
   const listPath = `/condominios/${condId}/modelos`;
 
-  const hasMissingRequired = !name.trim() || !purpose.trim() || !rawText.trim();
+  const hasMissingRequired =
+    !name.trim() || !description.trim() || !rawText.trim();
   const isNameInvalid = hasSubmitAttempt && !name.trim();
-  const isPurposeInvalid = hasSubmitAttempt && !purpose.trim();
+  const isPurposeInvalid = hasSubmitAttempt && !description.trim();
   const isContentInvalid = hasSubmitAttempt && !rawText.trim();
 
   const previewHtml = useMemo(() => {
-    if (!rawText) return '<p class="text-muted-foreground">Sem conteudo para visualizar.</p>';
+    if (!rawText)
+      return '<p class="text-muted-foreground">Sem conteudo para visualizar.</p>';
     return rawText;
   }, [rawText]);
 
@@ -145,7 +151,9 @@ export default function AddModeloContrato({ condId }: AddModeloContratoProps) {
     setHasSubmitAttempt(true);
 
     if (hasMissingRequired) {
-      toast.error('Preencha nome, finalidade e conteudo do modelo antes de salvar.');
+      toast.error(
+        'Preencha nome, descrição e conteudo do modelo antes de salvar.'
+      );
       return;
     }
 
@@ -153,8 +161,8 @@ export default function AddModeloContrato({ condId }: AddModeloContratoProps) {
       setIsSubmitting(true);
       await postModeloContrato(condId, {
         name: name.trim(),
-        purpose: purpose.trim(),
-        rawText,
+        description: description.trim(),
+        template: rawText,
       });
       toast.success('Modelo de contrato criado com sucesso.');
       router.push(listPath);
@@ -170,9 +178,12 @@ export default function AddModeloContrato({ condId }: AddModeloContratoProps) {
   return (
     <div className="flex flex-col space-y-6 p-4 sm:p-6 lg:p-8">
       <div>
-        <h1 className="text-xl font-semibold sm:text-2xl">Adicionar Modelo de Contrato</h1>
+        <h1 className="text-xl font-semibold sm:text-2xl">
+          Adicionar Modelo de Contrato
+        </h1>
         <p className="text-muted-foreground text-sm sm:text-base">
-          Crie um modelo editavel com placeholders para uso futuro nos contratos reais.
+          Crie um modelo editavel com placeholders para uso futuro nos contratos
+          reais.
         </p>
       </div>
 
@@ -182,14 +193,23 @@ export default function AddModeloContrato({ condId }: AddModeloContratoProps) {
             <CardHeader>
               <CardTitle>Pre-visualizacao do Modelo</CardTitle>
               <CardDescription>
-                O preview e atualizado em tempo real conforme o conteudo do editor.
+                O preview e atualizado em tempo real conforme o conteudo do
+                editor.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex h-[calc(100%-5rem)] flex-col">
               <div className="border-border bg-muted/30 flex-1 overflow-auto rounded-md border p-4">
-                <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: previewHtml }} />
+                <div
+                  className="prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: previewHtml }}
+                />
               </div>
-              <Button variant="outline" className="mt-4 w-full" size="sm" type="button">
+              <Button
+                variant="outline"
+                className="mt-4 w-full"
+                size="sm"
+                type="button"
+              >
                 <RefreshCcw className="mr-2 h-4 w-4" />
                 Recarregar Preview
               </Button>
@@ -218,25 +238,34 @@ export default function AddModeloContrato({ condId }: AddModeloContratoProps) {
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="model-purpose">Finalidade *</FieldLabel>
+                <FieldLabel htmlFor="model-purpose">Descrição *</FieldLabel>
                 <Textarea
                   id="model-purpose"
-                  value={purpose}
-                  onChange={(event) => setPurpose(event.target.value)}
-                  className={isPurposeInvalid ? 'border-destructive min-h-20' : 'min-h-20'}
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  className={
+                    isPurposeInvalid
+                      ? 'border-destructive min-h-20'
+                      : 'min-h-20'
+                  }
                   placeholder="Descreva quando este modelo deve ser utilizado."
                 />
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="model-content">Conteudo do contrato *</FieldLabel>
+                <FieldLabel htmlFor="model-content">
+                  Conteudo do contrato *
+                </FieldLabel>
                 <RichTextEditor
                   value={rawText}
                   onChange={setRawText}
-                  className={isContentInvalid ? 'border-destructive' : undefined}
+                  className={
+                    isContentInvalid ? 'border-destructive' : undefined
+                  }
                 />
                 <FieldDescription>
-                  Campos entre chaves (ex.: {'{{locatario.nome}}'}) serao substituidos no uso real.
+                  Campos entre chaves (ex.: {'{{locatario.nome}}'}) serao
+                  substituidos no uso real.
                 </FieldDescription>
               </Field>
             </CardContent>
