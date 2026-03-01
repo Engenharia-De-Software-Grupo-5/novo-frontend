@@ -5,11 +5,12 @@ import { FileAttachment } from '@/types/file';
 
 interface UseFileUploadOptions {
   accept?: string;
+  acceptLabel?: string;
   existingFiles?: FileAttachment[];
 }
 
 export function useFileUpload(options: UseFileUploadOptions = {}) {
-  const { accept, existingFiles = [] } = options;
+  const { accept, acceptLabel, existingFiles = [] } = options;
 
   const [files, setFiles] = useState<File[]>([]);
   const [existingAttachments, setExistingAttachments] =
@@ -37,7 +38,10 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         }
 
         if (invalidFiles.length > 0) {
-          toast.error('Alguns arquivos possuem um formato inválido.');
+          const message = acceptLabel
+            ? `Formato de arquivo inválido. Tipos suportados: ${acceptLabel}.`
+            : 'Alguns arquivos possuem um formato inválido.';
+          toast.error(message);
           e.target.value = '';
           return;
         }
@@ -46,7 +50,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         e.target.value = '';
       }
     },
-    [accept]
+    [accept, acceptLabel]
   );
 
   const removeFile = useCallback((indexToRemove: number) => {

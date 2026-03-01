@@ -77,7 +77,10 @@ export function DespesaDialog({
     removeExistingAttachment,
     resetFiles,
     setInitialAttachments,
-  } = useFileUpload({ accept: 'application/pdf' });
+  } = useFileUpload({
+    accept: 'image/jpeg,image/png,application/pdf',
+    acceptLabel: 'JPG, JPEG, PNG ou PDF',
+  });
 
   const form = useForm<DespesaFormData>({
     resolver: zodResolver(despesaSchema),
@@ -332,20 +335,20 @@ export function DespesaDialog({
             )}
           />
 
-          {/* Anexos (PDF) */}
+          {/* Anexos */}
           <div className="space-y-2">
             <label
               htmlFor="despesa-file-upload"
               className="text-sm leading-none font-medium"
             >
-              Anexos (PDF)
+              Anexos (JPG, PNG ou PDF)
             </label>
             <div className="relative">
               <Input
                 id="despesa-file-upload"
                 type="file"
                 multiple
-                accept="application/pdf"
+                accept="image/jpeg,image/png,application/pdf"
                 onChange={handleFileChange}
                 className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
                 title=""
