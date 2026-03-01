@@ -152,7 +152,7 @@ export function ViewDespesaDialog({
                         <span className="truncate text-sm">{anexo.name}</span>
                       </div>
                       <a
-                        href={anexo.url}
+                        href={anexo.link}
                         target="_blank"
                         rel="noreferrer"
                         className="text-primary hover:bg-primary/10 rounded-md p-2 transition-colors"

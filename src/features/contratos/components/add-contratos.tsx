@@ -1461,7 +1461,7 @@ export default function AddContratos({
                                   {models.map((model) => (
                                     <CommandItem
                                       key={model.id}
-                                      value={`${model.name} ${model.purpose}`}
+                                      value={`${model.name} ${model.description}`}
                                       onSelect={() => {
                                         setModelId(model.id);
                                         setOpenModel(false);

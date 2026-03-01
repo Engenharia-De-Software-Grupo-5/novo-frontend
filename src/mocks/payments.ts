@@ -51,7 +51,7 @@ const generateFile = (
   name,
   type: 'application/pdf',
   size: 1024 * (Math.floor(getSeededRandom(seed) * 5) + 1),
-  url: '#',
+  link: '#',
 });
 
 // Base date fixa para mocks determinísticos (não usa Date.now())

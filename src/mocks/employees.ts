@@ -72,7 +72,7 @@ const generateFile = (
   name,
   type: 'application/pdf',
   size: 1024 * (Math.floor(getSeededRandom(seed) * 5) + 1),
-  url: '#',
+  link: '#',
 });
 
 export const mockEmployeeDetails: EmployeeDetail[] = names.map((name, i) => {
