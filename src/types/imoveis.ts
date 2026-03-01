@@ -1,8 +1,7 @@
 import { FileAttachment } from '@/types/file';
 
-export type ImovelTipo = 'casa' | 'apartamento';
-
-export type ImovelSituacao = 'ativo' | 'inativo' | 'manutenção' | 'na planta';
+export type ImovelTipo = 'HOUSE' | 'APARTMENT' | 'COMMERCIAL';
+export type ImovelSituacao = 'ACTIVE' | 'INACTIVE' | 'MAINTENANCE' | 'OFF_PLAN';
 
 export interface Endereco {
   rua: string;
@@ -25,6 +24,8 @@ export interface ImovelDetail {
   idCondominio: string;
   idImovel: string;
   nome: string;
+  numeroUnidade?: string; 
+  observacoes?: string;
   tipo: ImovelTipo;
   situacao: ImovelSituacao;
   endereco: Endereco;
@@ -53,5 +54,4 @@ export interface ImovelResponse {
   };
 }
 
-// Compatibilidade com o código legado
 export type Imovel = ImovelDetail;
