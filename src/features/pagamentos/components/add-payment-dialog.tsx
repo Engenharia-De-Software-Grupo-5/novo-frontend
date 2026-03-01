@@ -228,73 +228,82 @@ export function PaymentDialog({
           <FormField
             control={form.control}
             name="employeeId"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Funcionário *</FormLabel>
-                <Popover open={openEmployee} onOpenChange={setOpenEmployee}>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={openEmployee}
-                        className={cn(
-                          'w-full justify-between',
-                          !field.value && 'text-muted-foreground'
-                        )}
-                      >
-                        {field.value
-                          ? employees.find(
-                              (employee) => employee.id === field.value
-                            )?.name ||
-                            (payment?.employeeId === field.value
-                              ? payment.name
-                              : 'Selecione um funcionário')
-                          : 'Selecione um funcionário'}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[--radix-popover-trigger-width] min-w-[300px] p-0">
-                    <Command shouldFilter={false}>
-                      <CommandInput
-                        placeholder="Procurar funcionário..."
-                        value={searchQuery}
-                        onValueChange={setSearchQuery}
-                      />
-                      <CommandList>
-                        <CommandEmpty>
-                          Nenhum funcionário encontrado.
-                        </CommandEmpty>
-                        <CommandGroup>
-                          {employees.map((employee) => (
-                            <CommandItem
-                              value={employee.name}
-                              key={employee.id}
-                              onSelect={() => {
-                                form.setValue('employeeId', employee.id);
-                                setOpenEmployee(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  'mr-2 h-4 w-4',
-                                  employee.id === field.value
-                                    ? 'opacity-100'
-                                    : 'opacity-0'
-                                )}
-                              />
-                              {employee.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              let displayValue = 'Selecione um funcionário';
+
+              if (field.value) {
+                const foundEmployee = employees.find(
+                  (employee) => employee.id === field.value
+                );
+
+                if (foundEmployee?.name) {
+                  displayValue = foundEmployee.name;
+                } else if (payment?.employeeId === field.value) {
+                  displayValue = payment.name;
+                }
+              }
+
+              return (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Funcionário *</FormLabel>
+                  <Popover open={openEmployee} onOpenChange={setOpenEmployee}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openEmployee}
+                          className={cn(
+                            'w-full justify-between',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {displayValue}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] min-w-[300px] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Procurar funcionário..."
+                          value={searchQuery}
+                          onValueChange={setSearchQuery}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            Nenhum funcionário encontrado.
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {employees.map((employee) => (
+                              <CommandItem
+                                value={employee.name}
+                                key={employee.id}
+                                onSelect={() => {
+                                  form.setValue('employeeId', employee.id);
+                                  setOpenEmployee(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    'mr-2 h-4 w-4',
+                                    employee.id === field.value
+                                      ? 'opacity-100'
+                                      : 'opacity-0'
+                                  )}
+                                />
+                                {employee.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
 
           {/* Tipo de Pagamento */}
@@ -456,7 +465,7 @@ export function PaymentDialog({
                 {/* New files */}
                 {files.map((file, index) => (
                   <div
-                    key={`new-${index}`}
+                    key={`new-${file.name}`}
                     className="flex items-center justify-between rounded-md border bg-gray-50 p-2 text-sm"
                   >
                     <div className="flex items-center gap-2">

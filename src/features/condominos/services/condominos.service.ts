@@ -51,10 +51,13 @@ export const getCondominoById = async (
   condId: string,
   condominoId: string
 ): Promise<CondominoFull> => {
-  return apiRequest<CondominoFull>(`${basePath(condId)}/${condominoId}`, {
-    method: 'GET',
-  });
-};
+  const response = await apiRequest<CondominoFull>(
+    `/api/condominios/${condId}/condominos/${condominoId}`,
+    { method: 'GET' }
+  );
+  console.log('RESPONSE BYID ', response);
+  return response;
+}
 
 export const postCondomino = async (
   condId: string,

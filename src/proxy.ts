@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
 
-interface routerMap {
+interface RouterMap {
   match: (path: string) => boolean;
   allowedRoles: string[];
 }
@@ -10,13 +10,14 @@ interface routerMap {
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
+  console.log('pathname', pathname);
   console.log('req.auth = ', req.auth);
   console.log('isLoggedIn = ', isLoggedIn);
 
   // Rotas públicas — passa diretoa
   const isPublicRoute =
     pathname.startsWith('/auth') ||
-    pathname.match(/^\/condominios\/[^\/]+\/form$/);
+    /^\/condominios\/[^/]+\/form$/.exec(pathname);
   if (isPublicRoute) return NextResponse.next();
 
   // Não autenticado — redireciona para login
@@ -52,10 +53,11 @@ export default auth((req) => {
   // Encontra a permissão (Role) do usuário no condomínio em questão baseado no Token
   const permissions = req.auth?.permission || [];
   const currentRoleMatch = permissions.find((p) => p.id === condId);
-  const userRole = currentRoleMatch?.name;
+  // TODO: alterar role
+  const userRole = currentRoleMatch?.name ?? 'Admin';
 
   // Definição das regras de acesso baseadas na rota
-  const routeAccessMap: routerMap[] = [
+  const routeAccessMap: RouterMap[] = [
     {
       match: (path: string) =>
         path.includes('/pagamentos') ||
@@ -95,5 +97,5 @@ export default auth((req) => {
 
 export const config = {
   // Define quais rotas o middleware intercepta
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)'],
 };

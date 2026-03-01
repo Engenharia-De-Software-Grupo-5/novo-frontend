@@ -66,7 +66,11 @@ interface NavItem {
   roles?: Role[];
 }
 
-export function AppSidebar({ condId, user, ...props }: AppSidebarProps) {
+export function AppSidebar({
+  condId,
+  user,
+  ...props
+}: Readonly<AppSidebarProps>) {
   // Configured default in case they are completely undefined via prop spread
   const name = user?.name || 'Admin User';
   const email = user?.email || 'admin@example.com';

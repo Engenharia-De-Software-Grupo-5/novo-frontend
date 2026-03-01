@@ -33,13 +33,14 @@ export default async function UsersPage({ params, searchParams }: PageProps) {
   }
 
   console.log('sParams:', sParams);
-  const data = await getUsers(condId, {
+  const {items: usuarios, meta} = await getUsers(condId, {
     page,
     limit,
     sort,
     columns: columnsArr.length > 0 ? columnsArr : undefined,
     content: contentArr.length > 0 ? contentArr : undefined,
   });
+
 
   return (
     <div className="flex h-full flex-1 flex-col space-y-8 p-4 md:p-8">
@@ -55,7 +56,7 @@ export default async function UsersPage({ params, searchParams }: PageProps) {
         </p>
       </div>
 
-      <UsersDataTable data={data.items} pageCount={data.meta.totalPages} />
+      <UsersDataTable data={usuarios} pageCount={meta.totalPages} />
     </div>
   );
 }

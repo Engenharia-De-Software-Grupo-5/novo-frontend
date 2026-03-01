@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUsersDb } from '@/mocks/in-memory-db';
 
 import { User } from '@/types/user';
+import { secureRandom } from '@/lib/secure-random';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -90,7 +91,7 @@ export async function GET(
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';
 
-  if (sortParam && sortParam.includes('.')) {
+  if (sortParam?.includes('.')) {
     const [field, order] = sortParam.split('.');
     sortField = field;
     sortOrder = order;
@@ -248,7 +249,7 @@ export async function POST(
   const inviteDate = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
 
   const newUser: User = {
-    id: `${condId}-${Math.random().toString(36).slice(2, 9)}`,
+    id: `${condId}-${secureRandom(7)}`,
     name: body.name?.trim() || 'Novo usuário',
     email: body.email?.trim() || `usuario-${Date.now()}@exemplo.com`,
     role: normalizeRole(body.role),

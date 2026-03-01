@@ -2,10 +2,39 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { UsersResponse } from '@/types/user';
+import { UsersResponse, User, Status } from '@/types/user';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 
 import { UpdateUserPayload } from './users';
+
+const baseUrl = '/api/v1';
+const isReal = true;
+
+// DTO de mapeamento de status
+const statusToApi: Record<string, 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'> = {
+  ativo: 'ACTIVE',
+  inativo: 'INACTIVE',
+  suspenso: 'SUSPENDED',
+};
+
+const statusFromApi: Record<string, string> = {
+  ACTIVE: 'ativo',
+  INACTIVE: 'inativo',
+  SUSPENDED: 'pendente',
+};
+
+function mapStatusToApi(status: string): 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' {
+  const mapped = statusToApi[status.toLowerCase()];
+  if (!mapped) throw new Error(`Status inválido: ${status}`);
+  return mapped;
+}
+
+function mapUserFromApi(user: User): User {
+  return {
+    ...user,
+    status: (statusFromApi[user.status as string] ?? user.status) as Status,
+  };
+}
 
 export const getUsers = async (
   condId: string,
@@ -18,27 +47,29 @@ export const getUsers = async (
   }
 ): Promise<UsersResponse> => {
   try {
-    const queryParams: Record<string, string | number | string[] | undefined> =
-      {
-        page: params?.page,
-        limit: params?.limit,
-        sort: params?.sort,
-      };
+    const queryParams: Record<string, string | number | string[] | undefined> = {
+      page: params?.page,
+      limit: params?.limit,
+      sort: params?.sort,
+    };
 
     if (params?.columns && params?.content && params.columns.length > 0) {
-      queryParams.columns = params.columns;
+      queryParams.columnName = params.columns;
       queryParams.content = params.content;
     }
 
-    console.log(queryParams);
     const query = buildQueryString(queryParams);
 
-    return await apiRequest<UsersResponse>(
-      `/api/condominios/${condId}/usuarios${query}`,
-      {
-        method: 'GET',
-      }
+    const response = await apiRequest<UsersResponse>(
+      `${baseUrl}/condominiums/${condId}/users/paginated${query}`,
+      { method: 'GET' },
+      isReal
     );
+
+    return {
+      ...response,
+      items: response.items.map(mapUserFromApi),
+    };
   } catch (error) {
     console.error('Error fetching users:', error);
     return {
@@ -52,25 +83,41 @@ export async function inviteUser(
   condominioId: string,
   data: { name: string; email: string; role: string; message?: string }
 ) {
-  await apiRequest(`/api/condominios/${condominioId}/usuarios`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+  const payload: Record<string, string> = {
+    name: data.name,
+    email: data.email,
+    status: 'ACTIVE',
+    role: data.role.toUpperCase(),
+  };
+
+  if (data.message?.trim()) {
+    payload.message = data.message.trim();
+  }
+
+  await apiRequest(
+    `${baseUrl}/condominiums/${condominioId}/users`,
+    { method: 'POST', body: payload },
+    isReal
+  );
 
   revalidatePath(`/condominios/${condominioId}/usuarios`);
 }
-/**
- * ATUALIZAÇÃO (PUT ou PATCH)
- */
+
 export async function updateUser(
   condominioId: string,
   userId: string,
   data: UpdateUserPayload
 ) {
-  await apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
-    method: 'PATCH',
-    body: JSON.stringify(data),
-  });
+  const payload = {
+    ...data,
+    ...(data.status && { status: mapStatusToApi(data.status) }),
+  };
+
+  await apiRequest(
+    `${baseUrl}/condominiums/${condominioId}/users/${userId}`,
+    { method: 'PATCH', body: payload },
+    isReal
+  );
 
   revalidatePath(`/condominios/${condominioId}/usuarios`);
 }
@@ -78,23 +125,23 @@ export async function updateUser(
 export async function changeUserStatus(
   condominioId: string,
   userId: string,
-  status: 'ativo' | 'inativo'
+  status: string
 ) {
-  await apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
-    method: 'PATCH',
-    body: JSON.stringify({ status }),
-  });
+  await apiRequest(
+    `${baseUrl}/condominiums/${condominioId}/users/${userId}`,
+    { method: 'PATCH', body: { status: mapStatusToApi(status) } },
+    isReal
+  );
 
   revalidatePath(`/condominios/${condominioId}/usuarios`);
 }
 
-/**
- * EXCLUSÃO
- */
 export async function deleteUser(condominioId: string, userId: string) {
-  await apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
-    method: 'DELETE',
-  });
+  await apiRequest(
+    `${baseUrl}/condominiums/${condominioId}/users/${userId}`,
+    { method: 'DELETE' },
+    isReal
+  );
 
   revalidatePath(`/condominios/${condominioId}/usuarios`);
 }

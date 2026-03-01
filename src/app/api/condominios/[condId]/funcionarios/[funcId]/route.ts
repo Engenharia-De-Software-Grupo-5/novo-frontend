@@ -150,9 +150,7 @@ export async function PUT(
     ];
     body.Contracts = finalContracts;
     body.lastContract =
-      finalContracts.length > 0
-        ? finalContracts[finalContracts.length - 1]
-        : undefined;
+      finalContracts.length > 0 ? finalContracts.at(-1) : undefined;
   }
 
   employeesDb[index] = { ...employeesDb[index], ...body };

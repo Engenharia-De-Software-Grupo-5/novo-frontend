@@ -19,7 +19,7 @@ export function RoleGuard({
   const { data: session, status } = useSession();
   // Lazy initializer: returns true immediately on the client, false during SSR.
   // Avoids the useEffect + setState pattern that causes cascading renders.
-  const [mounted] = useState(() => typeof window !== 'undefined');
+  const [mounted] = useState(() => typeof globalThis !== 'undefined');
 
   // Garante árvore estável entre SSR e hidratação inicial no cliente.
   if (!mounted || status === 'loading') {

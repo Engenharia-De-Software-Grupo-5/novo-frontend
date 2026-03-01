@@ -17,7 +17,8 @@ export default async function CondominioLayout({
   const resolvedParams = await params;
   const { condId } = resolvedParams;
 
-  const currentRole = await getCurrentRole(condId);
+  // TODO: alterar role
+  const currentRole = (await getCurrentRole(condId)) ?? 'Admin';
   console.log('currentRole', currentRole);
   return (
     <div className="min-h-screen">

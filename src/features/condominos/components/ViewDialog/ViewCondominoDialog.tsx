@@ -75,7 +75,7 @@ export function ViewCondominoDialog({
 
         <Separator />
 
-        <FinanceSection data={data} formatCurrency={formatCurrency} />
+        <FinanceSection data={data} />
 
         <AdditionalResidentsSection residents={data.additionalResidents} />
 

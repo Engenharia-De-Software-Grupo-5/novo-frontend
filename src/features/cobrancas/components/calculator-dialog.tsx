@@ -24,7 +24,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Calculator } from 'lucide-react';
 import { useForm, useWatch } from 'react-hook-form';
 
-import { CalculatorFormValues, calculatorSchema } from '../schemas/calculatorSchema';
+import {
+  CalculatorFormValues,
+  calculatorSchema,
+} from '../schemas/calculatorSchema';
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('pt-BR', {
@@ -53,7 +56,9 @@ export function CalculatorDialog() {
 
   const result = useMemo(() => {
     const dueDate = watched.dueDate ? new Date(watched.dueDate) : null;
-    const paymentDate = watched.paymentDate ? new Date(watched.paymentDate) : null;
+    const paymentDate = watched.paymentDate
+      ? new Date(watched.paymentDate)
+      : null;
     const baseValue = Number(watched.value || 0);
     const penaltyFixed = Number(watched.penalty || 0);
     const interestPercent = Number(watched.interest || 0);
@@ -63,7 +68,7 @@ export function CalculatorDialog() {
         overdueDays: 0,
         penaltyValue: 0,
         interestValue: 0,
-        totalValue: baseValue > 0 ? baseValue : 0,
+        totalValue: Math.max(baseValue, 0),
       };
     }
 
@@ -77,7 +82,7 @@ export function CalculatorDialog() {
     );
 
     const penaltyValue = overdueDays > 0 ? penaltyFixed : 0;
-    const dailyInterestRate = (interestPercent / 100) / 30;
+    const dailyInterestRate = interestPercent / 100 / 30;
     const interestValue =
       overdueDays > 0 ? penaltyValue * dailyInterestRate * overdueDays : 0;
 
@@ -87,7 +92,13 @@ export function CalculatorDialog() {
       interestValue,
       totalValue: baseValue + penaltyValue + interestValue,
     };
-  }, [watched.dueDate, watched.paymentDate, watched.value, watched.penalty, watched.interest]);
+  }, [
+    watched.dueDate,
+    watched.paymentDate,
+    watched.value,
+    watched.penalty,
+    watched.interest,
+  ]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -101,8 +112,8 @@ export function CalculatorDialog() {
         <DialogHeader className="space-y-2 pb-1">
           <DialogTitle>Calculadora de multas e juros</DialogTitle>
           <DialogDescription>
-            Juros por mês (%) são aplicados proporcionalmente por dia (taxa mensal/30),
-            a partir do primeiro dia após o vencimento.
+            Juros por mês (%) são aplicados proporcionalmente por dia (taxa
+            mensal/30), a partir do primeiro dia após o vencimento.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -143,7 +154,13 @@ export function CalculatorDialog() {
                 <FormItem className="space-y-3">
                   <FormLabel>Valor *</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" min="0" placeholder="R$ 0,00" {...field} />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="R$ 0,00"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -158,7 +175,13 @@ export function CalculatorDialog() {
                   <FormItem className="space-y-3">
                     <FormLabel>Multa (R$) *</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" min="0" placeholder="R$ 0,00" {...field} />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="R$ 0,00"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -171,7 +194,13 @@ export function CalculatorDialog() {
                   <FormItem className="space-y-3">
                     <FormLabel>Juros por Mês (%) *</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" min="0" placeholder="0,00" {...field} />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0,00"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -179,9 +208,10 @@ export function CalculatorDialog() {
               />
             </div>
 
-            <div className="space-y-1 rounded-md border bg-muted/30 p-4 text-sm">
+            <div className="bg-muted/30 space-y-1 rounded-md border p-4 text-sm">
               <p>
-                <span className="font-medium">Dias de atraso:</span> {result.overdueDays} dias
+                <span className="font-medium">Dias de atraso:</span>{' '}
+                {result.overdueDays} dias
               </p>
               <p>
                 <span className="font-medium">Valor da multa:</span>{' '}
@@ -199,7 +229,11 @@ export function CalculatorDialog() {
           </form>
         </Form>
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+          >
             Fechar
           </Button>
         </DialogFooter>

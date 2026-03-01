@@ -98,7 +98,7 @@ export async function GET(
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';
 
-  if (sortParam && sortParam.includes('.')) {
+  if (sortParam?.includes('.')) {
     const [field, order] = sortParam.split('.');
     sortField = field;
     sortOrder = order;
@@ -137,7 +137,11 @@ export async function GET(
         const fieldValue = e[col as keyof typeof e];
         if (fieldValue === undefined) return false;
         return values.some(
-          (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
+          (v) =>
+            (typeof fieldValue === 'object'
+              ? JSON.stringify(fieldValue)
+              : String(fieldValue)
+            ).toLowerCase() === v.toLowerCase()
         );
       });
     }
@@ -257,10 +261,7 @@ export async function POST(
     status: allContracts.length > 0 ? 'ativo' : 'pendente',
     role: body.role || 'porteiro',
     Contracts: allContracts,
-    lastContract:
-      allContracts.length > 0
-        ? allContracts[allContracts.length - 1]
-        : undefined,
+    lastContract: allContracts.length > 0 ? allContracts.at(-1) : undefined,
   };
 
   employeesDb.push(newEmployee);

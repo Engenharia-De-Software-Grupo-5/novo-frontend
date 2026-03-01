@@ -1,25 +1,40 @@
-import { AdditionalResident } from "@/types/condomino";
-import { SectionTitle } from "./Section";
-import { Users } from "lucide-react";
+import { Users } from 'lucide-react';
 
-export function AdditionalResidentsSection({ residents }: { readonly residents: AdditionalResident[] }) {
+import { AdditionalResident } from '@/types/condomino';
+
+import { SectionTitle } from './Section';
+
+export function AdditionalResidentsSection({
+  residents,
+}: {
+  readonly residents: AdditionalResident[];
+}) {
   if (!residents || residents.length === 0) return null;
 
   return (
     <div>
       <SectionTitle icon={Users} title="Moradores Adicionais" />
-      <div className="border rounded-lg overflow-hidden border-slate-200">
+      <div className="overflow-hidden rounded-lg border border-slate-200">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 border-b border-slate-200">
+          <thead className="border-b border-slate-200 bg-slate-50">
             <tr>
-              <th className="text-left p-3 text-[10px] uppercase font-bold text-slate-500">Nome</th>
-              <th className="text-left p-3 text-[10px] uppercase font-bold text-slate-500">Parentesco</th>
-              <th className="text-left p-3 text-[10px] uppercase font-bold text-slate-500">Idade</th>
+              <th className="p-3 text-left text-[10px] font-bold text-slate-500 uppercase">
+                Nome
+              </th>
+              <th className="p-3 text-left text-[10px] font-bold text-slate-500 uppercase">
+                Parentesco
+              </th>
+              <th className="p-3 text-left text-[10px] font-bold text-slate-500 uppercase">
+                Idade
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {residents.map((res, i) => (
-              <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+            {residents.map((res) => (
+              <tr
+                key={`${res.name}-${res.relationship}`}
+                className="transition-colors hover:bg-slate-50/50"
+              >
                 <td className="p-3 font-medium text-slate-900">{res.name}</td>
                 <td className="p-3 text-slate-600">{res.relationship}</td>
                 <td className="p-3 text-slate-600">{res.age} anos</td>
