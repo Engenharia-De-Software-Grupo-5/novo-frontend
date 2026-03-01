@@ -5,7 +5,11 @@ export const despesaSchema = z.object({
   valor: z.number().min(0.01, "O valor deve ser maior que zero."),
   data: z.string().min(1, "A data é obrigatória."),
   tipo: z.string().min(1, "Selecione o tipo."),
-  formaPagamento: z.string().min(1, "Selecione a forma de pagamento."),
+  
+  formaPagamento: z.enum(['CASH', 'PIX', 'BOLETO', 'CREDIT_CARD', 'DEBIT_CARD'], {
+    message: "Selecione uma forma de pagamento válida.",
+  }),
+  
   idImovel: z.string().optional().nullable(),
 });
 
