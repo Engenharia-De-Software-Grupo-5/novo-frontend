@@ -15,13 +15,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/features/components/ui/select';
+import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 export function PersonalDataSection() {
-  const { control, watch } = useFormContext();
+ //const { control, watch } = useFormContext();
 
   // Monitora o campo maritalStatus
-  const maritalStatus = watch('maritalStatus');
+  //const maritalStatus = watch('maritalStatus');
+
+  const { control, watch, unregister } = useFormContext();
+const maritalStatus = watch('maritalStatus');
+
+useEffect(() => {
+  if (maritalStatus !== 'casado') {
+    unregister('spouse');
+  }
+}, [maritalStatus, unregister]);
 
   return (
     <section className="space-y-6">

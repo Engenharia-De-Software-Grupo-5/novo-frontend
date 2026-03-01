@@ -60,7 +60,10 @@ export async function apiRequest<T>(
   }
 
   if (!response.ok) {
-    throw new Error(`API error ${response.status}: ${response.statusText}`);
+    const errorBody = await response.text();
+  console.error('API error body:', errorBody);
+  throw new Error(`API error ${response.status}: ${response.statusText}`);
+    //throw new Error(`API error ${response.status}: ${response.statusText}`);
   }
 
   // Some responses (e.g. DELETE 204) may have no body
