@@ -1,3 +1,5 @@
+import { FileAttachment } from '@/types/file';
+
 export type ImovelTipo = 'casa' | 'apartamento';
 
 export type ImovelSituacao = 'ativo' | 'inativo' | 'manutenção' | 'na planta';
@@ -27,6 +29,8 @@ export interface ImovelDetail {
   situacao: ImovelSituacao;
   endereco: Endereco;
   locatario: Locatario | null;
+  vistorias?: FileAttachment[];
+  documentos?: FileAttachment[];
 }
 
 export interface ImovelSummary {

@@ -7,6 +7,55 @@ import { apiRequest, buildQueryString } from '@/lib/api-client';
 
 const basePath = (condId: string) => `/api/condominios/${condId}/imoveis`;
 
+export interface ImovelFileOptions {
+  /** New vistoria files to upload */
+  newVistoriasFiles?: File[];
+  /** New documento files to upload */
+  newDocumentosFiles?: File[];
+  /**
+   * IDs of ALL existing attachments (vistorias + documentos) the user chose to keep.
+   * The backend filters each array independently against this unified set.
+   */
+  existingFileIds?: string[];
+}
+
+function buildImovelFormData(
+  data: Partial<ImovelDetail>,
+  options?: ImovelFileOptions
+): FormData | Partial<ImovelDetail> {
+  const {
+    newVistoriasFiles = [],
+    newDocumentosFiles = [],
+    existingFileIds,
+  } = options ?? {};
+
+  const hasFiles =
+    newVistoriasFiles.length > 0 ||
+    newDocumentosFiles.length > 0 ||
+    existingFileIds !== undefined;
+
+  if (!hasFiles) {
+    return data;
+  }
+
+  const formData = new FormData();
+  formData.append('data', JSON.stringify(data));
+
+  if (existingFileIds !== undefined) {
+    formData.append('existingFileIds', JSON.stringify(existingFileIds));
+  }
+
+  for (const file of newVistoriasFiles) {
+    formData.append('vistoriasFiles', file);
+  }
+
+  for (const file of newDocumentosFiles) {
+    formData.append('documentosFiles', file);
+  }
+
+  return formData;
+}
+
 export const getImoveis = async (
   condId: string,
   params?: {
@@ -55,11 +104,14 @@ export const getImovelById = async (
 
 export const postImovel = async (
   condId: string,
-  data: ImovelDetail
+  data: ImovelDetail,
+  options?: ImovelFileOptions
 ): Promise<ImovelDetail> => {
+  const body = buildImovelFormData(data, options);
+
   const response = await apiRequest<{ data: ImovelDetail }>(basePath(condId), {
     method: 'POST',
-    body: data,
+    body,
   });
 
   revalidatePath(`/condominios/${condId}/imoveis`);
@@ -70,13 +122,16 @@ export const postImovel = async (
 export const putImovel = async (
   condId: string,
   imovelId: string,
-  data: Partial<ImovelDetail>
+  data: Partial<ImovelDetail>,
+  options?: ImovelFileOptions
 ): Promise<ImovelDetail> => {
+  const body = buildImovelFormData(data, options);
+
   const result = await apiRequest<ImovelDetail>(
     `${basePath(condId)}/${imovelId}`,
     {
       method: 'PUT',
-      body: data,
+      body,
     }
   );
 

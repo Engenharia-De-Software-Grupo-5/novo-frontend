@@ -3,7 +3,10 @@
 import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ImovelForm } from '@/features/components/imoveis/imovel-form';
+import {
+  ImovelForm,
+  ImovelFormData,
+} from '@/features/components/imoveis/imovel-form';
 import { Button } from '@/features/components/ui/button';
 import {
   getImovelById,
@@ -13,19 +16,6 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { ImovelSituacao } from '@/types/imoveis';
-
-interface ImovelFormState {
-  nome: string;
-  status: string;
-  endereco: {
-    logradouro: string;
-    numero: string;
-    complemento: string;
-    bairro: string;
-    cidade: string;
-    cep: string;
-  };
-}
 
 function mapSituacaoToStatus(situacao: ImovelSituacao): string {
   if (situacao === 'manutenção') return 'manutencao';
@@ -51,7 +41,7 @@ export default function EditarImovelAdminPage({
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<ImovelFormState>({
+  const [formData, setFormData] = useState<ImovelFormData>({
     nome: '',
     status: 'vago',
     endereco: {
@@ -104,7 +94,7 @@ export default function EditarImovelAdminPage({
           bairro: formData.endereco?.bairro || '',
           cidade: formData.endereco?.cidade || '',
           estado: 'SP',
-          bloco: formData.endereco.complemento || undefined,
+          bloco: formData.endereco?.complemento || undefined,
         },
         nome: formData.nome,
         locatario: null,
