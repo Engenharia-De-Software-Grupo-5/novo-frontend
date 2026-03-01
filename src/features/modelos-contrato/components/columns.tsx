@@ -5,6 +5,8 @@ import { ColumnDef } from '@tanstack/react-table';
 
 import { ModeloContratoSummary } from '@/types/modelo-contrato';
 
+import { DataTableRowActions } from './data-table-row-actions';
+
 export const columns: ColumnDef<ModeloContratoSummary>[] = [
   {
     accessorKey: 'name',
@@ -19,5 +21,9 @@ export const columns: ColumnDef<ModeloContratoSummary>[] = [
       <DataTableColumnHeader column={column} title="Descrição" />
     ),
     cell: ({ row }) => row.original.description,
+  },
+  {
+    id: 'actions',
+    cell: ({ row }) => <DataTableRowActions modelo={row.original} />,
   },
 ];

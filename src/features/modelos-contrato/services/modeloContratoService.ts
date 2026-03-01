@@ -84,3 +84,18 @@ export const postModeloContrato = async (
 
   revalidatePath(`/condominios/${condId}/modelos-contrato`);
 };
+
+export const deleteModeloContrato = async (
+  condId: string,
+  modelId: string
+): Promise<void> => {
+  await apiRequest(
+    `${basePathReal(condId)}/${modelId}`,
+    {
+      method: 'DELETE',
+    },
+    true
+  );
+
+  revalidatePath(`/condominios/${condId}/modelos`);
+};
