@@ -2,10 +2,16 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { UsersResponse, User, Status } from '@/types/user';
+import {
+  Role,
+  Status,
+  User,
+  UserAPI,
+  UserAPIAccess,
+  UserAPIResponse,
+  UsersResponse,
+} from '@/types/user';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
-
-import { UpdateUserPayload } from './users';
 
 const baseUrl = '/api/v1';
 const isReal = true;
@@ -14,7 +20,7 @@ const isReal = true;
 const statusToApi: Record<string, 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'> = {
   ativo: 'ACTIVE',
   inativo: 'INACTIVE',
-  suspenso: 'SUSPENDED',
+  pendente: 'SUSPENDED',
 };
 
 const statusFromApi: Record<string, string> = {
@@ -29,10 +35,18 @@ function mapStatusToApi(status: string): 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' {
   return mapped;
 }
 
-function mapUserFromApi(user: User): User {
+function mapUserFromApi(user: UserAPI, condId: string): User {
+  const access = user.accesses?.find(
+    (a: UserAPIAccess) => a.condominium.id === condId
+  );
+
   return {
-    ...user,
-    status: (statusFromApi[user.status as string] ?? user.status) as Status,
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    inviteDate: user.inviteDate,
+    role: access?.permission?.name as Role,
+    status: statusFromApi[access?.status ?? ''] as Status,
   };
 }
 
@@ -47,20 +61,27 @@ export const getUsers = async (
   }
 ): Promise<UsersResponse> => {
   try {
-    const queryParams: Record<string, string | number | string[] | undefined> = {
-      page: params?.page,
-      limit: params?.limit,
-      sort: params?.sort,
-    };
+    const queryParams: Record<string, string | number | string[] | undefined> =
+      {
+        page: params?.page,
+        limit: params?.limit,
+        sort: params?.sort,
+      };
 
-    if (params?.columns && params?.content && params.columns.length > 0) {
+    const mappedContent = params?.content?.map((value, index) => {
+      const column = params?.columns?.[index];
+      if (column === 'status') return mapStatusToApi(value);
+      return value;
+    });
+
+    if (params?.columns && mappedContent && params.columns.length > 0) {
       queryParams.columnName = params.columns;
-      queryParams.content = params.content;
+      queryParams.content = mappedContent;
     }
 
     const query = buildQueryString(queryParams);
 
-    const response = await apiRequest<UsersResponse>(
+    const response = await apiRequest<UserAPIResponse>(
       `${baseUrl}/condominiums/${condId}/users/paginated${query}`,
       { method: 'GET' },
       isReal
@@ -68,7 +89,11 @@ export const getUsers = async (
 
     return {
       ...response,
-      items: response.items.map(mapUserFromApi),
+      items: response.items
+        .filter((user) =>
+          user.accesses.some((a) => a.condominium.id === condId)
+        )
+        .map((user) => mapUserFromApi(user, condId)),
     };
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -86,9 +111,12 @@ export async function inviteUser(
   const payload: Record<string, string> = {
     name: data.name,
     email: data.email,
-    status: 'ACTIVE',
-    role: data.role.toUpperCase(),
+    status: 'SUSPENDED',
+    role: data.role,
+    message: data.message ?? 'NAO EXISTE MENSAGEM!',
   };
+
+  console.log('PAYLOAD ', payload);
 
   if (data.message?.trim()) {
     payload.message = data.message.trim();
@@ -106,16 +134,15 @@ export async function inviteUser(
 export async function updateUser(
   condominioId: string,
   userId: string,
-  data: UpdateUserPayload
+  userRole: string,
+  status: Status
 ) {
-  const payload = {
-    ...data,
-    ...(data.status && { status: mapStatusToApi(data.status) }),
-  };
-
   await apiRequest(
     `${baseUrl}/condominiums/${condominioId}/users/${userId}`,
-    { method: 'PATCH', body: payload },
+    {
+      method: 'PATCH',
+      body: { role: userRole, status: mapStatusToApi(status) },
+    },
     isReal
   );
 
@@ -125,11 +152,15 @@ export async function updateUser(
 export async function changeUserStatus(
   condominioId: string,
   userId: string,
+  userRole: string,
   status: string
 ) {
-  await apiRequest(
+  const response = await apiRequest(
     `${baseUrl}/condominiums/${condominioId}/users/${userId}`,
-    { method: 'PATCH', body: { status: mapStatusToApi(status) } },
+    {
+      method: 'PATCH',
+      body: { role: userRole, status: mapStatusToApi(status) },
+    },
     isReal
   );
 

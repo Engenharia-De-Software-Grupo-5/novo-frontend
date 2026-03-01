@@ -17,6 +17,9 @@ interface UsersDataTableProps {
   readonly pageCount: number;
 }
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export function UsersDataTable({ data, pageCount }: UsersDataTableProps) {
   return (
     <DataTable
