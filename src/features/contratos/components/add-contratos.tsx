@@ -736,37 +736,6 @@ export default function AddContratos({
     return new Date(endDate) >= new Date(startDate);
   };
 
-  const postUploadContract = async () => {
-    if (!contractPdf || !selectedProperty || !selectedTenant) return;
-    const formData = new FormData();
-    formData.append('sourceType', 'upload');
-    formData.append('propertyId', selectedProperty.idImovel);
-    formData.append('property', formatPropertyLabel(selectedProperty));
-    formData.append('tenantId', selectedTenant.id);
-    formData.append('tenantName', selectedTenant.name);
-    formData.append('createdAt', startDate);
-    formData.append('dueDate', endDate);
-    formData.append('contractPdf', contractPdf);
-    await postContrato(condId, formData);
-  };
-
-  const postModelContract = async () => {
-    if (!selectedProperty || !selectedTenant) return;
-    const normalizedModelValues = Object.fromEntries(
-      modelInputs.map((input) => [input.key, getModelValueForInput(input)])
-    );
-    await postContrato(condId, {
-      sourceType: 'model',
-      tenantId: selectedTenant.id,
-      propertyId: selectedProperty.idImovel,
-      createdAt: startDate,
-      dueDate: endDate,
-      modelId,
-      modelName: selectedModel?.name,
-      modelInputValues: normalizedModelValues,
-    });
-  };
-
   const handleSubmit = async () => {
     setHasSubmitAttempt(true);
 
@@ -791,7 +760,7 @@ export default function AddContratos({
 
     try {
       setIsSubmitting(true);
-
+      // TODO: ajeitar para chamar a função buildFormDataBody
       if (creationMode === 'upload' && contractPdf) {
         const formData = new FormData();
         formData.append('tenantId', selectedTenant.id);

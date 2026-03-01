@@ -32,15 +32,15 @@ export async function apiRequest<T>(
   const session = await auth();
   const token = session?.user?.accessToken;
 
-  console.log('token', token);
+  // console.log('token', token);
   const authHeaders: Record<string, string> = {};
   if (token) {
     authHeaders['Authorization'] = `Bearer ${token}`;
   }
-  console.log('REQUEST authHeaders', authHeaders);
-  console.log('REQUEST BODY', requestBody);
-  console.log('REQUEST METHOD', options.method);
-  console.log('REQUEST URL', `${isReal ? API_URL_REAL : API_URL}${path}`);
+  // console.log('REQUEST authHeaders', authHeaders);
+  // console.log('REQUEST BODY', requestBody);
+  // console.log('REQUEST METHOD', options.method);
+  // console.log('REQUEST URL', `${isReal ? API_URL_REAL : API_URL}${path}`);
   const response = await fetch(`${isReal ? API_URL_REAL : API_URL}${path}`, {
     headers: {
       // Don't set Content-Type for FormData — the browser sets it
@@ -64,9 +64,9 @@ export async function apiRequest<T>(
   }
 
   // Some responses (e.g. DELETE 204) may have no body
-  console.log('response', response);
+  // console.log('response', response);
   const text = await response.text();
-  console.log('text da response', text);
+  // console.log('text da response', text);
   return text ? JSON.parse(text) : (undefined as T);
 }
 
@@ -77,7 +77,7 @@ export function buildQueryString(
 
   for (const [key, value] of Object.entries(params)) {
     if (value === undefined || value === '') continue;
-    // if (key === 'columns') key = 'columnNames';
+    // if (key === 'columns') key = 'columnName';
     if (Array.isArray(value)) {
       value.forEach((v) => query.append(key, v));
     } else {

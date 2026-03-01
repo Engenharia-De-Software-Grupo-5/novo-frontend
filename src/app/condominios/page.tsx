@@ -174,7 +174,7 @@ export default function CondominiosPage() {
                   <span className="text-sm font-medium">{condo.name}</span>
                 </button>
 
-                <RoleGuard roles={['Admin']} condoId={condo.id}>
+                <RoleGuard roles={['Admin']} condId={condo.id}>
                   <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     <Button
                       variant="ghost"

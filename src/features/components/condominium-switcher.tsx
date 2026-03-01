@@ -157,6 +157,7 @@ export function CondominiumSwitcher({ condId }: { readonly condId?: string }) {
     }
   };
 
+  // TODO: mudar para dashboard
   const handleSwitch = (id: string) => {
     router.push(`/condominios/${id}/funcionarios`);
   };
@@ -165,7 +166,13 @@ export function CondominiumSwitcher({ condId }: { readonly condId?: string }) {
     <>
       <SidebarMenu>
         <SidebarMenuItem>
-          <DropdownMenu>
+          <DropdownMenu
+            onOpenChange={(open) => {
+              if (open) {
+                fetchCondominiums();
+              }
+            }}
+          >
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 size="lg"
@@ -211,7 +218,7 @@ export function CondominiumSwitcher({ condId }: { readonly condId?: string }) {
                   </div>
                   <span className="flex-1 truncate">{condo.name}</span>
 
-                  <RoleGuard roles={['Admin']}>
+                  <RoleGuard roles={['Admin']} condId={condo.id}>
                     <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                       <button
                         type="button"

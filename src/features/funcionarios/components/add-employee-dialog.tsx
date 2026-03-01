@@ -79,7 +79,9 @@ export function EmployeeDialog({
     removeExistingAttachment,
     resetFiles,
     setInitialAttachments,
-  } = useFileUpload();
+  } = useFileUpload({
+    accept: 'application/pdf',
+  });
 
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeFormSchema),
