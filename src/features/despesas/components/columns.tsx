@@ -40,7 +40,7 @@ export const columns: ColumnDef<DespesaSummary>[] = [
           </Badge>
         );
       }
-      return <span className="font-medium">{idImovel}</span>;
+      return <span className="font-medium">{row.getValue('idImovel')}</span>;
     },
   },
   {

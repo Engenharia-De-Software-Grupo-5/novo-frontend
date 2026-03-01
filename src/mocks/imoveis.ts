@@ -1,8 +1,10 @@
+import { FileAttachment } from '@/types/file';
 import { Imovel } from '@/types/imoveis';
 
+const condoID = '29463612-8749-4cba-af28-a3123c968a94';
 export const mockImoveis: Imovel[] = [
   {
-    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
+    idCondominio: condoID,
     idImovel: 'IMV-001',
     nome: 'Apartamento 101 - Bloco A',
     tipo: 'apartamento',
@@ -20,6 +22,31 @@ export const mockImoveis: Imovel[] = [
       cpf: '123.456.789-10',
       telefone: '(83) 99888-1111',
     },
+    vistorias: [
+      {
+        id: 'vst-001-a',
+        name: 'Vistoria Inicial 2024.pdf',
+        type: 'application/pdf',
+        size: 204800,
+        url: '/uploads/vistorias/vst-001-a.pdf',
+      } satisfies FileAttachment,
+    ],
+    documentos: [
+      {
+        id: 'doc-001-a',
+        name: 'Contrato de Locação.pdf',
+        type: 'application/pdf',
+        size: 512000,
+        url: '/uploads/documentos/doc-001-a.pdf',
+      } satisfies FileAttachment,
+      {
+        id: 'doc-001-b',
+        name: 'IPTU 2024.pdf',
+        type: 'application/pdf',
+        size: 102400,
+        url: '/uploads/documentos/doc-001-b.pdf',
+      } satisfies FileAttachment,
+    ],
   },
   {
     idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
@@ -40,9 +67,34 @@ export const mockImoveis: Imovel[] = [
       cpf: '987.654.321-00',
       telefone: '(83) 99977-2233',
     },
+    vistorias: [
+      {
+        id: 'vst-002-a',
+        name: 'Vistoria de Entrega 2023.pdf',
+        type: 'application/pdf',
+        size: 307200,
+        url: '/uploads/vistorias/vst-002-a.pdf',
+      } satisfies FileAttachment,
+      {
+        id: 'vst-002-b',
+        name: 'Vistoria Anual 2024.pdf',
+        type: 'application/pdf',
+        size: 256000,
+        url: '/uploads/vistorias/vst-002-b.pdf',
+      } satisfies FileAttachment,
+    ],
+    documentos: [
+      {
+        id: 'doc-002-a',
+        name: 'Escritura do Imóvel.pdf',
+        type: 'application/pdf',
+        size: 819200,
+        url: '/uploads/documentos/doc-002-a.pdf',
+      } satisfies FileAttachment,
+    ],
   },
   {
-    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
+    idCondominio: condoID,
     idImovel: 'IMV-003',
     nome: 'Casa 45',
     tipo: 'casa',

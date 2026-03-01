@@ -56,7 +56,7 @@ export default auth((req) => {
   const currentRoleMatch = permissions.at(
     condominiums.findIndex((c) => c.id === condId)
   );
-  // TODO: alterar role
+
   const userRole = currentRoleMatch?.name ?? 'Admin';
 
   // Definição das regras de acesso baseadas na rota

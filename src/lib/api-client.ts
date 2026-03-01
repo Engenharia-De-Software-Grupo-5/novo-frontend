@@ -38,9 +38,16 @@ export async function apiRequest<T>(
     authHeaders['Authorization'] = `Bearer ${token}`;
   }
   // console.log('REQUEST authHeaders', authHeaders);
-  // console.log('REQUEST BODY', requestBody);
-  // console.log('REQUEST METHOD', options.method);
-  // console.log('REQUEST URL', `${isReal ? API_URL_REAL : API_URL}${path}`);
+  console.log('REQUEST HEADERS', {
+    // Don't set Content-Type for FormData — the browser sets it
+    // automatically with the correct multipart boundary
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+    ...authHeaders,
+    ...headers,
+  });
+  console.log('REQUEST BODY', requestBody);
+  console.log('REQUEST METHOD', options.method);
+  console.log('REQUEST URL', `${isReal ? API_URL_REAL : API_URL}${path}`);
   const response = await fetch(`${isReal ? API_URL_REAL : API_URL}${path}`, {
     headers: {
       // Don't set Content-Type for FormData — the browser sets it
@@ -58,7 +65,6 @@ export async function apiRequest<T>(
   if (response.status === 401) {
     redirect('/login');
   }
-
   if (!response.ok) {
     const errorBody = await response.text();
   console.error('API error body:', errorBody);

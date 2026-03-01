@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { imoveisDb } from '@/mocks/in-memory-db';
 
+import { FileAttachment } from '@/types/file';
 import { ImovelDetail, ImovelSummary } from '@/types/imoveis';
+import { secureRandom } from '@/lib/secure-random';
 
 function toSummary(imovel: ImovelDetail): ImovelSummary {
   return {
@@ -116,7 +118,40 @@ export async function POST(
   { params }: { params: Promise<{ condId: string }> }
 ) {
   const { condId } = await params;
-  const body = (await request.json()) as Partial<ImovelDetail>;
+
+  let body: Partial<ImovelDetail>;
+  let newVistorias: FileAttachment[] = [];
+  let newDocumentos: FileAttachment[] = [];
+
+  const contentType = request.headers.get('content-type') || '';
+
+  if (contentType.includes('multipart/form-data')) {
+    const formData = await request.formData();
+    const dataField = formData.get('data');
+    body = dataField ? JSON.parse(dataField as string) : {};
+
+    newVistorias = (formData.getAll('vistoriasFiles') as File[])
+      .filter((f): f is File => f instanceof File)
+      .map((file) => ({
+        id: `vst-${secureRandom(9)}`,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        url: `/uploads/vistorias/${secureRandom(9)}_${file.name}`,
+      }));
+
+    newDocumentos = (formData.getAll('documentosFiles') as File[])
+      .filter((f): f is File => f instanceof File)
+      .map((file) => ({
+        id: `doc-${secureRandom(9)}`,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        url: `/uploads/documentos/${secureRandom(9)}_${file.name}`,
+      }));
+  } else {
+    body = (await request.json()) as Partial<ImovelDetail>;
+  }
 
   const lastSequence = imoveisDb.reduce((max, imovel) => {
     const numericPart = Number(imovel.idImovel.replaceAll(/\D/g, ''));
@@ -153,9 +188,15 @@ export async function POST(
           telefone: body.locatario?.telefone || '',
         }
       : null,
+    vistorias: newVistorias.length > 0 ? newVistorias : undefined,
+    documentos: newDocumentos.length > 0 ? newDocumentos : undefined,
   };
 
   imoveisDb.unshift(newImovel);
+
+  console.log(
+    `POST: Imovel ${newImovel.idImovel} criado com ${newVistorias.length} vistoria(s) e ${newDocumentos.length} documento(s)`
+  );
 
   return NextResponse.json(
     { message: 'Imóvel criado com sucesso', items: newImovel },

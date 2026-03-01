@@ -8,14 +8,19 @@ export interface ModeloContratoInput {
 export interface ModeloContratoSummary {
   id: string;
   name: string;
-  purpose: string;
-  createdAt: string;
+  description: string;
 }
 
 export interface ModeloContratoDetail extends ModeloContratoSummary {
   condId: string;
   rawText: string;
   inputs: ModeloContratoInput[];
+}
+
+export interface ModeloContratoRequest {
+  name: string;
+  description: string;
+  template: string;
 }
 
 export interface ModeloContratoResponse {
