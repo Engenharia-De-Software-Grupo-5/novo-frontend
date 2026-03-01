@@ -11,12 +11,34 @@ export interface DespesaSummary {
   status: 'pendente' | 'pago' | 'atrasado';
 }
 
+export interface DespesaResponseAPI {
+  id: string;
+  targetType: string;
+  description: string;
+  propertyId: string;
+  expenseType: string;
+  value: number;
+  expenseDate: string;
+  files: FileAttachment[];
+  paymentMethod: string;
+}
+export interface DespesaRequestAPI {
+  targetType: string;
+  description: string;
+  propertyId?: string;
+  expenseType: string;
+  value: number;
+  expenseDate: string;
+  paymentMethod: string;
+  filesToKeep?: string[];
+}
+
 export interface DespesaDetail extends DespesaSummary {
   anexos: FileAttachment[];
 }
 
 export interface DespesaResponse {
-  items: DespesaSummary[];
+  items: DespesaResponseAPI[];
   meta: {
     pageIndex: number;
     pageCount: number;

@@ -143,7 +143,7 @@ export function DespesaDialog({
         });
         toast.success(`Despesa "${data.nome}" atualizada com sucesso!`);
       } else {
-        await create(condId, payload, {
+        await create(condId, payload as DespesaDetail, {
           newFiles: files.length > 0 ? files : undefined,
         });
         toast.success(`Despesa "${data.nome}" adicionada com sucesso!`);

@@ -6,7 +6,11 @@ import { DespesaDetail, DespesaResponse } from '@/types/despesa';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 import { buildFormDataBody, FileUploadOptions } from '@/lib/form-data';
 
+import { despesaDtoRequest } from '../schemas/despesaDto';
+
 const getBaseUrl = (condId: string) => `/api/condominios/${condId}/despesas`;
+const getBaseUrlReal = (condId: string) =>
+  `/api/v1/condominios/${condId}/expenses`;
 
 export const getAll = async (
   condId: string,
@@ -24,7 +28,13 @@ export const getAll = async (
   >;
   const queryString = buildQueryString(safeParams);
 
-  return apiRequest<DespesaResponse>(`${getBaseUrl(condId)}${queryString}`);
+  return apiRequest<DespesaResponse>(
+    `${getBaseUrlReal(condId)}/paginated${queryString}`,
+    {
+      method: 'GET',
+    },
+    true
+  );
 };
 
 export const getById = async (
@@ -36,14 +46,19 @@ export const getById = async (
 
 export const create = async (
   condId: string,
-  data: Partial<DespesaDetail>,
+  data: DespesaDetail,
   fileOptions?: FileUploadOptions
 ): Promise<DespesaDetail> => {
-  const body = buildFormDataBody(data, fileOptions);
-  const result = await apiRequest<DespesaDetail>(getBaseUrl(condId), {
-    method: 'POST',
-    body,
-  });
+  const dto = despesaDtoRequest(data);
+  const body = buildFormDataBody(dto, fileOptions);
+  const result = await apiRequest<DespesaDetail>(
+    `${getBaseUrlReal(condId)}`,
+    {
+      method: 'POST',
+      body,
+    },
+    true
+  );
 
   revalidatePath(`/condominios/${condId}/despesas`);
 

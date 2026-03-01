@@ -23,7 +23,7 @@ export interface FileUploadOptions {
  * @param options - Optional file upload configuration
  * @param fileFieldName - The FormData field name for files (default: 'files')
  */
-export function buildFormDataBody<T extends Record<string, unknown>>(
+export function buildFormDataBody<T extends object>(
   data: T,
   options?: FileUploadOptions,
   fileFieldName = 'files'
@@ -51,7 +51,7 @@ export function buildFormDataBody<T extends Record<string, unknown>>(
   });
 
   if (existingFileIds) {
-    formData.append('existingFileIds', JSON.stringify(existingFileIds));
+    formData.append('filesToKeep', JSON.stringify(existingFileIds));
   }
 
   newFiles.forEach((file) => {
