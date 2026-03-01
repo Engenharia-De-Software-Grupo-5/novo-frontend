@@ -1,5 +1,13 @@
 import { FileAttachment } from './file';
 
+
+export type FormaPagamento = 
+  | 'CASH' 
+  | 'PIX' 
+  | 'BOLETO' 
+  | 'CREDIT_CARD' 
+  | 'DEBIT_CARD';
+
 export interface DespesaSummary {
   id: string;
   nome: string;
@@ -7,7 +15,7 @@ export interface DespesaSummary {
   tipo: string;
   data: string;
   valor: number;
-  formaPagamento: string;
+  formaPagamento: FormaPagamento;
   status: 'pendente' | 'pago' | 'atrasado';
 }
 
