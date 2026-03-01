@@ -203,13 +203,13 @@ export function RichTextEditor({
   const normalizeLists = () => {
     if (!editorRef.current) return;
     editorRef.current.querySelectorAll('ul').forEach((list) => {
-      const element = list as HTMLUListElement;
+      const element = list;
       element.style.listStyleType = 'disc';
       element.style.paddingLeft = '1.5rem';
       element.style.margin = '0.5rem 0';
     });
     editorRef.current.querySelectorAll('ol').forEach((list) => {
-      const element = list as HTMLOListElement;
+      const element = list;
       element.style.listStyleType = 'decimal';
       element.style.paddingLeft = '1.5rem';
       element.style.margin = '0.5rem 0';
@@ -262,7 +262,8 @@ export function RichTextEditor({
   };
 
   const detectSlashTrigger = () => {
-    const selection = window.getSelection();
+    const selection =
+      globalThis.window === undefined ? null : globalThis.window.getSelection();
     if (!selection || selection.rangeCount === 0 || !selection.isCollapsed) {
       closeSlashMenu();
       return;
@@ -279,7 +280,7 @@ export function RichTextEditor({
     const textNode = container as Text;
     const textBeforeCaret =
       textNode.textContent?.slice(0, range.startOffset) || '';
-    const slashMatch = textBeforeCaret.match(/\/([a-zA-Z0-9._-]*)$/);
+    const slashMatch = /\/([a-zA-Z0-9._-]*)$/.exec(textBeforeCaret);
 
     if (!slashMatch) {
       closeSlashMenu();
@@ -315,7 +316,8 @@ export function RichTextEditor({
   const insertTokenAtSlash = (token: string) => {
     if (!editorRef.current || !slashRangeRef.current) return;
 
-    const selection = window.getSelection();
+    const selection =
+      globalThis.window === undefined ? null : globalThis.window.getSelection();
     if (!selection) return;
 
     const range = slashRangeRef.current;
@@ -455,8 +457,6 @@ export function RichTextEditor({
 
       <div
         ref={editorRef}
-        role="textbox"
-        aria-multiline="true"
         aria-label="Editor de texto"
         tabIndex={0}
         contentEditable
@@ -483,7 +483,6 @@ export function RichTextEditor({
           if (event.key === 'Enter' && slashOpen) {
             event.preventDefault();
             selectFirstSlashOption();
-            return;
           }
         }}
         onKeyUp={() => detectSlashTrigger()}

@@ -9,7 +9,7 @@ interface UseFileUploadOptions {
 }
 
 export function useFileUpload(options: UseFileUploadOptions = {}) {
-  const { accept = 'application/pdf', existingFiles = [] } = options;
+  const { accept, existingFiles = [] } = options;
 
   const [files, setFiles] = useState<File[]>([]);
   const [existingAttachments, setExistingAttachments] =
@@ -19,10 +19,25 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files.length > 0) {
         const newFiles = Array.from(e.target.files);
-        const invalidFiles = newFiles.filter((file) => file.type !== accept);
+
+        let invalidFiles: File[] = [];
+        if (accept) {
+          const acceptedTypes = accept.split(',').map((t) => t.trim());
+          invalidFiles = newFiles.filter((file) => {
+            return !acceptedTypes.some((type) => {
+              if (type.endsWith('/*')) {
+                return file.type.startsWith(type.replace('/*', '/'));
+              }
+              if (type.startsWith('.')) {
+                return file.name.toLowerCase().endsWith(type.toLowerCase());
+              }
+              return file.type === type;
+            });
+          });
+        }
 
         if (invalidFiles.length > 0) {
-          toast.error('Apenas arquivos PDF são permitidos.');
+          toast.error('Alguns arquivos possuem um formato inválido.');
           e.target.value = '';
           return;
         }

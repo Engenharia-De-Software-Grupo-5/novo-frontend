@@ -116,13 +116,14 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso excluirá permanentemente a
-              despesa
+              {
+                'Esta ação não pode ser desfeita. Isso excluirá permanentemente a despesa'
+              }
               <span className="text-foreground font-semibold">
                 {' '}
                 {despesa.nome}{' '}
               </span>
-              dos registros do condomínio.
+              {'dos registros do condomínio.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

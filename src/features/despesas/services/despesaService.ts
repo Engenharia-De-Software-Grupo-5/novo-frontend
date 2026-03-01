@@ -81,6 +81,7 @@ export const update = async (
   const body = buildFormDataBody(translatedData, fileOptions, 'anexos');
   
   const result = await apiRequest<any>(
+
     `${getBaseUrl(condId)}/${id}`,
     {
       method: 'PUT',

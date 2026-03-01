@@ -32,14 +32,23 @@ export function buildFormDataBody<T extends Record<string, unknown>>(
 
   const hasNewFiles = newFiles.length > 0;
   const hasExistingFileChanges = existingFileIds !== undefined;
-
+  console.log('hasNewFiles', hasNewFiles);
   // If there's nothing file-related, send plain JSON
   if (!hasNewFiles && !hasExistingFileChanges) {
     return data;
   }
 
   const formData = new FormData();
-  formData.append('data', JSON.stringify(data));
+  // formData.append('data', JSON.stringify(data));
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      if (typeof value === 'object') {
+        formData.append(key, JSON.stringify(value));
+      } else {
+        formData.append(key, String(value));
+      }
+    }
+  });
 
   if (existingFileIds) {
     formData.append('existingFileIds', JSON.stringify(existingFileIds));
@@ -48,6 +57,8 @@ export function buildFormDataBody<T extends Record<string, unknown>>(
   newFiles.forEach((file) => {
     formData.append(fileFieldName, file);
   });
+
+  console.log('FORM DATA', formData);
 
   return formData;
 }

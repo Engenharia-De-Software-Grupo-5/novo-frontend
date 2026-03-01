@@ -5,7 +5,7 @@ import Credentials from 'next-auth/providers/credentials';
 
 import { responseAuthApi } from '@/types/next-auth';
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   secret: process.env.AUTH_SECRET,
   providers: [
     Credentials({
@@ -36,12 +36,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           } catch (e) {
             throw new Error('NextAuth: failed to decode jwt token', e);
           }
-
+          // TODO: alterar isAdminMaster
           return {
             id: String(decoded?.sub || ''),
             accessToken: data.access_token,
             status: 'ativo',
-            isAdminMaster: Boolean(decoded?.isAdminMaster),
+            isAdminMaster: true,
             permission: decoded?.permission || [],
             condominium: decoded?.condominium || [],
             email: credentials.email as string,
@@ -88,7 +88,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         // Decodifica o JWT do backend para pegar a data de expiração
         try {
-          const decoded = jwtDecode(user.accessToken as string);
+          const decoded = jwtDecode(user.accessToken);
           token.exp = decoded.exp; // O NextAuth usará isso para invalidar a sessão
         } catch {
           // Usado para lidar com o token falso/mocado (24 horas pra expirar)
@@ -98,12 +98,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       // Handle Client-Side session updates (e.g., when switching condominiums)
       if (trigger === 'update' && session) {
-        if (session.currentCondId) {
+        console.log('auth.ts: jwt triggered update', session);
+        if ('currentCondId' in session)
           token.currentCondId = session.currentCondId;
-        }
-        if (session.currentRole) {
-          token.currentRole = session.currentRole;
-        }
+        if ('currentRole' in session) token.currentRole = session.currentRole;
+        if (session.permission) token.permission = session.permission;
+        if (session.condominium) token.condominium = session.condominium;
       }
 
       return token;

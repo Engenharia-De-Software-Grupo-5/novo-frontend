@@ -20,12 +20,12 @@ export const paymentFormSchema = z
   .superRefine((data, ctx) => {
     if (!data.dueDate && !data.paymentDate) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: 'Informe a data de vencimento ou a data de pagamento.',
         path: ['dueDate'],
       });
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: 'Informe a data de vencimento ou a data de pagamento.',
         path: ['paymentDate'],
       });

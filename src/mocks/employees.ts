@@ -1,9 +1,7 @@
+import { FileAttachment } from '@/types/file';
+
 import { EMPLOYEE_ROLES } from '../features/funcionarios/constants';
-import {
-  EmployeeDetail,
-  EmployeeFile,
-  EmployeeSummary,
-} from '../types/employee';
+import { EmployeeDetail, EmployeeSummary } from '../types/employee';
 
 const roles = EMPLOYEE_ROLES.map((r) => r.value);
 
@@ -69,7 +67,7 @@ const generateFile = (
   id: string,
   name: string,
   seed: number
-): EmployeeFile => ({
+): FileAttachment => ({
   id,
   name,
   type: 'application/pdf',
@@ -102,8 +100,7 @@ export const mockEmployeeDetails: EmployeeDetail[] = names.map((name, i) => {
     name: name,
     role: roles[i % roles.length],
     status,
-    lastContract:
-      contracts.length > 0 ? contracts[contracts.length - 1] : undefined,
+    lastContract: contracts.length > 0 ? contracts.at(-1) : undefined,
     email: `${name.toLowerCase().replace(' ', '.')}@empresa.com`,
     cpf: `123.${Math.floor(getSeededRandom(seed + 20) * 900) + 100}.${
       Math.floor(getSeededRandom(seed + 30) * 900) + 100

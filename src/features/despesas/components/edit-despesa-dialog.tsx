@@ -322,7 +322,7 @@ export function EditDespesaDialog({
                     </span>
                     {files.map((file: File, index: number) => (
                       <div
-                        key={index}
+                        key={file.name}
                         className="bg-secondary flex justify-between rounded p-2 text-sm"
                       >
                         <span className="truncate">{file.name}</span>

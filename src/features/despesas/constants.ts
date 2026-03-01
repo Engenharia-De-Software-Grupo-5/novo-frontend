@@ -15,9 +15,11 @@ export const DESPESA_TIPOS = [
 ];
 
 export const FORMA_PAGAMENTO = [
-  { label: "PIX", value: "pix", icon: CreditCard },
-  { label: "Boleto", value: "boleto", icon: Receipt },
-  { label: "Transferência", value: "transferencia", icon: Building },
+  { label: 'Pix', value: 'PIX' },
+  { label: 'Boleto', value: 'BOLETO' },
+  { label: 'Cartão de Crédito', value: 'CREDIT_CARD' },
+  { label: 'Cartão de Débito', value: 'DEBIT_CARD' },
+  { label: 'Dinheiro', value: 'CASH' },
 ];
 
 export const COLUMN_LABELS: Record<string, string> = {

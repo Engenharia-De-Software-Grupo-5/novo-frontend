@@ -131,11 +131,11 @@ export function DataTableRowActions({ payment }: DataTableRowActionsProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir pagamento</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir o pagamento de{' '}
+              {'Tem certeza que deseja excluir o pagamento de'}
               <span className="text-foreground font-semibold">
                 {payment.name}
               </span>
-              ? Esta ação não pode ser desfeita.
+              {'? Esta ação não pode ser desfeita.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -234,7 +234,7 @@ export function AddDespesaDialog({ condId }: AddDespesaDialogProps) {
               />
               {files.map((file: File, index: number) => (
                 <div
-                  key={index}
+                  key={file.name}
                   className="bg-secondary mt-2 flex justify-between rounded p-2 text-sm"
                 >
                   <span className="truncate">{file.name}</span>

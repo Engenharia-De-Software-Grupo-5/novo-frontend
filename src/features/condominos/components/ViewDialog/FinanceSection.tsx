@@ -6,7 +6,6 @@ import { Info, SectionTitle } from './Section';
 
 interface SectionProps {
   readonly data: CondominoFull;
-  readonly formatCurrency: (val?: number) => string;
 }
 
 export function FinanceSection({ data }: SectionProps) {

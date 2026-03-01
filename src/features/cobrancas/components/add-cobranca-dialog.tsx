@@ -88,6 +88,34 @@ const defaultValues: Partial<CobrancaFormValues> = {
   observation: '',
 };
 
+function buildPayload(
+  values: CobrancaFormValues,
+  isEditing: boolean,
+  cobranca?: CobrancaDetail
+): Partial<CobrancaDetail> {
+  const status = isEditing
+    ? (values.status ?? cobranca?.status ?? 'pendente')
+    : 'pendente';
+  return {
+    tenantId: values.tenantId,
+    type: values.type,
+    status,
+    dueDate: values.dueDate,
+    value: Number(values.value),
+    penalty: Number(values.penalty),
+    interest: Number(values.interest),
+    paymentMethod: values.paymentMethod,
+    observation: isEditing ? values.observation || undefined : undefined,
+    isActive: status !== 'desativada',
+  };
+}
+
+function getSubmitLabel(isSubmitting: boolean, isEditing: boolean): string {
+  if (isSubmitting) return isEditing ? 'Salvando...' : 'Adicionando...';
+  if (isEditing) return 'Editar cobrança';
+  return 'Adicionar cobrança';
+}
+
 export function CobrancaDialog({
   cobranca,
   open: controlledOpen,
@@ -153,11 +181,7 @@ export function CobrancaDialog({
     if (!found) setOpenTenant(true);
   }, [debouncedTenantSearch, tenants]);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
+  const resetFormState = () => {
     if (cobranca) {
       form.reset({
         tenantId: cobranca.tenantId,
@@ -171,60 +195,46 @@ export function CobrancaDialog({
         observation: cobranca.observation || '',
       });
       setInitialAttachments(cobranca.attachments || []);
-      return;
+    } else {
+      form.reset(defaultValues);
+      setTenantSearch('');
+      resetFiles();
     }
+  };
 
-    form.reset(defaultValues);
-    setTenantSearch('');
-    resetFiles();
-  }, [open, cobranca, form, resetFiles, setInitialAttachments]);
+  useEffect(() => {
+    if (!open) return;
+    resetFormState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, cobranca]);
 
-  const buildPayload = (
-    values: CobrancaFormValues
-  ): Partial<CobrancaDetail> => {
-    const status = isEditing
-      ? (values.status ?? cobranca?.status ?? 'pendente')
-      : 'pendente';
-
-    return {
-      tenantId: values.tenantId,
-      type: values.type,
-      status,
-      dueDate: values.dueDate,
-      value: Number(values.value),
-      penalty: Number(values.penalty),
-      interest: Number(values.interest),
-      paymentMethod: values.paymentMethod,
-      observation: isEditing ? values.observation || undefined : undefined,
-      isActive: status !== 'desativada',
-    };
+  const saveCobranca = async (values: CobrancaFormValues) => {
+    const payload = buildPayload(values, isEditing, cobranca);
+    if (isEditing && cobranca) {
+      await putCobranca(condId, cobranca.id, payload, {
+        newFiles: files,
+        existingFileIds: existingAttachments.map((a) => a.id),
+      });
+      toast.success('Cobrança atualizada com sucesso.');
+    } else {
+      await postCobranca(condId, payload);
+      toast.success('Cobrança adicionada com sucesso.');
+    }
   };
 
   const onSubmit = async (values: CobrancaFormValues) => {
     try {
       setIsSubmitting(true);
-
-      const payload = buildPayload(values);
-
-      if (isEditing && cobranca) {
-        await putCobranca(condId, cobranca.id, payload, {
-          newFiles: files,
-          existingFileIds: existingAttachments.map((a) => a.id),
-        });
-        toast.success('Cobrança atualizada com sucesso.');
-      } else {
-        await postCobranca(condId, payload);
-        toast.success('Cobrança adicionada com sucesso.');
-      }
-
+      await saveCobranca(values);
       router.refresh();
       setOpen(false);
     } catch (error) {
       console.error('Error saving charge', error);
-      const errorMsg = isEditing
-        ? 'Erro ao atualizar cobrança. Tente novamente.'
-        : 'Erro ao adicionar cobrança. Tente novamente.';
-      toast.error(errorMsg);
+      toast.error(
+        isEditing
+          ? 'Erro ao atualizar cobrança. Tente novamente.'
+          : 'Erro ao adicionar cobrança. Tente novamente.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -234,12 +244,7 @@ export function CobrancaDialog({
     tenant.name.toLowerCase().includes(tenantSearch.toLowerCase())
   );
 
-  let submitLabel = 'Adicionar cobrança';
-  if (isSubmitting) {
-    submitLabel = isEditing ? 'Salvando...' : 'Adicionando...';
-  } else if (isEditing) {
-    submitLabel = 'Editar cobrança';
-  }
+  const submitLabel = getSubmitLabel(isSubmitting, isEditing);
 
   const content = (
     <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[560px]">
@@ -550,7 +555,7 @@ export function CobrancaDialog({
 
                     {files.map((file, index) => (
                       <div
-                        key={`new-file-${index}`}
+                        key={`new-file-${file.name}`}
                         className="flex items-center justify-between rounded-md border p-2 text-sm"
                       >
                         <div className="flex items-center gap-2">

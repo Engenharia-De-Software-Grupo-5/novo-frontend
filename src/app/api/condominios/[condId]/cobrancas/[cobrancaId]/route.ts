@@ -55,7 +55,7 @@ async function parseCobrancaBody(
   let keptAttachments: FileAttachment[] | undefined = undefined;
   if (idsToKeep !== undefined) {
     keptAttachments = currentAttachments.filter((item) =>
-      idsToKeep!.includes(item.id)
+      idsToKeep.includes(item.id)
     );
   }
 

@@ -2,7 +2,11 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { ContratoDetail, ContratoResponse } from '@/types/contrato';
+import {
+  ContratoDetail,
+  ContratoPostDTO,
+  ContratoResponse,
+} from '@/types/contrato';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 
 const basePath = (condId: string) => `/api/condominios/${condId}/contratos`;
@@ -55,7 +59,14 @@ export const getContratoById = async (
 
 export const postContrato = async (
   condId: string,
-  data: FormData | Partial<ContratoDetail>
+  data:
+    | FormData
+    | (ContratoPostDTO & {
+        sourceType?: 'upload' | 'model';
+        modelId?: string;
+        modelName?: string;
+        modelInputValues?: Record<string, string>;
+      })
 ): Promise<void> => {
   await apiRequest(basePath(condId), {
     method: 'POST',

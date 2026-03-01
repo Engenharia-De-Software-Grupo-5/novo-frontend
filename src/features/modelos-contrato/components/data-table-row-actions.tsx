@@ -20,52 +20,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/features/components/ui/dropdown-menu';
-import { Input } from '@/features/components/ui/input';
-import { MoreHorizontal, ScanEye, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { ContratoSummary } from '@/types/contrato';
+import { ModeloContratoSummary } from '@/types/modelo-contrato';
 
-import { deleteContrato } from '../services/contratoService';
-import { ViewContractDialog } from './view-contract-dialog';
+import { deleteModeloContrato } from '../services/modeloContratoService';
 
 interface DataTableRowActionsProps {
-  readonly contract: ContratoSummary;
+  readonly modelo: ModeloContratoSummary;
 }
 
-export function DataTableRowActions({ contract }: DataTableRowActionsProps) {
+export function DataTableRowActions({ modelo }: DataTableRowActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showViewDialog, setShowViewDialog] = useState(false);
-  const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-
   const router = useRouter();
   const params = useParams();
   const condId = params?.condId as string;
 
-  const canDelete =
-    deleteConfirmation.trim().toLowerCase() === 'deletar contrato';
-
   async function handleDelete() {
-    if (!canDelete) {
-      toast.error('Digite "deletar contrato" para confirmar.');
-      return;
-    }
-
     try {
       setIsDeleting(true);
-      await deleteContrato(condId, contract.id);
-      toast.success(
-        `Contrato de "${contract.tenantName}" excluído com sucesso!`
-      );
+      await deleteModeloContrato(condId, modelo.id);
+      toast.success(`Modelo "${modelo.name}" excluído com sucesso!`);
       router.refresh();
     } catch (error) {
-      console.error('Error deleting contract:', error);
-      toast.error('Erro ao excluir contrato. Tente novamente.');
+      console.error('Error deleting contract model:', error);
+      toast.error('Erro ao excluir modelo. Tente novamente.');
     } finally {
       setIsDeleting(false);
       setShowDeleteDialog(false);
-      setDeleteConfirmation('');
     }
   }
 
@@ -79,13 +63,6 @@ export function DataTableRowActions({ contract }: DataTableRowActionsProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            className="flex items-center justify-between gap-2"
-            onSelect={() => setShowViewDialog(true)}
-          >
-            Visualizar
-            <ScanEye className="h-4 w-4" />
-          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-destructive focus:text-destructive flex items-center justify-between gap-2"
@@ -97,48 +74,26 @@ export function DataTableRowActions({ contract }: DataTableRowActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {showViewDialog && (
-        <ViewContractDialog
-          contractId={contract.id}
-          condId={condId}
-          open={showViewDialog}
-          onOpenChange={setShowViewDialog}
-        />
-      )}
-
-      <AlertDialog
-        open={showDeleteDialog}
-        onOpenChange={(open) => {
-          setShowDeleteDialog(open);
-          if (!open) setDeleteConfirmation('');
-        }}
-      >
+      {/* Dialog de confirmar exclusão */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir contrato</AlertDialogTitle>
+            <AlertDialogTitle>Excluir modelo de contrato</AlertDialogTitle>
             <AlertDialogDescription>
-              Para confirmar a exclusão do contrato de{' '}
+              {'Tem certeza que deseja excluir o modelo '}
               <span className="text-foreground font-semibold">
-                {contract.tenantName}
+                {modelo.name}
               </span>
-              {', digite <strong>deletar contrato</strong>.'}
+              {'? Esta ação não pode ser desfeita.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
-
-          <Input
-            value={deleteConfirmation}
-            onChange={(event) => setDeleteConfirmation(event.target.value)}
-            placeholder="Digite: deletar contrato"
-            autoFocus
-          />
-
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              disabled={isDeleting || !canDelete}
+              disabled={isDeleting}
               className="bg-destructive hover:bg-destructive/90 text-white"
             >
               {isDeleting ? 'Excluindo...' : 'Excluir'}
