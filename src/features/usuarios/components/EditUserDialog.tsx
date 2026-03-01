@@ -62,10 +62,7 @@ export function EditUserDialog({
   const handleSubmit = async () => {
     setIsPending(true);
     try {
-      await updateUser(condominioId, user.id, {
-        role: role as string,
-        status: status,
-      });
+      await updateUser(condominioId, user.id, role as string, status);
 
       onOpenChange(false);
       toast.success('Usuário atualizado com sucesso!');

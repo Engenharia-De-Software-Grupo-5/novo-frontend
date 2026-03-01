@@ -45,7 +45,7 @@ export function ViewUserDialog({
       await inviteUser(condId, {
         name: user.name,
         email: user.email,
-        role: user.role.toLowerCase(),
+        role: user.role,
       });
 
       onOpenChange(false);

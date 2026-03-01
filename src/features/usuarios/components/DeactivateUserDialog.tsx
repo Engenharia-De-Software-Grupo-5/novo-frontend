@@ -39,10 +39,12 @@ export function DeactivateUserDialog({
   const willActivate = currentStatus !== 'ativo';
   const newStatus = willActivate ? 'ativo' : 'inativo';
 
+  
+  
   const handleConfirm = async () => {
     setIsPending(true);
     try {
-      await changeUserStatus(condominioId, user.id, newStatus);
+      await changeUserStatus(condominioId, user.id, user.role, newStatus);
 
       onOpenChange(false);
 

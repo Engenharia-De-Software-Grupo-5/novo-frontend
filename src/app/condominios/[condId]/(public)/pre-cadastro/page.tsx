@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/features/components/ui/button';
 import { Form } from '@/features/components/ui/form';
-import { createCondomino } from '@/features/condominos/services/condominos.service';
+import { postCondomino } from '@/features/condominos/services/condominos.service';
 import { AdditionalResidentsSection } from '@/features/form/components/AdditionalResidentsSecton';
 import { BankingInfoSection } from '@/features/form/components/BankingInfoSection';
 import { ContactSection } from '@/features/form/components/ContactSection';
@@ -25,9 +25,13 @@ const formSchema = z.object({
   // RG: Aceita letras (alguns estados têm letras) mas remove pontos/traços
   rg: z
     .string()
-    .min(7, 'RG deve ter no mínimo 7 dígitos')
-    .max(9, 'RG deve ter no máximo 9 dígitos')
-    .transform((val) => val.replaceAll(/[^a-zA-Z0-9]/g, '')),
+    .transform((val) => val.replaceAll(/[^a-zA-Z0-9]/g, ''))
+    .pipe(
+      z
+        .string()
+        .min(7, 'RG deve ter no mínimo 7 dígitos')
+        .max(9, 'RG deve ter no máximo 9 dígitos')
+    ),
 
   issuingAuthority: z.string().min(1, 'Órgão expedidor é obrigatório'),
 
@@ -132,9 +136,13 @@ const formSchema = z.object({
       name: z.string().min(1, 'Tem que informar o nome do cônjuge'),
       rg: z
         .string()
-        .min(7, 'RG deve ter no mínimo 7 dígitos')
-        .max(9, 'RG deve ter no máximo 9 dígitos')
-        .transform((val) => val.replaceAll(/[^a-zA-Z0-9]/g, '')),
+        .transform((val) => val.replaceAll(/[^a-zA-Z0-9]/g, ''))
+        .pipe(
+          z
+            .string()
+            .min(7, 'RG deve ter no mínimo 7 dígitos')
+            .max(9, 'RG deve ter no máximo 9 dígitos')
+        ),
       cpf: z
         .string()
         .min(11, 'CPF deve ter no mínimo 11 dígitos')
@@ -196,13 +204,7 @@ export default function PreCadastroForm() {
       secondaryPhone: '',
       address: '',
       // Inicialize o objeto spouse para evitar o erro de undefined ao renderizar
-      spouse: {
-        name: '',
-        rg: '',
-        cpf: '',
-        profession: '',
-        monthlyIncome: 0,
-      },
+      spouse: undefined,
       emergencyContacts: [{ name: '', relationship: '', phone: '' }],
       professionalInfo: {
         companyName: '',
@@ -240,7 +242,7 @@ export default function PreCadastroForm() {
     try {
       const payload = { ...values, condominiumId };
 
-      await createCondomino(condominiumId, payload);
+      await postCondomino(condominiumId, payload);
 
       router.push(
         `/condominios/${condominiumId}/pre-cadastro-sucesso?submitted=true`

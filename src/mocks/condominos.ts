@@ -1,6 +1,6 @@
 import { CondominoFull } from '@/types/condomino';
 
-export const condominos: CondominoFull[] = [
+export const mockCondominos: CondominoFull[] = [
   {
     id: '1',
     condominiumId: 'ad90f125-1462-4b24-8cbf-caaee6d76651',

@@ -27,6 +27,8 @@ export async function apiRequest<T>(
     requestBody = undefined;
   }
 
+ 
+  
   const session = await auth();
   const token = session?.user?.accessToken;
 
@@ -57,13 +59,17 @@ export async function apiRequest<T>(
     body: requestBody,
     ...rest,
   });
+  console.log('Response status:', response.status, 'URL:', response.url);
+
 
   if (response.status === 401) {
     redirect('/login');
   }
   if (!response.ok) {
-    console.log('Response', await response.json());
-    throw new Error(`API error ${response.status}: ${response}`);
+    const errorBody = await response.text();
+  console.error('API error body:', errorBody);
+  throw new Error(`API error ${response.status}: ${response.statusText}`);
+    //throw new Error(`API error ${response.status}: ${response.statusText}`);
   }
 
   // Some responses (e.g. DELETE 204) may have no body

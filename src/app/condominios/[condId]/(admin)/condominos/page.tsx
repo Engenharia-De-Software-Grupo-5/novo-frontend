@@ -1,6 +1,7 @@
 import { CondominosDataTable } from '@/features/condominos/components/CondominosDataTable';
 import { getCondominos } from '@/features/condominos/services/condominos.service';
 
+
 interface PageProps {
   readonly params: Promise<{ condId: string }>;
   readonly searchParams: Promise<{
@@ -31,7 +32,7 @@ export default async function CondominosPage({
     contentArr = Array.isArray(rawContent) ? rawContent : [rawContent];
   }
 
-  const data = await getCondominos(condId, {
+  const {items: condominos, meta}  = await getCondominos(condId, {
     page,
     limit,
     sort,
@@ -50,7 +51,7 @@ export default async function CondominosPage({
           aprove ou rejeite um pré cadastro
         </p>
       </div>
-      <CondominosDataTable data={data.items} pageCount={data.meta.totalPages} />
+      <CondominosDataTable data={condominos} pageCount={meta.totalPages} />
     </div>
   );
 }
