@@ -2,11 +2,15 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { DespesaDetail, DespesaResponse } from '@/types/despesa';
+import {
+  DespesaDetail,
+  DespesaResponse,
+  DespesaResponseApiGetAll,
+} from '@/types/despesa';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 import { buildFormDataBody, FileUploadOptions } from '@/lib/form-data';
 
-import { despesaDtoRequest } from '../schemas/despesaDto';
+import { despesaDtoRequest, despesaDtoResponse } from '../schemas/despesaDto';
 
 const getBaseUrl = (condId: string) => `/api/condominios/${condId}/despesas`;
 const getBaseUrlReal = (condId: string) =>
@@ -28,13 +32,17 @@ export const getAll = async (
   >;
   const queryString = buildQueryString(safeParams);
 
-  return apiRequest<DespesaResponse>(
+  const response = await apiRequest<DespesaResponseApiGetAll>(
     `${getBaseUrlReal(condId)}/paginated${queryString}`,
     {
       method: 'GET',
     },
     true
   );
+
+  const despesas = response.items.map((item) => despesaDtoResponse(item));
+  console.log('Response', despesas);
+  return { ...response, items: despesas };
 };
 
 export const getById = async (

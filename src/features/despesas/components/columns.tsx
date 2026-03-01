@@ -72,7 +72,8 @@ export const columns: ColumnDef<DespesaSummary>[] = [
     cell: ({ row }) => {
       const dateStr = row.getValue<string>('data');
       const [ano, mes, dia] = dateStr.split('-');
-      return <span>{`${dia}/${mes}/${ano}`}</span>;
+      const diaFormatado = dia.split('T')[0];
+      return <span>{`${diaFormatado}/${mes}/${ano}`}</span>;
     },
   },
   {

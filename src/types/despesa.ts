@@ -38,6 +38,14 @@ export interface DespesaDetail extends DespesaSummary {
 }
 
 export interface DespesaResponse {
+  items: DespesaSummary[];
+  meta: {
+    pageIndex: number;
+    pageCount: number;
+    totalItems: number;
+  };
+}
+export interface DespesaResponseApiGetAll {
   items: DespesaResponseAPI[];
   meta: {
     pageIndex: number;

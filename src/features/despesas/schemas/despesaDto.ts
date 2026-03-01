@@ -1,4 +1,9 @@
-import { DespesaDetail, DespesaRequestAPI } from '@/types/despesa';
+import {
+  DespesaDetail,
+  DespesaRequestAPI,
+  DespesaResponseAPI,
+  DespesaSummary,
+} from '@/types/despesa';
 
 export const despesaDtoRequest = (data: DespesaDetail): DespesaRequestAPI => {
   return {
@@ -10,5 +15,20 @@ export const despesaDtoRequest = (data: DespesaDetail): DespesaRequestAPI => {
     expenseDate: data.data,
     paymentMethod: data.formaPagamento.toUpperCase(),
     // filesToKeep: [],
+  };
+};
+
+export const despesaDtoResponse = (
+  data: DespesaResponseAPI
+): DespesaSummary => {
+  return {
+    id: data.id,
+    nome: data.description,
+    idImovel: data.propertyId,
+    tipo: data.expenseType,
+    valor: data.value,
+    data: data.expenseDate,
+    formaPagamento: data.paymentMethod,
+    status: 'pago',
   };
 };
