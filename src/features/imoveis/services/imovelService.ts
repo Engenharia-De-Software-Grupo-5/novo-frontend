@@ -4,8 +4,56 @@ import { revalidatePath } from 'next/cache';
 
 import { ImovelDetail, ImovelResponse } from '@/types/imoveis';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
+import { 
+  imovelDtoRequest, 
+  imovelDtoResponse, 
+  imovelDtoSummaryResponse 
+} from '@/features/imoveis/schemas/imovelDto';
 
 const basePath = (condId: string) => `/api/condominios/${condId}/imoveis`;
+
+export interface ImovelFileOptions {
+  newVistoriasFiles?: File[];
+  newDocumentosFiles?: File[];
+  existingFileIds?: string[];
+}
+
+function buildImovelFormData(
+  data: any, 
+  options?: ImovelFileOptions
+): FormData | any {
+  const {
+    newVistoriasFiles = [],
+    newDocumentosFiles = [],
+    existingFileIds,
+  } = options ?? {};
+
+  const hasFiles =
+    newVistoriasFiles.length > 0 ||
+    newDocumentosFiles.length > 0 ||
+    existingFileIds !== undefined;
+
+  if (!hasFiles) {
+    return data;
+  }
+
+  const formData = new FormData();
+  formData.append('data', JSON.stringify(data));
+
+  if (existingFileIds !== undefined) {
+    formData.append('existingFileIds', JSON.stringify(existingFileIds));
+  }
+
+  for (const file of newVistoriasFiles) {
+    formData.append('vistoriasFiles', file);
+  }
+
+  for (const file of newDocumentosFiles) {
+    formData.append('documentosFiles', file);
+  }
+
+  return formData;
+}
 
 export const getImoveis = async (
   condId: string,
@@ -18,12 +66,11 @@ export const getImoveis = async (
   }
 ): Promise<ImovelResponse> => {
   try {
-    const queryParams: Record<string, string | number | string[] | undefined> =
-      {
-        page: params?.page,
-        limit: params?.limit,
-        sort: params?.sort,
-      };
+    const queryParams: Record<string, string | number | string[] | undefined> = {
+      page: params?.page,
+      limit: params?.limit,
+      sort: params?.sort,
+    };
 
     if (params?.columns && params?.content && params.columns.length > 0) {
       queryParams.columns = params.columns;
@@ -32,9 +79,14 @@ export const getImoveis = async (
 
     const query = buildQueryString(queryParams);
 
-    return await apiRequest<ImovelResponse>(`${basePath(condId)}${query}`, {
+    const response = await apiRequest<any>(`${basePath(condId)}${query}`, {
       method: 'GET',
     });
+
+    return {
+      ...response,
+      items: response.items ? response.items.map((item: any) => imovelDtoSummaryResponse(item)) : [],
+    } as ImovelResponse;
   } catch (error) {
     console.error('Error fetching imoveis:', error);
     return {
@@ -48,41 +100,65 @@ export const getImovelById = async (
   condId: string,
   imovelId: string
 ): Promise<ImovelDetail> => {
-  return apiRequest<ImovelDetail>(`${basePath(condId)}/${imovelId}`, {
+  const response = await apiRequest<any>(`${basePath(condId)}/${imovelId}`, {
     method: 'GET',
   });
+
+  return {
+    ...imovelDtoResponse(response),
+    vistorias: response.vistorias || [],
+    documentos: response.documentos || [],
+  } as unknown as ImovelDetail;
 };
 
 export const postImovel = async (
   condId: string,
-  data: ImovelDetail
+  data: ImovelDetail,
+  options?: ImovelFileOptions
 ): Promise<ImovelDetail> => {
-  const response = await apiRequest<{ data: ImovelDetail }>(basePath(condId), {
+  const translatedData = imovelDtoRequest(data);
+  const body = buildImovelFormData(translatedData, options);
+
+  const response = await apiRequest<any>(basePath(condId), {
     method: 'POST',
-    body: data,
+    body,
   });
 
   revalidatePath(`/condominios/${condId}/imoveis`);
 
-  return response.data;
+  const resultData = response.data || response;
+
+  return {
+    ...imovelDtoResponse(resultData),
+    vistorias: resultData.vistorias || [],
+    documentos: resultData.documentos || [],
+  } as unknown as ImovelDetail;
 };
 
 export const putImovel = async (
   condId: string,
   imovelId: string,
-  data: Partial<ImovelDetail>
+  data: Partial<ImovelDetail>,
+  options?: ImovelFileOptions
 ): Promise<ImovelDetail> => {
-  const result = await apiRequest<ImovelDetail>(
+  const translatedData = imovelDtoRequest(data);
+  const body = buildImovelFormData(translatedData, options);
+
+  const result = await apiRequest<any>(
     `${basePath(condId)}/${imovelId}`,
     {
       method: 'PUT',
-      body: data,
+      body,
     }
   );
 
   revalidatePath(`/condominios/${condId}/imoveis`);
 
-  return result;
+  return {
+    ...imovelDtoResponse(result),
+    vistorias: result.vistorias || [],
+    documentos: result.documentos || [],
+  } as unknown as ImovelDetail;
 };
 
 export const patchImovel = async (
