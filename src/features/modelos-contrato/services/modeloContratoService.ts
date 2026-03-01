@@ -4,12 +4,15 @@ import { revalidatePath } from 'next/cache';
 
 import {
   ModeloContratoDetail,
+  ModeloContratoRequest,
   ModeloContratoResponse,
 } from '@/types/modelo-contrato';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 
 const basePath = (condId: string) =>
   `/api/condominios/${condId}/modelos-contrato`;
+const basePathReal = (condId: string) =>
+  `/api/v1/condominios/${condId}/modelos-contrato`;
 
 export const getModelosContrato = async (
   condId: string,
@@ -30,17 +33,18 @@ export const getModelosContrato = async (
       };
 
     if (params?.columns && params?.content && params.columns.length > 0) {
-      queryParams.columns = params.columns;
+      queryParams.columnName = params.columns;
       queryParams.content = params.content;
     }
 
     const query = buildQueryString(queryParams);
 
     return await apiRequest<ModeloContratoResponse>(
-      `${basePath(condId)}${query}`,
+      `${basePathReal(condId)}/paginated${query}`,
       {
         method: 'GET',
-      }
+      },
+      true
     );
   } catch (error) {
     console.error('Error fetching contract models:', error);
@@ -55,19 +59,28 @@ export const getModeloContratoById = async (
   condId: string,
   modelId: string
 ): Promise<ModeloContratoDetail> => {
-  return apiRequest<ModeloContratoDetail>(`${basePath(condId)}/${modelId}`, {
-    method: 'GET',
-  });
+  return apiRequest<ModeloContratoDetail>(
+    `${basePathReal(condId)}/${modelId}`,
+    {
+      method: 'GET',
+    },
+    true
+  );
 };
 
 export const postModeloContrato = async (
   condId: string,
-  data: Partial<ModeloContratoDetail>
+  data: ModeloContratoRequest
 ): Promise<void> => {
-  await apiRequest(basePath(condId), {
-    method: 'POST',
-    body: data,
-  });
+  console.log('CRIAR MODELO', data);
+  await apiRequest(
+    basePathReal(condId),
+    {
+      method: 'POST',
+      body: data,
+    },
+    true
+  );
 
   revalidatePath(`/condominios/${condId}/modelos-contrato`);
 };

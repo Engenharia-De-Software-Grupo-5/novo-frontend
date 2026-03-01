@@ -36,9 +36,9 @@ export async function apiRequest<T>(
     authHeaders['Authorization'] = `Bearer ${token}`;
   }
   // console.log('REQUEST authHeaders', authHeaders);
-  // console.log('REQUEST BODY', requestBody);
-  // console.log('REQUEST METHOD', options.method);
-  // console.log('REQUEST URL', `${isReal ? API_URL_REAL : API_URL}${path}`);
+  console.log('REQUEST BODY', requestBody);
+  console.log('REQUEST METHOD', options.method);
+  console.log('REQUEST URL', `${isReal ? API_URL_REAL : API_URL}${path}`);
   const response = await fetch(`${isReal ? API_URL_REAL : API_URL}${path}`, {
     headers: {
       // Don't set Content-Type for FormData — the browser sets it
