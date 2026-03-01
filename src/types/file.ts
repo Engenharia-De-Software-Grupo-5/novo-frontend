@@ -7,5 +7,5 @@ export interface FileAttachment {
   name: string;
   type: string;
   size: number;
-  url: string;
+  link: string;
 }

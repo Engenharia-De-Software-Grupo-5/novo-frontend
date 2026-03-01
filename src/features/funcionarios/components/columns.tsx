@@ -66,7 +66,7 @@ export const columns: ColumnDef<EmployeeSummary>[] = [
             variant="ghost"
             size="icon"
             className="h-6 w-6"
-            onClick={() => window.open(contract.url, '_blank')}
+            onClick={() => window.open(contract.link, '_blank')}
           >
             <Download className="h-3 w-3" />
           </Button>

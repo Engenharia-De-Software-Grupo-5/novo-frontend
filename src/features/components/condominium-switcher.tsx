@@ -157,9 +157,8 @@ export function CondominiumSwitcher({ condId }: { readonly condId?: string }) {
     }
   };
 
-  // TODO: mudar para dashboard
   const handleSwitch = (id: string) => {
-    router.push(`/condominios/${id}/funcionarios`);
+    router.push(`/condominios/${id}/dashboard`);
   };
 
   return (

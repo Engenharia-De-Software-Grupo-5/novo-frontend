@@ -8,7 +8,28 @@ export interface DespesaSummary {
   data: string;
   valor: number;
   formaPagamento: string;
-  status: 'pendente' | 'pago' | 'atrasado';
+}
+
+export interface DespesaResponseAPI {
+  id: string;
+  targetType: string;
+  description: string;
+  propertyId: string;
+  expenseType: string;
+  value: number;
+  expenseDate: string;
+  expenseFiles: FileAttachment[];
+  paymentMethod: string;
+}
+export interface DespesaRequestAPI {
+  targetType: string;
+  description: string;
+  propertyId?: string;
+  expenseType: string;
+  value: number;
+  expenseDate: string;
+  paymentMethod: string;
+  filesToKeep?: string[];
 }
 
 export interface DespesaDetail extends DespesaSummary {
@@ -17,6 +38,14 @@ export interface DespesaDetail extends DespesaSummary {
 
 export interface DespesaResponse {
   items: DespesaSummary[];
+  meta: {
+    pageIndex: number;
+    pageCount: number;
+    totalItems: number;
+  };
+}
+export interface DespesaResponseApiGetAll {
+  items: DespesaResponseAPI[];
   meta: {
     pageIndex: number;
     pageCount: number;

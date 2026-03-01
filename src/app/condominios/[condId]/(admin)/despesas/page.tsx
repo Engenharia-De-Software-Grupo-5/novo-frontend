@@ -33,7 +33,7 @@ export default async function DespesasPage(props: {
   const response = await getAll(params.condId, {
     page,
     limit,
-    columns,
+    columnName: columns,
     content,
   });
 

@@ -24,7 +24,13 @@ interface ViewPaymentDialogProps {
   readonly onOpenChange: (open: boolean) => void;
 }
 
-function FieldItem({ label, value }: { readonly label: string; readonly value?: string | null }) {
+function FieldItem({
+  label,
+  value,
+}: {
+  readonly label: string;
+  readonly value?: string | null;
+}) {
   return (
     <div className="space-y-0.5">
       <p className="text-sm font-medium">{label}</p>
@@ -112,7 +118,7 @@ export function ViewPaymentDialog({
                     type="button"
                     variant="ghost"
                     size="icon"
-                    onClick={() => window.open(proof.url, '_blank')}
+                    onClick={() => window.open(proof.link, '_blank')}
                     className="h-6 w-6"
                   >
                     <Download className="h-4 w-4" />
