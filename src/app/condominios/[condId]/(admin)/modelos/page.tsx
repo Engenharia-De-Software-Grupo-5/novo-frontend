@@ -43,7 +43,6 @@ export default async function ModelosContratoPage({
     content: contentArr.length > 0 ? contentArr : undefined,
     sort,
   });
-  console.log(models);
 
   return (
     <div className="flex h-full flex-1 flex-col space-y-8 p-8">

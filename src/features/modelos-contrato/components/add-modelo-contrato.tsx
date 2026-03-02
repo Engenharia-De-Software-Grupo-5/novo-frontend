@@ -129,16 +129,15 @@ export default function AddModeloContrato({ condId }: AddModeloContratoProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [purpose, setPurpose] = useState('');
   const [rawText, setRawText] = useState(textToHtml(DEFAULT_TEMPLATE));
   const [hasSubmitAttempt, setHasSubmitAttempt] = useState(false);
 
   const listPath = `/condominios/${condId}/modelos`;
 
-  const hasMissingRequired =
-    !name.trim() || !description.trim() || !rawText.trim();
+  const hasMissingRequired = !name.trim() || !purpose.trim() || !rawText.trim();
   const isNameInvalid = hasSubmitAttempt && !name.trim();
-  const isPurposeInvalid = hasSubmitAttempt && !description.trim();
+  const isPurposeInvalid = hasSubmitAttempt && !purpose.trim();
   const isContentInvalid = hasSubmitAttempt && !rawText.trim();
 
   const previewHtml = useMemo(() => {
@@ -152,7 +151,7 @@ export default function AddModeloContrato({ condId }: AddModeloContratoProps) {
 
     if (hasMissingRequired) {
       toast.error(
-        'Preencha nome, descrição e conteudo do modelo antes de salvar.'
+        'Preencha nome, finalidade e conteudo do modelo antes de salvar.'
       );
       return;
     }
@@ -161,8 +160,8 @@ export default function AddModeloContrato({ condId }: AddModeloContratoProps) {
       setIsSubmitting(true);
       await postModeloContrato(condId, {
         name: name.trim(),
-        description: description.trim(),
-        template: rawText,
+        purpose: purpose.trim(),
+        rawText,
       });
       toast.success('Modelo de contrato criado com sucesso.');
       router.push(listPath);
@@ -238,11 +237,11 @@ export default function AddModeloContrato({ condId }: AddModeloContratoProps) {
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="model-purpose">Descrição *</FieldLabel>
+                <FieldLabel htmlFor="model-purpose">Finalidade *</FieldLabel>
                 <Textarea
                   id="model-purpose"
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
+                  value={purpose}
+                  onChange={(event) => setPurpose(event.target.value)}
                   className={
                     isPurposeInvalid
                       ? 'border-destructive min-h-20'
