@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { condominos } from '@/mocks/condominos';
+import { mockCondominos } from '@/mocks/condominos';
 import { contractModelsDb, contractsDb, imoveisDb } from '@/mocks/in-memory-db';
 
 import { ContratoDetail, ContratoPostDTO } from '@/types/contrato';
@@ -254,7 +254,7 @@ export async function POST(
     );
   }
 
-  const tenant = condominos.find(
+  const tenant = mockCondominos.find(
     (item) => item.condominiumId === condId && item.id === payload.tenantId
   );
 

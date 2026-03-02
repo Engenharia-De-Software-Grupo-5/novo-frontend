@@ -6,9 +6,9 @@ export const USER_ROLES = [
 ];
 
 export const USER_STATUSES = [
-  { label: "Ativo", value: "ativo", icon: CheckCircle2 },
-  { label: "Inativo", value: "inativo", icon: XCircle },
-  { label: "Pendente", value: "pendente", icon: Clock },
+  { label: "Ativo", value: "ACTIVE", icon: CheckCircle2 },
+  { label: "Inativo", value: "INACTIVE", icon: XCircle },
+  { label: "Pendente", value: "SUSPENDED", icon: Clock },
 ];
 
 export const USER_COLUMN_LABELS = {

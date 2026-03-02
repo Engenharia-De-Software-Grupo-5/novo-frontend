@@ -6,9 +6,9 @@ import { AddCondominoDialog } from './AddCondominoDialog';
 import { CondominoSummary } from '@/types/condomino';
 
 const CONDOMINO_STATUSES = [
-  { label: 'Ativo', value: 'ativo' },
-  { label: 'Inativo', value: 'inativo' },
-  { label: 'Pendente', value: 'pendente' },
+  { label: 'Ativo', value: 'ACTIVE' },
+  { label: 'Inativo', value: 'INACTIVE' },
+  { label: 'Pendente', value: 'PENDING' },
 ];
 
 const CONDOMINO_COLUMN_LABELS = {
