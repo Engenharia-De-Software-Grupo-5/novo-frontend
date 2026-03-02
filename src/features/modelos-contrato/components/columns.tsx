@@ -7,6 +7,11 @@ import { ModeloContratoSummary } from '@/types/modelo-contrato';
 
 import { DataTableRowActions } from './data-table-row-actions';
 
+const formatDate = (value: string) => {
+  if (!value) return '-';
+  return new Date(`${value}T00:00:00`).toLocaleDateString('pt-BR');
+};
+
 export const columns: ColumnDef<ModeloContratoSummary>[] = [
   {
     accessorKey: 'name',
@@ -16,11 +21,22 @@ export const columns: ColumnDef<ModeloContratoSummary>[] = [
     cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
   },
   {
-    accessorKey: 'description',
+    accessorKey: 'createdAt',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Descrição" />
+      <DataTableColumnHeader column={column} title="Data de Criacao" />
     ),
-    cell: ({ row }) => row.original.description,
+    cell: ({ row }) => formatDate(row.original.createdAt),
+  },
+  {
+    accessorKey: 'purpose',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Finalidade" />
+    ),
+    cell: ({ row }) => (
+      <p className="text-muted-foreground line-clamp-2 text-sm">
+        {row.original.purpose}
+      </p>
+    ),
   },
   {
     id: 'actions',

@@ -5,7 +5,7 @@ import { DataTable } from '@/features/components/data-table/data-table';
 
 import { DespesaSummary } from '@/types/despesa';
 
-import { COLUMN_LABELS, DESPESA_TIPOS, FORMA_PAGAMENTO } from '../constants';
+import { COLUMN_LABELS, DESPESA_TIPOS } from '../constants';
 import { AddDespesaDialog } from './add-despesa-dialog';
 import { columns } from './columns';
 
@@ -27,19 +27,12 @@ export function DespesasDataTable({ data, pageCount }: DespesasDataTableProps) {
       searchPlaceholder="Buscar despesa por nome..."
       columnLabels={COLUMN_LABELS}
       actions={<AddDespesaDialog />}
-      // TODO: talvez retirar forma pagamento
       facetedFilters={[
         { columnId: 'tipo', title: 'Tipo', options: DESPESA_TIPOS },
-        {
-          columnId: 'formaPagamento',
-          title: 'Forma de Pagto',
-          options: FORMA_PAGAMENTO,
-        },
       ]}
       filterMappings={[
         { columnId: 'nome' },
         { columnId: 'tipo', isArray: true },
-        { columnId: 'formaPagamento', isArray: true },
       ]}
     />
   );

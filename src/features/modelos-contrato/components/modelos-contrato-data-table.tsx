@@ -1,6 +1,7 @@
 'use client';
 
 import { DataTable } from '@/features/components/data-table';
+
 import { ModeloContratoSummary } from '@/types/modelo-contrato';
 
 import { AddModeloContratoButton } from './add-modelo-contrato-button';

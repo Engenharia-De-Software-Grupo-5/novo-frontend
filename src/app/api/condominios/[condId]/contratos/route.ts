@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { condominos } from '@/mocks/condominos';
-import { contractModelsDb, contractsDb, imoveisDb } from '@/mocks/in-memory-db';
+import { contractModelsDb, contractsDb } from '@/mocks/in-memory-db';
 
 import { ContratoDetail, ContratoPostDTO } from '@/types/contrato';
 import { secureRandom } from '@/lib/secure-random';
@@ -254,33 +253,31 @@ export async function POST(
     );
   }
 
-  const tenant = condominos.find(
-    (item) => item.condominiumId === condId && item.id === payload.tenantId
-  );
+  // const tenant = condominosDb.find(
+  //   (item) => item.condominiumId === condId && item.id === payload.tenantId
+  // );
 
-  if (!tenant) {
-    return NextResponse.json(
-      { error: 'Locatário não encontrado.' },
-      { status: 404 }
-    );
-  }
+  // if (!tenant) {
+  //   return NextResponse.json(
+  //     { error: 'Locatário não encontrado.' },
+  //     { status: 404 }
+  //   );
+  // }
 
-  const property = imoveisDb.find(
-    (item) =>
-      item.idCondominio === condId && item.idImovel === payload.propertyId
-  );
+  // const property = imoveisDb.find(
+  //   (item) =>
+  //     item.idCondominio === condId && item.idImovel === payload.propertyId
+  // );
 
-  if (!property) {
-    return NextResponse.json(
-      { error: 'Imóvel não encontrado.' },
-      { status: 404 }
-    );
-  }
+  // if (!property) {
+  //   return NextResponse.json(
+  //     { error: 'Imóvel não encontrado.' },
+  //     { status: 404 }
+  //   );
+  // }
 
-  const tenantName = tenant.name;
-  const propertyName =
-    property.nome?.trim() ||
-    `${payload.propertyId} / ${property.tipo.toUpperCase()}`;
+  const tenantName = 'Locatario Teste';
+  const propertyName = 'Imovel Teste';
   const pdfFileName = buildPdfFileName(tenantName);
   const pdfFileUrl = uploadedFile
     ? `/mock-files/contracts/${Date.now()}-${pdfFileName}`
