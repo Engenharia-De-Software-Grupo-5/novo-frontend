@@ -74,9 +74,9 @@ export const getUsers = async (
       return value;
     });
 
-    if (params?.columns && mappedContent && params.columns.length > 0) {
+    if (params?.columns && params.content && params.columns.length > 0) {
       queryParams.columnName = params.columns;
-      queryParams.content = mappedContent;
+      queryParams.content = params.content;
     }
 
     const query = buildQueryString(queryParams);
