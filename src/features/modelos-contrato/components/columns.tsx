@@ -5,6 +5,8 @@ import { ColumnDef } from '@tanstack/react-table';
 
 import { ModeloContratoSummary } from '@/types/modelo-contrato';
 
+import { DataTableRowActions } from './data-table-row-actions';
+
 const formatDate = (value: string) => {
   if (!value) return '-';
   return new Date(`${value}T00:00:00`).toLocaleDateString('pt-BR');
@@ -35,5 +37,9 @@ export const columns: ColumnDef<ModeloContratoSummary>[] = [
         {row.original.purpose}
       </p>
     ),
+  },
+  {
+    id: 'actions',
+    cell: ({ row }) => <DataTableRowActions modelo={row.original} />,
   },
 ];
