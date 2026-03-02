@@ -1,9 +1,11 @@
 'use client';
 
 import { DataTable } from '@/features/components/data-table';
-import { columns } from './columns';
-import { AddCondominoDialog } from './AddCondominoDialog';
+
 import { CondominoSummary } from '@/types/condomino';
+
+import { AddCondominoDialog } from './AddCondominoDialog';
+import { columns } from './columns';
 
 const CONDOMINO_STATUSES = [
   { label: 'Ativo', value: 'ativo' },
@@ -23,7 +25,10 @@ interface CondominosDataTableProps {
   readonly pageCount: number;
 }
 
-export function CondominosDataTable({ data, pageCount }: CondominosDataTableProps) {
+export function CondominosDataTable({
+  data,
+  pageCount,
+}: CondominosDataTableProps) {
   return (
     <DataTable
       columns={columns}
@@ -32,13 +37,7 @@ export function CondominosDataTable({ data, pageCount }: CondominosDataTableProp
       searchColumnId="name"
       searchPlaceholder="Buscar condôminos..."
       columnLabels={CONDOMINO_COLUMN_LABELS}
-      facetedFilters={[
-        {
-          columnId: 'status',
-          title: 'Status',
-          options: CONDOMINO_STATUSES,
-        },
-      ]}
+      facetedFilters={[]}
       filterMappings={[
         { columnId: 'name' },
         { columnId: 'status', isArray: true },

@@ -1,7 +1,7 @@
 import { FileAttachment } from '@/types/file';
 import { Imovel } from '@/types/imoveis';
 
-const condoID = '29463612-8749-4cba-af28-a3123c968a94';
+const condoID = '90071c79-3868-444d-99a6-6b2e376368d1';
 export const mockImoveis: Imovel[] = [
   {
     idCondominio: condoID,

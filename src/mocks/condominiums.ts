@@ -2,7 +2,7 @@ import { Condominium } from '../types/condominium';
 
 export const mockCondominiums: Condominium[] = [
   {
-    id: 'f1c83514-9237-496a-a073-0bb5828fe418',
+    id: '90071c79-3868-444d-99a6-6b2e376368d1',
     name: 'Condomínio Sol Nascente',
   },
   { id: '2', name: 'Condomínio Vista Alegre' },

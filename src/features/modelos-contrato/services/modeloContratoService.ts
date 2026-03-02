@@ -4,15 +4,12 @@ import { revalidatePath } from 'next/cache';
 
 import {
   ModeloContratoDetail,
-  ModeloContratoRequest,
   ModeloContratoResponse,
 } from '@/types/modelo-contrato';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 
 const basePath = (condId: string) =>
   `/api/condominios/${condId}/modelos-contrato`;
-const basePathReal = (condId: string) =>
-  `/api/v1/condominios/${condId}/modelos-contrato`;
 
 export const getModelosContrato = async (
   condId: string,
@@ -33,18 +30,17 @@ export const getModelosContrato = async (
       };
 
     if (params?.columns && params?.content && params.columns.length > 0) {
-      queryParams.columnName = params.columns;
+      queryParams.columns = params.columns;
       queryParams.content = params.content;
     }
 
     const query = buildQueryString(queryParams);
 
     return await apiRequest<ModeloContratoResponse>(
-      `${basePathReal(condId)}/paginated${query}`,
+      `${basePath(condId)}${query}`,
       {
         method: 'GET',
-      },
-      true
+      }
     );
   } catch (error) {
     console.error('Error fetching contract models:', error);
@@ -59,28 +55,19 @@ export const getModeloContratoById = async (
   condId: string,
   modelId: string
 ): Promise<ModeloContratoDetail> => {
-  return apiRequest<ModeloContratoDetail>(
-    `${basePathReal(condId)}/${modelId}`,
-    {
-      method: 'GET',
-    },
-    true
-  );
+  return apiRequest<ModeloContratoDetail>(`${basePath(condId)}/${modelId}`, {
+    method: 'GET',
+  });
 };
 
 export const postModeloContrato = async (
   condId: string,
-  data: ModeloContratoRequest
+  data: Partial<ModeloContratoDetail>
 ): Promise<void> => {
-  console.log('CRIAR MODELO', data);
-  await apiRequest(
-    basePathReal(condId),
-    {
-      method: 'POST',
-      body: data,
-    },
-    true
-  );
+  await apiRequest(basePath(condId), {
+    method: 'POST',
+    body: data,
+  });
 
   revalidatePath(`/condominios/${condId}/modelos-contrato`);
 };
@@ -89,13 +76,9 @@ export const deleteModeloContrato = async (
   condId: string,
   modelId: string
 ): Promise<void> => {
-  await apiRequest(
-    `${basePathReal(condId)}/${modelId}`,
-    {
-      method: 'DELETE',
-    },
-    true
-  );
+  await apiRequest(`${basePath(condId)}/${modelId}`, {
+    method: 'DELETE',
+  });
 
   revalidatePath(`/condominios/${condId}/modelos`);
 };
