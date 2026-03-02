@@ -1,8 +1,10 @@
+import { FileAttachment } from '@/types/file';
 import { Imovel } from '@/types/imoveis';
 
+const condoID = '90071c79-3868-444d-99a6-6b2e376368d1';
 export const mockImoveis: Imovel[] = [
   {
-    idCondominio: '1',
+    idCondominio: condoID,
     idImovel: 'IMV-001',
     nome: 'Apartamento 101 - Bloco A',
     tipo: 'apartamento',
@@ -20,9 +22,34 @@ export const mockImoveis: Imovel[] = [
       cpf: '123.456.789-10',
       telefone: '(83) 99888-1111',
     },
+    vistorias: [
+      {
+        id: 'vst-001-a',
+        name: 'Vistoria Inicial 2024.pdf',
+        type: 'application/pdf',
+        size: 204800,
+        url: '/uploads/vistorias/vst-001-a.pdf',
+      } satisfies FileAttachment,
+    ],
+    documentos: [
+      {
+        id: 'doc-001-a',
+        name: 'Contrato de Locação.pdf',
+        type: 'application/pdf',
+        size: 512000,
+        url: '/uploads/documentos/doc-001-a.pdf',
+      } satisfies FileAttachment,
+      {
+        id: 'doc-001-b',
+        name: 'IPTU 2024.pdf',
+        type: 'application/pdf',
+        size: 102400,
+        url: '/uploads/documentos/doc-001-b.pdf',
+      } satisfies FileAttachment,
+    ],
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-002',
     nome: 'Apartamento 202 - Bloco A',
     tipo: 'apartamento',
@@ -40,9 +67,34 @@ export const mockImoveis: Imovel[] = [
       cpf: '987.654.321-00',
       telefone: '(83) 99977-2233',
     },
+    vistorias: [
+      {
+        id: 'vst-002-a',
+        name: 'Vistoria de Entrega 2023.pdf',
+        type: 'application/pdf',
+        size: 307200,
+        url: '/uploads/vistorias/vst-002-a.pdf',
+      } satisfies FileAttachment,
+      {
+        id: 'vst-002-b',
+        name: 'Vistoria Anual 2024.pdf',
+        type: 'application/pdf',
+        size: 256000,
+        url: '/uploads/vistorias/vst-002-b.pdf',
+      } satisfies FileAttachment,
+    ],
+    documentos: [
+      {
+        id: 'doc-002-a',
+        name: 'Escritura do Imóvel.pdf',
+        type: 'application/pdf',
+        size: 819200,
+        url: '/uploads/documentos/doc-002-a.pdf',
+      } satisfies FileAttachment,
+    ],
   },
   {
-    idCondominio: '1',
+    idCondominio: condoID,
     idImovel: 'IMV-003',
     nome: 'Casa 45',
     tipo: 'casa',
@@ -212,7 +264,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-013',
     nome: 'Apartamento 303 - Bloco B',
     tipo: 'apartamento',
@@ -232,7 +284,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-014',
     nome: 'Cobertura 1202 - Torre Leste',
     tipo: 'apartamento',
@@ -248,7 +300,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-015',
     nome: 'Casa 88',
     tipo: 'casa',
@@ -369,7 +421,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-022',
     nome: 'Apartamento 404 - Bloco C',
     tipo: 'apartamento',
@@ -389,7 +441,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-023',
     nome: 'Apartamento 505 - Bloco C',
     tipo: 'apartamento',
@@ -405,7 +457,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-024',
     nome: 'Casa 149',
     tipo: 'casa',
@@ -424,7 +476,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-025',
     nome: 'Apartamento 808 - Torre Norte',
     tipo: 'apartamento',
@@ -440,7 +492,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-026',
     nome: 'Apartamento 102 - Bloco D',
     tipo: 'apartamento',
@@ -456,7 +508,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-027',
     nome: 'Casa 211',
     tipo: 'casa',
@@ -471,7 +523,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-028',
     nome: 'Apartamento 1206 - Torre Leste',
     tipo: 'apartamento',
@@ -491,7 +543,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-029',
     nome: 'Apartamento 702 - Bloco B',
     tipo: 'apartamento',
@@ -511,7 +563,7 @@ export const mockImoveis: Imovel[] = [
     },
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-030',
     nome: 'Casa 19',
     tipo: 'casa',
@@ -526,7 +578,7 @@ export const mockImoveis: Imovel[] = [
     locatario: null,
   },
   {
-    idCondominio: '1',
+    idCondominio: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
     idImovel: 'IMV-031',
     nome: 'Apartamento 909 - Torre Sul',
     tipo: 'apartamento',

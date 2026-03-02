@@ -43,6 +43,8 @@ export async function GET(
   const employeesDb = getEmployeesDb(condId);
   const employee = employeesDb.find((e) => e.id === funcId);
 
+  
+
   if (!employee) {
     return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
   }
@@ -148,9 +150,7 @@ export async function PUT(
     ];
     body.Contracts = finalContracts;
     body.lastContract =
-      finalContracts.length > 0
-        ? finalContracts[finalContracts.length - 1]
-        : undefined;
+      finalContracts.length > 0 ? finalContracts.at(-1) : undefined;
   }
 
   employeesDb[index] = { ...employeesDb[index], ...body };
@@ -202,6 +202,11 @@ export async function PATCH(
   const body = (await request.json()) as Partial<EmployeeDetail>;
 
   const index = employeesDb.findIndex((e) => e.id === funcId);
+
+    console.log('condId:', condId);
+  console.log('funcId:', funcId);
+  console.log('employeesDb length:', employeesDb.length);
+  console.log('IDs disponíveis:', employeesDb.map(e => e.id).slice(0, 5));
 
   if (index === -1) {
     return NextResponse.json({ error: 'Employee not found' }, { status: 404 });

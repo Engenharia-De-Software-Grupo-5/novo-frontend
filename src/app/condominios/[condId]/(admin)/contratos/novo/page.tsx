@@ -1,12 +1,14 @@
-import AddContratos from '@/features/contratos/components/add-contratos';
 import { getCondominos } from '@/features/condominos/services/condominos.service';
+import AddContratos from '@/features/contratos/components/add-contratos';
 import { getImoveis } from '@/features/imoveis/services/imovelService';
 
 interface NovoContratoPageProps {
   readonly params: Promise<{ condId: string }>;
 }
 
-export default async function NovoContratoPage({ params }: NovoContratoPageProps) {
+export default async function NovoContratoPage({
+  params,
+}: NovoContratoPageProps) {
   const { condId } = await params;
 
   const [condominosResponse, imoveisResponse] = await Promise.all([
@@ -17,8 +19,8 @@ export default async function NovoContratoPage({ params }: NovoContratoPageProps
   return (
     <AddContratos
       condId={condId}
-      tenants={condominosResponse.data}
-      properties={imoveisResponse.data}
+      tenants={condominosResponse.items}
+      properties={imoveisResponse.items}
     />
   );
 }

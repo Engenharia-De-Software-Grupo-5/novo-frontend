@@ -17,9 +17,15 @@ export default function LoginForm() {
   const [erro, setErro] = useState('');
 
   function validar() {
-    if (!email.trim()) setErro('Email é obrigatório.');
-    else if (!senha) setErro('Senha é obrigatória.');
-    else setErro('');
+    if (!email.trim()) {
+      setErro('Email é obrigatório.');
+      return;
+    }
+    if (!senha) {
+      setErro('Senha é obrigatória.');
+      return;
+    }
+    setErro('');
     return email.trim() && senha;
   }
 

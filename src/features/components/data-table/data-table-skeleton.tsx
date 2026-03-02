@@ -43,14 +43,26 @@ export function DataTableSkeleton({
   showSearch = true,
   showActions = true,
 }: DataTableSkeletonProps) {
+  const filterKeys = Array.from(
+    { length: filterCount },
+    (_, i) => `filter-${i}`
+  );
+
+  const headerKeys = Array.from({ length: columnCount }, (_, i) => `head-${i}`);
+
+  const rowData = Array.from({ length: rowCount }, (_, i) => ({
+    id: `row-${i}`,
+    cells: Array.from({ length: columnCount }, (_, j) => `cell-${i}-${j}`),
+  }));
+
   return (
     <div className="space-y-4">
       {/* Toolbar skeleton */}
       <div className="flex items-center justify-between">
         <div className="flex flex-1 items-center space-x-2">
           {showSearch && <Skeleton className="h-9 w-[250px]" />}
-          {Array.from({ length: filterCount }).map((_, i) => (
-            <Skeleton key={`filter-${i}`} className="h-9 w-[100px]" />
+          {filterKeys.map((key) => (
+            <Skeleton key={key} className="h-9 w-[100px]" />
           ))}
         </div>
         <div className="flex items-center space-x-2">
@@ -64,17 +76,17 @@ export function DataTableSkeleton({
         <Table>
           <TableHeader>
             <TableRow>
-              {Array.from({ length: columnCount }).map((_, i) => (
-                <TableHead key={`head-${i}`}>
+              {headerKeys.map((key) => (
+                <TableHead key={key}>
                   <Skeleton className="h-4 w-[80px]" />
                 </TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Array.from({ length: rowCount }).map((_, rowIndex) => (
-              <TableRow key={`row-${rowIndex}`}>
-                {Array.from({ length: columnCount }).map((_, colIndex) => {
+            {rowData.map((row) => (
+              <TableRow key={row.id}>
+                {row.cells.map((cellKey, colIndex) => {
                   let widthClass = 'w-[100px]';
                   if (colIndex === 0) {
                     widthClass = 'w-[180px]';
@@ -83,7 +95,7 @@ export function DataTableSkeleton({
                   }
 
                   return (
-                    <TableCell key={`cell-${rowIndex}-${colIndex}`}>
+                    <TableCell key={cellKey}>
                       <Skeleton className={`h-4 ${widthClass}`} />
                     </TableCell>
                   );

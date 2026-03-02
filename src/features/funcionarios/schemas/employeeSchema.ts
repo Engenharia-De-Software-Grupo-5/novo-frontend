@@ -5,7 +5,7 @@ import { EMPLOYEE_ROLES } from '../constants';
 export const employeeFormSchema = z.object({
   email: z
     .string()
-    .email({ message: 'Email inválido.' })
+    .check(z.email({ message: 'Email inválido.' }))
     .optional()
     .or(z.literal('')),
   name: z.string().min(2, {

@@ -1,12 +1,22 @@
 export type Role = 'Financeiro' | 'RH' | 'Admin';
 export type Status = 'ativo' | 'inativo' | 'pendente';
 
+export interface PermissionItem {
+  id: string;
+  name: string;
+}
+
+export interface CondominiumItem {
+  id: string;
+  name: string;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: Role;
   status: Status;
+  role: Role;
   inviteDate: string;
 }
 
@@ -19,10 +29,45 @@ export interface UserSummary {
   createdAt: string;
 }
 
+
 export interface UsersResponse {
-  data: User[];
+  items: User[];
   meta: {
-    total: number;
+    totalItems: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+
+export interface UserAPIAccess {
+  permission: {
+    id: string;
+    name: string;
+  };
+  condominium: {
+    id: string;
+    name: string;
+  };
+  status: string;
+}
+
+export interface UserAPI {
+  id: string;
+  email: string;
+  name: string;
+  password: string;
+  isAdminMaster: boolean;
+  inviteDate: string;
+  deletedAt: string | null;
+  accesses: UserAPIAccess[];
+}
+
+export interface UserAPIResponse {
+  items: UserAPI[];
+  meta: {
+    totalItems: number;
     page: number;
     limit: number;
     totalPages: number;

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUsersDb } from '@/mocks/in-memory-db';
 
 import { User } from '@/types/user';
+import { secureRandom } from '@/lib/secure-random';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -60,7 +61,7 @@ export const fetchCache = 'force-no-store';
  *                 meta:
  *                   type: object
  *                   properties:
- *                     total:
+ *                     totalItems:
  *                       type: integer
  *                     page:
  *                       type: integer
@@ -90,7 +91,7 @@ export async function GET(
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';
 
-  if (sortParam && sortParam.includes('.')) {
+  if (sortParam?.includes('.')) {
     const [field, order] = sortParam.split('.');
     sortField = field;
     sortOrder = order;
@@ -171,9 +172,9 @@ export async function GET(
   const paginatedUsers = sortedUsers.slice(startIndex, endIndex);
 
   return NextResponse.json({
-    data: paginatedUsers,
+    items: paginatedUsers,
     meta: {
-      total: totalItems,
+      totalItems: totalItems,
       page: safePage,
       limit,
       totalPages,
@@ -248,7 +249,7 @@ export async function POST(
   const inviteDate = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
 
   const newUser: User = {
-    id: `${condId}-${Math.random().toString(36).slice(2, 9)}`,
+    id: `${condId}-${secureRandom(7)}`,
     name: body.name?.trim() || 'Novo usuário',
     email: body.email?.trim() || `usuario-${Date.now()}@exemplo.com`,
     role: normalizeRole(body.role),
@@ -266,7 +267,7 @@ export async function POST(
   usersDb.unshift(newUser);
 
   return NextResponse.json(
-    { message: 'User created successfully', data: newUser },
+    { message: 'User created successfully', items: newUser },
     { status: 201 }
   );
 }

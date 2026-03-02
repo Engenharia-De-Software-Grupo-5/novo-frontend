@@ -1,9 +1,11 @@
 'use client';
 
+import { DataTableColumnHeader } from '@/features/components/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 
-import { DataTableColumnHeader } from '@/features/components/data-table';
 import { ModeloContratoSummary } from '@/types/modelo-contrato';
+
+import { DataTableRowActions } from './data-table-row-actions';
 
 const formatDate = (value: string) => {
   if (!value) return '-';
@@ -16,9 +18,7 @@ export const columns: ColumnDef<ModeloContratoSummary>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Nome do Modelo" />
     ),
-    cell: ({ row }) => (
-      <span className="font-medium">{row.original.name}</span>
-    ),
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
   },
   {
     accessorKey: 'createdAt',
@@ -37,5 +37,9 @@ export const columns: ColumnDef<ModeloContratoSummary>[] = [
         {row.original.purpose}
       </p>
     ),
+  },
+  {
+    id: 'actions',
+    cell: ({ row }) => <DataTableRowActions modelo={row.original} />,
   },
 ];

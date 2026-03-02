@@ -96,15 +96,107 @@ export interface CondominoSummary {
  * Resposta da API para listagem paginada
  */
 export interface CondominosResponse {
-  data: CondominoSummary[];
+  items: CondominoSummary[];
   meta: {
-    total: number;
+    totalItems: number;
     page: number;
     limit: number;
     totalPages: number;
   };
-  // totalItems: number;
-  // totalPages: number;
-  // page: number;
-  // limit: number;
+}
+
+
+
+
+
+
+export interface CondominoAPIAddress {
+  id: string;
+  zip: string;
+  street: string;
+  neighborhood: string;
+  city: string;
+  uf: string;
+  number: number;
+  complement: string;
+}
+
+export interface CondominoAPISpouse {
+  id: string;
+  name: string;
+  cpf: string;
+  rg: string;
+  profession: string;
+  monthlyIncome: number;
+  birthDate: string;
+}
+
+export interface CondominoAPIAdditionalResident {
+  id: string;
+  name: string;
+  birthDate: string;
+  relationship: string;
+}
+
+export interface CondominoAPIProfessionalInfo {
+  id: string;
+  position: string;
+  companyName: string;
+  companyPhone: string;
+  companyAddress: CondominoAPIAddress;
+  monthsWorking: number;
+}
+
+export interface CondominoAPIBankingInfo {
+  id: string;
+  bank: string;
+  accountNumber: string;
+  agency: string;
+  accountType: string;
+}
+
+export interface CondominoAPIEmergencyContact {
+  id: string;
+  name: string;
+  phone: string;
+  relationship: string;
+}
+
+export interface CondominoAPIDocument {
+  id: string;
+  cpfFileId: string;
+  incomeProofId: string;
+}
+
+export interface CondominoAPI {
+  id: string;
+  name: string;
+  cpf: string;
+  rg: string;
+  issuingAuthority: string;
+  maritalStatus: string;
+  email: string;
+  primaryPhone: string;
+  secondaryPhone?: string;
+  birthDate: string;
+  monthlyIncome: number;
+  status: string;
+  spouse?: CondominoAPISpouse;
+  additionalResidents: CondominoAPIAdditionalResident[];
+  professionalInfo: CondominoAPIProfessionalInfo;
+  bankingInfo: CondominoAPIBankingInfo;
+  emergencyContacts: CondominoAPIEmergencyContact[];
+  documents: CondominoAPIDocument[];
+  address: string;
+  condominiumId: string;
+}
+
+export interface CondominosAPIResponse {
+  items: CondominoAPI[];
+  meta: {
+    totalItems: number;
+    totalPages: number;
+    page: number;
+    limit: number;
+  };
 }

@@ -12,7 +12,7 @@ import {
 import { FlagOff } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Status, User } from '@/types/user';
+import { User } from '@/types/user';
 
 import { changeUserStatus } from '../services/users.service';
 
@@ -34,15 +34,17 @@ export function DeactivateUserDialog({
 
   if (!user) return null;
 
-  const currentStatus = user.status as Status;
+  const currentStatus = user.status;
 
   const willActivate = currentStatus !== 'ativo';
   const newStatus = willActivate ? 'ativo' : 'inativo';
 
+  
+  
   const handleConfirm = async () => {
     setIsPending(true);
     try {
-      await changeUserStatus(condominioId, user.id, newStatus);
+      await changeUserStatus(condominioId, user.id, user.role, newStatus);
 
       onOpenChange(false);
 

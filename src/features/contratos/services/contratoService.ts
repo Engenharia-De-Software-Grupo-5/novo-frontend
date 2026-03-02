@@ -1,4 +1,12 @@
-import { ContratoDetail, ContratoResponse } from '@/types/contrato';
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
+import {
+  ContratoDetail,
+  ContratoPostDTO,
+  ContratoResponse,
+} from '@/types/contrato';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 
 const basePath = (condId: string) => `/api/condominios/${condId}/contratos`;
@@ -34,8 +42,8 @@ export const getContratos = async (
   } catch (error) {
     console.error('Error fetching contracts:', error);
     return {
-      data: [],
-      meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
+      items: [],
+      meta: { totalItems: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }
 };
@@ -51,12 +59,21 @@ export const getContratoById = async (
 
 export const postContrato = async (
   condId: string,
-  data: FormData | Partial<ContratoDetail>
+  data:
+    | FormData
+    | (ContratoPostDTO & {
+        sourceType?: 'upload' | 'model';
+        modelId?: string;
+        modelName?: string;
+        modelInputValues?: Record<string, string>;
+      })
 ): Promise<void> => {
   await apiRequest(basePath(condId), {
     method: 'POST',
     body: data,
   });
+
+  revalidatePath(`/condominios/${condId}/contratos`);
 };
 
 export const deleteContrato = async (
@@ -66,4 +83,6 @@ export const deleteContrato = async (
   await apiRequest(`${basePath(condId)}/${contractId}`, {
     method: 'DELETE',
   });
+
+  revalidatePath(`/condominios/${condId}/contratos`);
 };

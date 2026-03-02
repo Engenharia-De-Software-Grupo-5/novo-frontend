@@ -1,13 +1,13 @@
 'use client';
 
-import { Input } from '@/features/components/ui/input';
-import { Label } from '@/features/components/ui/label';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from '@/features/components/ui/card';
+import { Input } from '@/features/components/ui/input';
+import { Label } from '@/features/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -30,12 +30,25 @@ export interface ImovelFormData {
   };
 }
 
+export interface ImovelFormErrors {
+  nome?: string;
+  status?: string;
+  tipo?: string;
+  endereco?: {
+    logradouro?: string;
+    numero?: string;
+    bairro?: string;
+    cidade?: string;
+  };
+}
+
 interface ImovelFormProps {
   readonly formData: ImovelFormData;
   readonly setFormData: React.Dispatch<React.SetStateAction<ImovelFormData>>;
+  readonly errors?: ImovelFormErrors;
 }
 
-export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
+export function ImovelForm({ formData, setFormData, errors }: ImovelFormProps) {
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -58,15 +71,15 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
     <div className="space-y-6">
       <Card className="bg-card border-border">
         <CardHeader className="pb-4">
-          <CardTitle className="text-base font-semibold text-foreground">
+          <CardTitle className="text-foreground text-base font-semibold">
             Informações Básicas
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Informações para identificação interna
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="nome">Nome Interno do Imóvel *</Label>
               <Input
@@ -76,6 +89,9 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
                 onChange={(e) => handleChange('nome', e.target.value)}
                 className="bg-background border-border"
               />
+              {errors?.nome && (
+                <p className="text-destructive text-sm">{errors.nome}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Status *</Label>
@@ -93,23 +109,25 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
                   <SelectItem value="na planta">Na Planta</SelectItem>
                 </SelectContent>
               </Select>
+              {errors?.status && (
+                <p className="text-destructive text-sm">{errors.status}</p>
+              )}
             </div>
           </div>
-
         </CardContent>
       </Card>
 
       <Card className="bg-card border-border">
         <CardHeader className="pb-4">
-          <CardTitle className="text-base font-semibold text-foreground">
+          <CardTitle className="text-foreground text-base font-semibold">
             Endereço
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Informações para localização
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <div className="space-y-2 md:col-span-3">
               <Label>Logradouro *</Label>
               <Input
@@ -120,6 +138,11 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
                 }
                 className="bg-background border-border"
               />
+              {errors?.endereco?.logradouro && (
+                <p className="text-destructive text-sm">
+                  {errors.endereco.logradouro}
+                </p>
+              )}
             </div>
             <div className="space-y-2 md:col-span-1">
               <Label>Número *</Label>
@@ -131,10 +154,15 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
                 }
                 className="bg-background border-border"
               />
+              {errors?.endereco?.numero && (
+                <p className="text-destructive text-sm">
+                  {errors.endereco.numero}
+                </p>
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label>Complemento</Label>
               <Input
@@ -156,10 +184,15 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
                 }
                 className="bg-background border-border"
               />
+              {errors?.endereco?.bairro && (
+                <p className="text-destructive text-sm">
+                  {errors.endereco.bairro}
+                </p>
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label>Cidade *</Label>
               <Input
@@ -170,13 +203,20 @@ export function ImovelForm({ formData, setFormData }: ImovelFormProps) {
                 }
                 className="bg-background border-border"
               />
+              {errors?.endereco?.cidade && (
+                <p className="text-destructive text-sm">
+                  {errors.endereco.cidade}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>CEP *</Label>
               <Input
                 placeholder="00000-000"
                 value={formData.endereco?.cep || ''}
-                onChange={(e) => handleNestedChange('endereco', 'cep', e.target.value)}
+                onChange={(e) =>
+                  handleNestedChange('endereco', 'cep', e.target.value)
+                }
                 className="bg-background border-border"
               />
             </div>

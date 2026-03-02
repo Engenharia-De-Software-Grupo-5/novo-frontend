@@ -116,7 +116,45 @@ export function ViewContractDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {dialogContent}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="h-7 w-7 animate-spin" />
+          </div>
+        ) : data ? (
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-medium">Imóvel</p>
+              <p className="text-muted-foreground text-sm">{data.propertyName}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium">Locatário</p>
+              <p className="text-muted-foreground text-sm">{data.tenantName}</p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-sm font-medium">Data de início</p>
+                <p className="text-muted-foreground text-sm">{formatDate(data.startDate)}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Data de vencimento</p>
+                <p className="text-muted-foreground text-sm">{formatDate(data.dueDate)}</p>
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-medium">Arquivo PDF</p>
+              <Button variant="outline" size="sm" className="mt-2" asChild>
+                <a href={data.pdfFileUrl} target="_blank" rel="noreferrer">
+                  <FileText className="mr-2 h-4 w-4" />
+                  {data.pdfFileName}
+                </a>
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-muted-foreground py-8 text-center text-sm">
+            Não foi possível carregar o contrato.
+          </p>
+        )}
       </DialogContent>
     </Dialog>
   );

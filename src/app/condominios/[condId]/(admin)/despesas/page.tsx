@@ -1,9 +1,11 @@
 import { DespesasDataTable } from '@/features/despesas/components/despesas-data-table';
-import { despesaService } from '@/features/despesas/services/despesaService';
+import { getAll } from '@/features/despesas/services/despesaService';
 
 export default async function DespesasPage(props: {
   readonly params: Promise<{ condId: string }>;
-  readonly searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly searchParams: Promise<{
+    [key: string]: string | string[] | undefined;
+  }>;
 }) {
   const params = await props.params;
   const searchParams = await props.searchParams;
@@ -28,10 +30,10 @@ export default async function DespesasPage(props: {
     content = [contentParam];
   }
 
-  const response = await despesaService.getAll(params.condId, {
+  const response = await getAll(params.condId, {
     page,
     limit,
-    columns,
+    columnName: columns,
     content,
   });
 
@@ -48,7 +50,7 @@ export default async function DespesasPage(props: {
         </div>
       </div>
       <DespesasDataTable
-        data={response.data}
+        data={response.items}
         pageCount={response.meta.pageCount}
       />
     </div>

@@ -1,6 +1,6 @@
 import { ModeloContratoInput } from '@/types/modelo-contrato';
 
-const PLACEHOLDER_REGEX = /\{\{\s*([^{}]+?)\s*\}\}/g;
+const PLACEHOLDER_REGEX = /\{\{([^{}]+)\}\}/g;
 
 const normalizeLabel = (value: string) => {
   return (

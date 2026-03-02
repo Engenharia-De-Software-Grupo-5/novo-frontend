@@ -73,7 +73,7 @@ import { secureRandom } from '@/lib/secure-random';
  *                 meta:
  *                   type: object
  *                   properties:
- *                     total:
+ *                     totalItems:
  *                       type: integer
  *                     page:
  *                       type: integer
@@ -99,7 +99,7 @@ export async function GET(
   let sortField = sortParam;
   let sortOrder = searchParams.get('order') || 'asc';
 
-  if (sortParam && sortParam.includes('.')) {
+  if (sortParam?.includes('.')) {
     const [field, order] = sortParam.split('.');
     sortField = field;
     sortOrder = order;
@@ -136,7 +136,11 @@ export async function GET(
         const fieldValue = p[col as keyof typeof p];
         if (fieldValue === undefined) return false;
         return values.some(
-          (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
+          (v) =>
+            (typeof fieldValue === 'object'
+              ? JSON.stringify(fieldValue)
+              : String(fieldValue)
+            ).toLowerCase() === v.toLowerCase()
         );
       });
     }
@@ -168,9 +172,9 @@ export async function GET(
   const paginatedPayments = sortedPayments.slice(startIndex, endIndex);
 
   return NextResponse.json({
-    data: paginatedPayments,
+    items: paginatedPayments,
     meta: {
-      total: totalItems,
+      totalItems: totalItems,
       page: safePage,
       limit,
       totalPages,
@@ -297,7 +301,7 @@ export async function POST(
   paymentsDb.unshift(newPayment); // Add to beginning of list
 
   return NextResponse.json(
-    { message: 'Payment created successfully', data: newPayment },
+    { message: 'Payment created successfully', items: newPayment },
     { status: 201 }
   );
 }

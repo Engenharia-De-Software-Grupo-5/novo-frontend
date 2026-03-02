@@ -15,7 +15,7 @@ import { Download, FileText } from 'lucide-react';
 import { DespesaDetail } from '@/types/despesa';
 
 import { DESPESA_TIPOS, FORMA_PAGAMENTO } from '../constants';
-import { despesaService } from '../services/despesaService';
+import { getById } from '../services/despesaService';
 
 interface ViewDespesaDialogProps {
   readonly condId: string;
@@ -38,7 +38,7 @@ export function ViewDespesaDialog({
       const fetchDespesa = async () => {
         setLoading(true);
         try {
-          const data = await despesaService.getById(condId, despesaId);
+          const data = await getById(condId, despesaId);
           setDespesa(data);
         } catch (error) {
           console.error('Erro ao buscar detalhes da despesa:', error);
@@ -152,7 +152,7 @@ export function ViewDespesaDialog({
                         <span className="truncate text-sm">{anexo.name}</span>
                       </div>
                       <a
-                        href={anexo.url}
+                        href={anexo.link}
                         target="_blank"
                         rel="noreferrer"
                         className="text-primary hover:bg-primary/10 rounded-md p-2 transition-colors"

@@ -9,7 +9,9 @@ export const metadata: Metadata = {
 
 interface ModelosContratoPageProps {
   readonly params: Promise<{ condId: string }>;
-  readonly searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly searchParams: Promise<{
+    [key: string]: string | string[] | undefined;
+  }>;
 }
 
 export default async function ModelosContratoPage({
@@ -34,7 +36,7 @@ export default async function ModelosContratoPage({
     contentArr = Array.isArray(rawContent) ? rawContent : [rawContent];
   }
 
-  const { data: models, meta } = await getModelosContrato(condId, {
+  const { items: models, meta } = await getModelosContrato(condId, {
     page,
     limit,
     columns: columnsArr.length > 0 ? columnsArr : undefined,

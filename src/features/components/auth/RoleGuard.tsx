@@ -3,33 +3,48 @@
 import { ReactNode, useState } from 'react';
 import { useSession } from 'next-auth/react';
 
-import { Role } from '@/types/user';
-
 interface RoleGuardProps {
-  readonly roles: Role[]; // Lista de roles permitidas listadas no types/user.ts
+  readonly roles: string[]; // Lista de roles permitidas (Ex: ['Admin', 'Financeiro'])
   readonly children: ReactNode;
   readonly fallback?: ReactNode; // O que renderizar caso o usuário não tenha permissão (ex: null, ou um trecho <p>Não autorizado</p>)
+  readonly condId?: string; // ID do condomínio para buscar permissão extra-sessão
 }
 
 export function RoleGuard({
   roles,
   children,
   fallback = null,
+  condId,
 }: RoleGuardProps) {
   const { data: session, status } = useSession();
   // Lazy initializer: returns true immediately on the client, false during SSR.
   // Avoids the useEffect + setState pattern that causes cascading renders.
-  const [mounted] = useState(() => typeof window !== 'undefined');
+  const [mounted] = useState(() => typeof globalThis !== 'undefined');
 
   // Garante árvore estável entre SSR e hidratação inicial no cliente.
   if (!mounted || status === 'loading') {
     return <>{fallback}</>;
   }
 
-  const userRole = session?.user?.role as Role | undefined;
+  const isAdminMaster = session?.user?.isAdminMaster;
+  let userRole = session?.user?.currentRole;
 
-  // Se o usuário não tiver uma role, ou se a role dele não estiver na lista de roles permitidas
-  if (!userRole || !roles.includes(userRole)) {
+  if (condId && session?.permission) {
+    userRole = session.permission.at(
+      session.condominium.findIndex((c) => c.id === condId)
+    )?.name;
+  }
+
+  // 1. Admin Master sempre tem acesso livre a tudo
+  if (isAdminMaster) {
+    return <>{children}</>;
+  }
+
+  // 2. Se não for master, checa se tem role atual setada e se está na lista
+  if (
+    !userRole ||
+    !roles.find((role) => role.toLowerCase() === userRole.toLowerCase())
+  ) {
     return <>{fallback}</>;
   }
 

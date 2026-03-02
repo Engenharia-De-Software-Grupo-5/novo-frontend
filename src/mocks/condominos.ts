@@ -1,9 +1,9 @@
 import { CondominoFull } from '@/types/condomino';
 
-export const condominos: CondominoFull[] = [
+export const mockCondominos: CondominoFull[] = [
   {
     id: '1',
-    condominiumId: '1',
+    condominiumId: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
 
     name: 'João Silva',
     birthDate: '1990-05-10',
@@ -53,21 +53,21 @@ export const condominos: CondominoFull[] = [
         name: 'joao-rg.pdf',
         type: 'application/pdf',
         size: 245000,
-        url: '/mock-files/joao-rg.pdf',
+        link: '/mock-files/joao-rg.pdf',
       },
       cpf: {
         id: 'file-cpf-1',
         name: 'joao-cpf.pdf',
         type: 'application/pdf',
         size: 180000,
-        url: '/mock-files/joao-cpf.pdf',
+        link: '/mock-files/joao-cpf.pdf',
       },
       incomeProof: {
         id: 'file-income-1',
         name: 'joao-income-proof.pdf',
         type: 'application/pdf',
         size: 320000,
-        url: '/mock-files/joao-income-proof.pdf',
+        link: '/mock-files/joao-income-proof.pdf',
       },
     },
 
@@ -76,7 +76,7 @@ export const condominos: CondominoFull[] = [
 
   {
     id: '2',
-    condominiumId: '1',
+    condominiumId: 'ad90f125-1462-4b24-8cbf-caaee6d76651',
 
     name: 'Ana Costa',
     birthDate: '1985-09-22',
@@ -129,21 +129,21 @@ export const condominos: CondominoFull[] = [
         name: 'joao-rg.pdf',
         type: 'application/pdf',
         size: 245000,
-        url: '/mock-files/joao-rg.pdf',
+        link: '/mock-files/joao-rg.pdf',
       },
       cpf: {
         id: 'file-cpf-1',
         name: 'joao-cpf.pdf',
         type: 'application/pdf',
         size: 180000,
-        url: '/mock-files/joao-cpf.pdf',
+        link: '/mock-files/joao-cpf.pdf',
       },
       incomeProof: {
         id: 'file-income-1',
         name: 'joao-income-proof.pdf',
         type: 'application/pdf',
         size: 320000,
-        url: '/mock-files/joao-income-proof.pdf',
+        link: '/mock-files/joao-income-proof.pdf',
       },
     },
     status: 'pendente',

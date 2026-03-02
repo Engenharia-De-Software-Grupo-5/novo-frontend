@@ -6,6 +6,7 @@ import { User } from '@/types/user';
 
 import { mockCobrancaDetails, mockCobrancaTenants } from './cobrancas';
 import { mockCondominiums } from './condominiums';
+import { mockCondominos } from './condominos';
 import { mockContractDetails } from './contratos';
 import { mockDespesas } from './despesas';
 import { mockEmployeeDetails } from './employees';
@@ -13,6 +14,7 @@ import { mockImoveis } from './imoveis';
 import { mockContractModelDetails } from './modelos-contrato';
 import { mockPaymentDetails } from './payments';
 import { users } from './users';
+import { CondominoFull } from '@/types/condomino';
 
 // "Database" in memory.
 // This allows persistence while the server is running.
@@ -25,6 +27,7 @@ export const contractModelsDb = [...mockContractModelDetails];
 export const despesasDb = [...mockDespesas];
 export const cobrancasDb = [...mockCobrancaDetails];
 export const cobrancaTenantsDb = [...mockCobrancaTenants];
+export const condominosDb = [...mockCondominos];
 
 export const imoveisDb = [...mockImoveis];
 
@@ -195,6 +198,8 @@ function buildCobrancasByCondominium() {
   return { byCondo, tenantsByCondo };
 }
 
+
+
 export const despesasDbByCondominium = buildDespesasByCondominium();
 export const usersDbByCondominium = buildUsersByCondominium();
 const cobrancasByCondominium = buildCobrancasByCondominium();
@@ -242,4 +247,25 @@ export function getCobrancaTenantsDb(condId: string): CobrancaTenant[] {
     cobrancaTenantsDbByCondominium[condId] = [];
   }
   return cobrancaTenantsDbByCondominium[condId];
+}
+
+function buildCondominosByCondominium() {
+  const byCondo: Record<string, CondominoFull[]> = {};
+
+  condominiumIds.forEach((condId) => {
+    byCondo[condId] = mockCondominos
+      .filter((c) => c.condominiumId === condId)
+      .map((c) => ({ ...c, id: `${condId}-${c.id}` }));
+  });
+
+  return byCondo;
+}
+
+export const condominosDbByCondominium = buildCondominosByCondominium();
+
+export function getCondominosDb(condId: string): CondominoFull[] {
+  if (!condominosDbByCondominium[condId]) {
+    condominosDbByCondominium[condId] = [];
+  }
+  return condominosDbByCondominium[condId];
 }

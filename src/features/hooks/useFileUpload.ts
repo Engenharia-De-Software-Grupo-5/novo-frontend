@@ -5,11 +5,12 @@ import { FileAttachment } from '@/types/file';
 
 interface UseFileUploadOptions {
   accept?: string;
+  acceptLabel?: string;
   existingFiles?: FileAttachment[];
 }
 
 export function useFileUpload(options: UseFileUploadOptions = {}) {
-  const { accept = 'application/pdf', existingFiles = [] } = options;
+  const { accept, acceptLabel, existingFiles = [] } = options;
 
   const [files, setFiles] = useState<File[]>([]);
   const [existingAttachments, setExistingAttachments] =
@@ -19,10 +20,28 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files.length > 0) {
         const newFiles = Array.from(e.target.files);
-        const invalidFiles = newFiles.filter((file) => file.type !== accept);
+
+        let invalidFiles: File[] = [];
+        if (accept) {
+          const acceptedTypes = accept.split(',').map((t) => t.trim());
+          invalidFiles = newFiles.filter((file) => {
+            return !acceptedTypes.some((type) => {
+              if (type.endsWith('/*')) {
+                return file.type.startsWith(type.replace('/*', '/'));
+              }
+              if (type.startsWith('.')) {
+                return file.name.toLowerCase().endsWith(type.toLowerCase());
+              }
+              return file.type === type;
+            });
+          });
+        }
 
         if (invalidFiles.length > 0) {
-          toast.error('Apenas arquivos PDF são permitidos.');
+          const message = acceptLabel
+            ? `Formato de arquivo inválido. Tipos suportados: ${acceptLabel}.`
+            : 'Alguns arquivos possuem um formato inválido.';
+          toast.error(message);
           e.target.value = '';
           return;
         }
@@ -31,7 +50,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         e.target.value = '';
       }
     },
-    [accept]
+    [accept, acceptLabel]
   );
 
   const removeFile = useCallback((indexToRemove: number) => {

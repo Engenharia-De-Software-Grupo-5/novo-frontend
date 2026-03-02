@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { condominos } from '@/mocks/condominos';
 
+import { NextRequest, NextResponse } from 'next/server';
+import { getCondominosDb } from '@/mocks/in-memory-db';
 import { CondominoFull, CondominoSummary } from '@/types/condomino';
 import { FileAttachment } from '@/types/file';
 import { secureRandom } from '@/lib/secure-random';
+
 
 /**
  * @swagger
@@ -45,7 +46,7 @@ import { secureRandom } from '@/lib/secure-random';
  *                 meta:
  *                   type: object
  *                   properties:
- *                     total:
+ *                     totalItems:
  *                       type: integer
  *                     page:
  *                       type: integer
@@ -54,8 +55,6 @@ import { secureRandom } from '@/lib/secure-random';
  *                     totalPages:
  *                       type: integer
  */
-
-type Condomino = (typeof condominos)[number];
 
 function buildFilterMap(
   columnsArr: string[],
@@ -77,9 +76,9 @@ function buildFilterMap(
 }
 
 function applyFilters(
-  list: Condomino[],
+  list: CondominoSummary[],
   filterMap: Map<string, string[]>
-): Condomino[] {
+): CondominoSummary[] {
   let filtered = list;
 
   for (const [col, values] of filterMap.entries()) {
@@ -87,14 +86,18 @@ function applyFilters(
 
     if (col === 'name' || col === 'cpf') {
       filtered = filtered.filter((c) =>
-        (c[col] as string).toLowerCase().includes(searchLower)
+        c[col].toLowerCase().includes(searchLower)
       );
     } else {
       filtered = filtered.filter((c) => {
         const fieldValue = c[col as keyof typeof c];
         if (fieldValue === undefined) return false;
         return values.some(
-          (v) => String(fieldValue).toLowerCase() === v.toLowerCase()
+          (v) =>
+            (typeof fieldValue === 'object'
+              ? JSON.stringify(fieldValue)
+              : String(fieldValue)
+            ).toLowerCase() === v.toLowerCase()
         );
       });
     }
@@ -104,10 +107,10 @@ function applyFilters(
 }
 
 function sortCondominos(
-  list: Condomino[],
+  list: CondominoSummary[],
   sortField: string | null,
   sortOrder: string
-): Condomino[] {
+): CondominoSummary[] {
   if (!sortField) return list;
 
   return [...list].sort((a, b) => {
@@ -154,7 +157,7 @@ export async function GET(
     searchParams.getAll('content')
   );
 
-  const byCondominium = condominos.filter((c) => c.condominiumId === condId);
+  const byCondominium = getCondominosDb(condId);
   const filtered = applyFilters(byCondominium, filterMap);
   const sorted = sortCondominos(filtered, sortField, sortOrder);
 
@@ -170,9 +173,9 @@ export async function GET(
   const paginated = mapped.slice(start, start + limit);
 
   return NextResponse.json({
-    data: paginated,
+    items: paginated,
     meta: {
-      total: filtered.length,
+      totalItems: filtered.length,
       page,
       limit,
       totalPages: Math.ceil(filtered.length / limit),
@@ -268,6 +271,7 @@ async function parseCondominoBody(
   request: NextRequest
 ): Promise<{ body: Partial<CondominoFull>; uploadedFiles: FileAttachment[] }> {
   const contentType = request.headers.get('content-type') ?? '';
+ 
 
   if (!contentType.includes('multipart/form-data')) {
     const body = (await request.json()) as Partial<CondominoFull>;
@@ -284,7 +288,7 @@ async function parseCondominoBody(
     .getAll('files')
     .filter((f): f is File => f instanceof File)
     .map((file) => ({
-      id: `file-${Math.random().toString(36).slice(2, 11)}`,
+      id: `file-${secureRandom(9)}`,
       name: file.name,
       type: file.type,
       size: file.size,
@@ -296,8 +300,11 @@ async function parseCondominoBody(
   return { body, uploadedFiles };
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ condId: string }>}) {
   const { body, uploadedFiles } = await parseCondominoBody(request);
+
+  const { condId } = await params;
+  const condominosDB = getCondominosDb(condId)
 
   const documents = {
     rg: uploadedFiles[0],
@@ -312,10 +319,8 @@ export async function POST(request: NextRequest) {
     documents,
   } as CondominoFull;
 
-  condominos.push(newCondomino);
-
-  console.log('CONDOMINOS NOVO', condominos);
-
+  condominosDB.push(newCondomino)
+  
   return NextResponse.json(
     { message: 'Condomino created successfully', data: newCondomino },
     { status: 201 }

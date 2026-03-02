@@ -60,6 +60,7 @@ export default function CondominiosPage() {
   const fetchCondominiums = React.useCallback(async () => {
     try {
       const data = await getCondominios();
+      console.log('DADOS DE CONDOMINIO', data);
       setCondominiums(data);
     } catch (error) {
       console.error('Failed to fetch condominiums', error);
@@ -136,7 +137,7 @@ export default function CondominiosPage() {
   };
 
   const handleSwitch = (id: string) => {
-    router.push(`/condominios/${id}/usuarios`);
+    router.push(`/condominios/${id}/dashboard`);
   };
 
   return (
@@ -151,26 +152,29 @@ export default function CondominiosPage() {
             Condomínios
           </CardTitle>
           <CardDescription>
-            Selecione um condomínio para acessar ou crie um novo.
+            {'Selecione um condomínio para acessar'}
+            <RoleGuard roles={[]}>{' ou crie um novo'}</RoleGuard>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col gap-2">
             {condominiums.map((condo) => (
-              <button
+              <div
                 key={condo.id}
-                type="button"
-                onClick={() => handleSwitch(condo.id)}
-                className="group hover:bg-accent flex w-full cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors"
+                className="group hover:bg-accent flex w-full items-center justify-between rounded-lg border transition-colors"
               >
-                <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleSwitch(condo.id)}
+                  className="ring-ring flex flex-1 cursor-pointer items-center gap-3 rounded-lg p-3 text-left outline-none focus-visible:ring-2"
+                >
                   <div className="bg-primary text-primary-foreground border-primary/20 flex size-10 items-center justify-center rounded-md border font-bold shadow-sm">
                     {getInitials(condo.name)}
                   </div>
                   <span className="text-sm font-medium">{condo.name}</span>
-                </div>
+                </button>
 
-                <RoleGuard roles={['Admin']}>
+                <RoleGuard roles={['Admin']} condId={condo.id}>
                   <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     <Button
                       variant="ghost"
@@ -193,7 +197,7 @@ export default function CondominiosPage() {
                     </Button>
                   </div>
                 </RoleGuard>
-              </button>
+              </div>
             ))}
 
             {condominiums.length === 0 && (
@@ -202,15 +206,16 @@ export default function CondominiosPage() {
               </div>
             )}
           </div>
-
-          <Button
-            variant="outline"
-            className="mt-2 w-full gap-2 border-dashed"
-            onClick={() => handleOpenDialog()}
-          >
-            <Plus className="size-4" />
-            Adicionar Condomínio
-          </Button>
+          <RoleGuard roles={[]}>
+            <Button
+              variant="outline"
+              className="mt-2 w-full gap-2 border-dashed"
+              onClick={() => handleOpenDialog()}
+            >
+              <Plus className="size-4" />
+              Adicionar Condomínio
+            </Button>
+          </RoleGuard>
         </CardContent>
       </Card>
 
@@ -263,11 +268,11 @@ export default function CondominiosPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir condomínio</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir o condomínio{' '}
+              {'Tem certeza que deseja excluir o condomínio'}
               <span className="text-foreground font-semibold">
                 {deletingCondo?.name}
               </span>
-              ? Esta ação não pode ser desfeita.
+              {'? Esta ação não pode ser desfeita.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

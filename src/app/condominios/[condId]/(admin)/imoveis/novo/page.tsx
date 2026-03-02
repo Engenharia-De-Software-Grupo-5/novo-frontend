@@ -9,7 +9,7 @@ import { postImovel } from '@/features/imoveis/services/imovelService';
 import { ArrowLeft, Building2, MapPin, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { ImovelSituacao } from '@/types/imoveis';
+import { ImovelSituacao, ImovelTipo } from '@/types/imoveis';
 
 interface ImovelFormState {
   nome: string;

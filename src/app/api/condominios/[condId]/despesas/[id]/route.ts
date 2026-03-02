@@ -36,9 +36,22 @@ export async function PUT(
 
   if (contentType.includes('multipart/form-data')) {
     const formData = await request.formData();
-    data = JSON.parse(
-      (formData.get('data') as string) || '{}'
-    ) as Partial<DespesaDetail>;
+
+    const parsedData: Record<string, unknown> = {};
+    formData.forEach((value, key) => {
+      if (key !== 'anexos' && key !== 'existingFileIds') {
+        if (typeof value === 'string') {
+          try {
+            parsedData[key] = JSON.parse(value);
+          } catch {
+            parsedData[key] = value;
+          }
+        } else {
+          parsedData[key] = value;
+        }
+      }
+    });
+    data = parsedData as unknown as Partial<DespesaDetail>;
 
     const existingFileIdsStr = formData.get('existingFileIds');
     if (existingFileIdsStr) {

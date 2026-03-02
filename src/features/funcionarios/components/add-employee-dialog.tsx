@@ -79,7 +79,9 @@ export function EmployeeDialog({
     removeExistingAttachment,
     resetFiles,
     setInitialAttachments,
-  } = useFileUpload();
+  } = useFileUpload({
+    accept: 'application/pdf',
+  });
 
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeFormSchema),
@@ -376,7 +378,7 @@ export function EmployeeDialog({
                   {/* Newly uploaded files */}
                   {files.map((file, index) => (
                     <div
-                      key={`new-${index}`}
+                      key={`${file.name}-${index}`}
                       className="flex items-center justify-between rounded-md border bg-gray-50 p-2 text-sm"
                     >
                       <div className="flex items-center gap-2">

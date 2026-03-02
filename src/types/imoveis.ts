@@ -1,10 +1,8 @@
+import { FileAttachment } from '@/types/file';
+
 export type ImovelTipo = 'casa' | 'apartamento';
 
-export type ImovelSituacao =
-  | 'ativo'
-  | 'inativo'
-  | 'manutenção'
-  | 'na planta';
+export type ImovelSituacao = 'ativo' | 'inativo' | 'manutenção' | 'na planta';
 
 export interface Endereco {
   rua: string;
@@ -31,6 +29,8 @@ export interface ImovelDetail {
   situacao: ImovelSituacao;
   endereco: Endereco;
   locatario: Locatario | null;
+  vistorias?: FileAttachment[];
+  documentos?: FileAttachment[];
 }
 
 export interface ImovelSummary {
@@ -44,9 +44,9 @@ export interface ImovelSummary {
 }
 
 export interface ImovelResponse {
-  data: ImovelSummary[];
+  items: ImovelSummary[];
   meta: {
-    total: number;
+    totalItems: number;
     page: number;
     limit: number;
     totalPages: number;

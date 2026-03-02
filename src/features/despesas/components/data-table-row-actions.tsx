@@ -24,10 +24,10 @@ import { Row } from '@tanstack/react-table';
 import { Eye, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { DespesaSummary } from '@/types/despesa';
+import { DespesaDetail, DespesaSummary } from '@/types/despesa';
 
-import { despesaService } from '../services/despesaService';
-import { EditDespesaDialog } from './edit-despesa-dialog';
+import { deleteDespesa, getById } from '../services/despesaService';
+import { DespesaDialog } from './add-despesa-dialog';
 import { ViewDespesaDialog } from './view-despesa-dialog';
 
 interface DataTableRowActionsProps {
@@ -43,10 +43,24 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   const [showViewDialog, setShowViewDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [despesaDetail, setDespesaDetail] = useState<DespesaDetail | null>(
+    null
+  );
+
+  async function handleEdit() {
+    try {
+      const detail = await getById(condId, despesa.id);
+      setDespesaDetail(detail);
+      setShowEditDialog(true);
+    } catch (error) {
+      console.error('Error fetching despesa details:', error);
+      toast.error('Erro ao carregar dados da despesa.');
+    }
+  }
 
   const confirmDelete = async () => {
     try {
-      await despesaService.delete(condId, despesa.id);
+      await deleteDespesa(condId, despesa.id);
       toast.success('Despesa excluída com sucesso!');
       router.refresh();
     } catch {
@@ -77,10 +91,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
             Visualizar
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            onClick={() => setShowEditDialog(true)}
-            className="cursor-pointer"
-          >
+          <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
             <Pencil className="mr-2 h-4 w-4" />
             Editar
           </DropdownMenuItem>
@@ -104,25 +115,30 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         onOpenChange={setShowViewDialog}
       />
 
-      <EditDespesaDialog
-        condId={condId}
-        despesaId={despesa.id}
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-      />
+      {despesaDetail && showEditDialog && (
+        <DespesaDialog
+          despesa={despesaDetail}
+          open={showEditDialog}
+          onOpenChange={(value) => {
+            setShowEditDialog(value);
+            if (!value) setDespesaDetail(null);
+          }}
+        />
+      )}
 
       <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso excluirá permanentemente a
-              despesa
+              {
+                'Esta ação não pode ser desfeita. Isso excluirá permanentemente a despesa'
+              }
               <span className="text-foreground font-semibold">
                 {' '}
                 {despesa.nome}{' '}
               </span>
-              dos registros do condomínio.
+              {'dos registros do condomínio.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

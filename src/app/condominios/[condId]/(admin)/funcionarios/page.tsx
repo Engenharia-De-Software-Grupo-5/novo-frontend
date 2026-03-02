@@ -11,7 +11,9 @@ interface FuncionariosPageProps {
   readonly params: Promise<{
     condId: string;
   }>;
-  readonly searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  readonly searchParams: Promise<{
+    [key: string]: string | string[] | undefined;
+  }>;
 }
 
 export default async function FuncionariosPage({
@@ -38,7 +40,7 @@ export default async function FuncionariosPage({
     contentArr = Array.isArray(rawContent) ? rawContent : [rawContent];
   }
 
-  const { data: funcionarios, meta } = await getFuncionarios(condId, {
+  const { items: funcionarios, meta } = await getFuncionarios(condId, {
     page,
     limit,
     columns: columnsArr.length > 0 ? columnsArr : undefined,

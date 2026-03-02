@@ -48,9 +48,9 @@ async function parsePaymentBody(
     : undefined;
 
   const keptProofs =
-    existingFileIds !== undefined
-      ? currentProofs.filter((c) => existingFileIds.includes(c.id))
-      : undefined;
+    existingFileIds === undefined
+      ? undefined
+      : currentProofs.filter((c) => existingFileIds.includes(c.id));
 
   const uploadedProofs = formData
     .getAll('newFiles')

@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   typescript: {
@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
   },
   images: {
     unoptimized: true,
+  },
+  serverActions: {
+    bodySizeLimit: '100mb',
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '100mb',
+    },
   },
 };
 

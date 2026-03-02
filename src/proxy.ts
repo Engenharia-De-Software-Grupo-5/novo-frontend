@@ -2,23 +2,22 @@ import { NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
 
-import { Role } from './types/user';
-
-interface routerMap {
+interface RouterMap {
   match: (path: string) => boolean;
-  allowedRoles: Role[];
+  allowedRoles: string[];
 }
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
-  console.log('req.auth = ', req.auth);
-  console.log('isLoggedIn = ', isLoggedIn);
+  console.log('pathname', pathname);
+  // console.log('req.auth = ', req.auth);
+  // console.log('isLoggedIn = ', isLoggedIn);
 
-  // Rotas públicas — passa direto
+  // Rotas públicas — passa diretoa
   const isPublicRoute =
     pathname.startsWith('/auth') ||
-    pathname.match(/^\/condominios\/[^\/]+\/form$/);
+    /^\/condominios\/[^/]+\/form$/.exec(pathname);
   if (isPublicRoute) return NextResponse.next();
 
   // Não autenticado — redireciona para login
@@ -27,11 +26,11 @@ export default auth((req) => {
   }
 
   // Autorização por role e status (Rotas Privadas)
-  const userRole = req.auth?.user.role as Role;
   const userStatus = req.auth?.user.status as string;
+  const isAdminMaster = req.auth?.user?.isAdminMaster as boolean | undefined;
 
-  if (!userRole || !userStatus) {
-    // Se não tem role ou status, redireciona ou nega o acesso
+  if (!userStatus) {
+    // Se não tem status, redireciona ou nega o acesso
     return Response.redirect(new URL('/auth/login', req.url));
   }
 
@@ -42,11 +41,31 @@ export default auth((req) => {
     return NextResponse.redirect(redirectUrl);
   }
 
+  // Se for Admin Master, dá bypass em todas as rotas
+  if (isAdminMaster) {
+    return NextResponse.next();
+  }
+
+  // Tenta extrair o condId (ID do condomínio) da URL atual
+  const matchCondId = pathname.match(/^\/condominios\/([^\/]+)/);
+  const condId = matchCondId ? matchCondId[1] : undefined;
+
+  // Encontra a permissão (Role) do usuário no condomínio em questão baseado no Token
+  const permissions = req.auth?.permission || [];
+  const condominiums = req.auth?.condominium || [];
+  const currentRoleMatch = permissions.at(
+    condominiums.findIndex((c) => c.id === condId)
+  );
+
+  const userRole = currentRoleMatch?.name ?? 'Admin';
+
   // Definição das regras de acesso baseadas na rota
-  const routeAccessMap: routerMap[] = [
+  const routeAccessMap: RouterMap[] = [
     {
       match: (path: string) =>
-        path.includes('/pagamentos') || path.includes('/financeiro') || path.includes('/cobrancas'),
+        path.includes('/pagamentos') ||
+        path.includes('/financeiro') ||
+        path.includes('/cobrancas'),
       allowedRoles: ['Financeiro', 'Admin'],
     },
     {
@@ -54,21 +73,23 @@ export default auth((req) => {
       allowedRoles: ['RH', 'Admin'],
     },
     {
-      match: (path: string) => path.startsWith('/admin'),
+      match: (path: string) => path.includes('/usuarios'),
       allowedRoles: ['Admin'],
     },
   ];
-
   for (const route of routeAccessMap) {
     if (route.match(pathname)) {
-      if (!route.allowedRoles.includes(userRole)) {
-        // Tenta extrair o condId (ID do condomínio) da URL atual
-        const matchCondId = pathname.match(/^\/condominios\/([^\/]+)/);
-        const condId = matchCondId ? matchCondId[1] : '0'; // Se não tiver, cai no 0 (padrão)
-
+      if (
+        !userRole ||
+        !route.allowedRoles.find(
+          (role) => role.toLowerCase() === userRole.toLowerCase()
+        )
+      ) {
         // Redireciona para o condomínio atual se não tiver permissão
+        const fallbackCondId = condId || '0';
+        console.error(`BLOQUEADO ${userRole} ${condId}`);
         return NextResponse.redirect(
-          new URL(`/condominios/${condId}`, req.url)
+          new URL(`/condominios/${fallbackCondId}`, req.url)
         );
       }
     }
@@ -79,5 +100,5 @@ export default auth((req) => {
 
 export const config = {
   // Define quais rotas o middleware intercepta
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)'],
 };

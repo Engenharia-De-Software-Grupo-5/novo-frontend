@@ -205,11 +205,11 @@ export function DataTableRowActions({ employee }: DataTableRowActionsProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir funcionário</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir o funcionário{' '}
+              {'Tem certeza que deseja excluir o funcionário '}
               <span className="text-foreground font-semibold">
                 {employee.name}
               </span>
-              ? Esta ação não pode ser desfeita.
+              {'? Esta ação não pode ser desfeita.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -238,12 +238,12 @@ export function DataTableRowActions({ employee }: DataTableRowActionsProps) {
               {isInactive ? 'Ativar' : 'Desativar'} funcionário
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja{' '}
+              {'Tem certeza que deseja '}
               {isInactive ? 'deixar ativo' : 'deixar inativo'} o funcionário{' '}
               <span className="text-foreground font-semibold">
                 {employee.name}
               </span>
-              ?
+              {'?'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

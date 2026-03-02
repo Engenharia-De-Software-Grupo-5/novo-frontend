@@ -29,6 +29,8 @@ import {
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar, FacetedFilterConfig } from './data-table-toolbar';
 
+type PrimitiveValue = string | number | boolean;
+
 /**
  * Maps a column filter in the table.
  * The URL will use `columns` and `content` arrays.
@@ -130,6 +132,12 @@ export function DataTable<TData, TValue>({
     () => parseFiltersFromURL()
   );
 
+  // Helper to convert a value to a URL string param
+  const toStrParam = (value: unknown): string =>
+    typeof value === 'object' && value !== null
+      ? JSON.stringify(value)
+      : String(value as PrimitiveValue);
+
   // Sync Table State -> URL
   React.useEffect(() => {
     const newSearchParams = new URLSearchParams(searchParams?.toString());
@@ -138,7 +146,7 @@ export function DataTable<TData, TValue>({
     const updateParam = (key: string, value: unknown) => {
       newSearchParams.delete(key);
       if (value) {
-        newSearchParams.set(key, String(value));
+        newSearchParams.set(key, toStrParam(value));
       }
     };
 
@@ -162,13 +170,13 @@ export function DataTable<TData, TValue>({
       )?.value;
       if (filterValue) {
         if (Array.isArray(filterValue)) {
-          filterValue.forEach((v: string) => {
+          filterValue.forEach((v: unknown) => {
             newSearchParams.append('columns', mapping.columnId);
-            newSearchParams.append('content', String(v));
+            newSearchParams.append('content', toStrParam(v));
           });
         } else {
           newSearchParams.append('columns', mapping.columnId);
-          newSearchParams.append('content', String(filterValue));
+          newSearchParams.append('content', toStrParam(filterValue));
         }
       }
     }

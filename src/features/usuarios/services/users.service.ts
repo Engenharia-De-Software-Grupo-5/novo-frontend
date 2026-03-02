@@ -1,7 +1,54 @@
-import { UsersResponse } from '@/types/user';
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
+import {
+  Role,
+  Status,
+  User,
+  UserAPI,
+  UserAPIAccess,
+  UserAPIResponse,
+  UsersResponse,
+} from '@/types/user';
 import { apiRequest, buildQueryString } from '@/lib/api-client';
 
-import { UpdateUserPayload } from './users';
+const baseUrl = '/api/v1';
+const isReal = true;
+
+// DTO de mapeamento de status
+const statusToApi: Record<string, 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'> = {
+  ativo: 'ACTIVE',
+  inativo: 'INACTIVE',
+  pendente: 'SUSPENDED',
+};
+
+const statusFromApi: Record<string, string> = {
+  ACTIVE: 'ativo',
+  INACTIVE: 'inativo',
+  SUSPENDED: 'pendente',
+};
+
+function mapStatusToApi(status: string): 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' {
+  const mapped = statusToApi[status.toLowerCase()];
+  if (!mapped) throw new Error(`Status inválido: ${status}`);
+  return mapped;
+}
+
+function mapUserFromApi(user: UserAPI, condId: string): User {
+  const access = user.accesses?.find(
+    (a: UserAPIAccess) => a.condominium.id === condId
+  );
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    inviteDate: user.inviteDate,
+    role: access?.permission?.name as Role,
+    status: statusFromApi[access?.status ?? ''] as Status,
+  };
+}
 
 export const getUsers = async (
   condId: string,
@@ -21,25 +68,38 @@ export const getUsers = async (
         sort: params?.sort,
       };
 
-    if (params?.columns && params?.content && params.columns.length > 0) {
-      queryParams.columns = params.columns;
-      queryParams.content = params.content;
+    const mappedContent = params?.content?.map((value, index) => {
+      const column = params?.columns?.[index];
+      if (column === 'status') return mapStatusToApi(value);
+      return value;
+    });
+
+    if (params?.columns && mappedContent && params.columns.length > 0) {
+      queryParams.columnName = params.columns;
+      queryParams.content = mappedContent;
     }
 
-    console.log(queryParams);
     const query = buildQueryString(queryParams);
 
-    return await apiRequest<UsersResponse>(
-      `/api/condominios/${condId}/usuarios${query}`,
-      {
-        method: 'GET',
-      }
+    const response = await apiRequest<UserAPIResponse>(
+      `${baseUrl}/condominiums/${condId}/users/paginated${query}`,
+      { method: 'GET' },
+      isReal
     );
+
+    return {
+      ...response,
+      items: response.items
+        .filter((user) =>
+          user.accesses.some((a) => a.condominium.id === condId)
+        )
+        .map((user) => mapUserFromApi(user, condId)),
+    };
   } catch (error) {
     console.error('Error fetching users:', error);
     return {
-      data: [],
-      meta: { total: 0, page: 1, limit: 10, totalPages: 1 },
+      items: [],
+      meta: { totalItems: 0, page: 1, limit: 10, totalPages: 1 },
     };
   }
 };
@@ -48,41 +108,71 @@ export async function inviteUser(
   condominioId: string,
   data: { name: string; email: string; role: string; message?: string }
 ) {
-  return apiRequest(`/api/condominios/${condominioId}/usuarios`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+  const payload: Record<string, string> = {
+    name: data.name,
+    email: data.email,
+    status: 'SUSPENDED',
+    role: data.role,
+    message: data.message ?? 'NAO EXISTE MENSAGEM!',
+  };
+
+  console.log('PAYLOAD ', payload);
+
+  if (data.message?.trim()) {
+    payload.message = data.message.trim();
+  }
+
+  await apiRequest(
+    `${baseUrl}/condominiums/${condominioId}/users`,
+    { method: 'POST', body: payload },
+    isReal
+  );
+
+  revalidatePath(`/condominios/${condominioId}/usuarios`);
 }
-/**
- * ATUALIZAÇÃO (PUT ou PATCH)
- */
+
 export async function updateUser(
   condominioId: string,
   userId: string,
-  data: UpdateUserPayload
+  userRole: string,
+  status: Status
 ) {
-  return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
-    method: 'PATCH',
-    body: JSON.stringify(data),
-  });
+  await apiRequest(
+    `${baseUrl}/condominiums/${condominioId}/users/${userId}`,
+    {
+      method: 'PATCH',
+      body: { role: userRole, status: mapStatusToApi(status) },
+    },
+    isReal
+  );
+
+  revalidatePath(`/condominios/${condominioId}/usuarios`);
 }
 
 export async function changeUserStatus(
   condominioId: string,
   userId: string,
-  status: 'ativo' | 'inativo'
+  userRole: string,
+  status: string
 ) {
-  return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
-    method: 'PATCH',
-    body: JSON.stringify({ status }),
-  });
+  const response = await apiRequest(
+    `${baseUrl}/condominiums/${condominioId}/users/${userId}`,
+    {
+      method: 'PATCH',
+      body: { role: userRole, status: mapStatusToApi(status) },
+    },
+    isReal
+  );
+
+  revalidatePath(`/condominios/${condominioId}/usuarios`);
 }
 
-/**
- * EXCLUSÃO
- */
 export async function deleteUser(condominioId: string, userId: string) {
-  return apiRequest(`/api/condominios/${condominioId}/usuarios/${userId}`, {
-    method: 'DELETE',
-  });
+  await apiRequest(
+    `${baseUrl}/condominiums/${condominioId}/users/${userId}`,
+    { method: 'DELETE' },
+    isReal
+  );
+
+  revalidatePath(`/condominios/${condominioId}/usuarios`);
 }

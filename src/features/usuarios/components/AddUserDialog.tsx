@@ -34,7 +34,7 @@ export function AddUserDialog() {
   const params = useParams();
   const condId = params.condId as string;
 
-  const rolesDisponiveis: Exclude<Role, 'Dono'>[] = ['Financeiro', 'RH'];
+  const rolesDisponiveis: Exclude<Role, ''>[] = ['Financeiro', 'RH'];
 
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -52,7 +52,7 @@ export function AddUserDialog() {
       await inviteUser(condId, {
         name,
         email,
-        role: role.toLowerCase(),
+        role: role,
         message,
       });
 
@@ -121,7 +121,7 @@ export function AddUserDialog() {
           <div className="grid gap-2">
             <Label htmlFor="role">Cargo</Label>
             <Select
-              value={role.toLowerCase()}
+              value={role}
               onValueChange={(v) => setRole(v as Role)}
             >
               <SelectTrigger id="role">
@@ -129,7 +129,7 @@ export function AddUserDialog() {
               </SelectTrigger>
               <SelectContent>
                 {rolesDisponiveis.map((r) => (
-                  <SelectItem key={r} value={r.toLowerCase()}>
+                  <SelectItem key={r} value={r}>
                     {r}
                   </SelectItem>
                 ))}

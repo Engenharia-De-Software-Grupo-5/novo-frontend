@@ -43,7 +43,8 @@ export function DataTableRowActions({ contract }: DataTableRowActionsProps) {
   const params = useParams();
   const condId = params?.condId as string;
 
-  const canDelete = deleteConfirmation.trim().toLowerCase() === 'deletar contrato';
+  const canDelete =
+    deleteConfirmation.trim().toLowerCase() === 'deletar contrato';
 
   async function handleDelete() {
     if (!canDelete) {
@@ -54,7 +55,9 @@ export function DataTableRowActions({ contract }: DataTableRowActionsProps) {
     try {
       setIsDeleting(true);
       await deleteContrato(condId, contract.id);
-      toast.success(`Contrato de "${contract.tenantName}" excluído com sucesso!`);
+      toast.success(
+        `Contrato de "${contract.tenantName}" excluído com sucesso!`
+      );
       router.refresh();
     } catch (error) {
       console.error('Error deleting contract:', error);
@@ -118,7 +121,7 @@ export function DataTableRowActions({ contract }: DataTableRowActionsProps) {
               <span className="text-foreground font-semibold">
                 {contract.tenantName}
               </span>
-              , digite <strong>deletar contrato</strong>.
+              {', digite <strong>deletar contrato</strong>.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -130,7 +133,9 @@ export function DataTableRowActions({ contract }: DataTableRowActionsProps) {
           />
 
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>
+              Cancelar
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting || !canDelete}
